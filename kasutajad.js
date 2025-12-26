@@ -1,4 +1,5 @@
-// kasutajad.js
+import { sb } from "./supabase.js";
+import { kuvaKasutajaNimi, laeRoll, logout } from "./auth.js";
 
 // Väike abifunktsioon: vorminda kuupäev
 function formatDate(ts) {
@@ -6,32 +7,24 @@ function formatDate(ts) {
     return new Date(ts).toLocaleString("et-EE");
 }
 
-// Kontrolli rolli ja lae sisu
 async function initKasutajateLeht() {
-    // Kuvatakse ühtset päist
-    if (typeof kuvaKasutajaNimi === "function") {
-        await kuvaKasutajaNimi();
-    }
+    await kuvaKasutajaNimi();
 
     const accessError = document.getElementById("accessError");
     const sisu = document.getElementById("kasutajateSisu");
 
-    // Hetkel eeldame, et window.userRole on juba määratud kuvaKasutajaNimi() sees.
-    // Kui mitte, siis paneme vaikimisi "vaatleja".
     const roll = window.userRole || "vaatleja";
 
-    // Ainult superadmin näeb seda lehte (super saab niikuinii mujalt ligi, vajadusel lisame hiljem).
+    // Ainult superadmin näeb seda lehte
     if (roll !== "superadmin") {
         accessError.style.display = "block";
         sisu.style.display = "none";
         return;
     }
 
-    // Kui jõudsime siia, on kasutaja superadmin → näita sisu
     accessError.style.display = "none";
     sisu.style.display = "block";
 
-    // Seome nupud ja laadime algandmed
     seoNupud();
     laeKasutajad();
 }
@@ -46,7 +39,6 @@ async function laeKasutajad() {
         .order("email");
 
     if (error) {
-        console.error("Viga kasutajate laadimisel:", error);
         tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Viga kasutajate laadimisel</td></tr>`;
         return;
     }
@@ -65,7 +57,6 @@ async function laeKasutajad() {
             <td>${u.email}</td>
             <td>
                 <select data-id="${u.id}" class="rollSelect">
-                    <option value="super">super</option>
                     <option value="superadmin">superadmin</option>
                     <option value="admin">admin</option>
                     <option value="sisestaja">sisestaja</option>
@@ -80,12 +71,11 @@ async function laeKasutajad() {
 
         tbody.appendChild(tr);
 
-        // Määra selecti väärtus
         const select = tr.querySelector(".rollSelect");
         if (u.roll) select.value = u.roll;
     });
 
-    // Lisa sündmused rolli muutmiseks
+    // Rolli muutmine
     document.querySelectorAll(".rollSelect").forEach(sel => {
         sel.onchange = async () => {
             const id = sel.dataset.id;
@@ -96,16 +86,12 @@ async function laeKasutajad() {
                 .update({ roll: uusRoll })
                 .eq("id", id);
 
-            if (error) {
-                alert("Viga rolli muutmisel: " + error.message);
-                console.error(error);
-            } else {
-                alert("Roll muudetud");
-            }
+            if (error) alert("Viga rolli muutmisel: " + error.message);
+            else alert("Roll muudetud");
         };
     });
 
-    // Lisa sündmused kustutamiseks
+    // Kustutamine
     document.querySelectorAll(".kustutaBtn").forEach(btn => {
         btn.onclick = async () => {
             const id = btn.dataset.id;
@@ -116,12 +102,8 @@ async function laeKasutajad() {
                 .delete()
                 .eq("id", id);
 
-            if (error) {
-                alert("Viga kustutamisel: " + error.message);
-                console.error(error);
-            } else {
-                laeKasutajad();
-            }
+            if (error) alert("Viga kustutamisel: " + error.message);
+            else laeKasutajad();
         };
     });
 }
@@ -146,15 +128,14 @@ function seoNupud() {
             .from("kasutajad")
             .insert({ email, roll });
 
-        if (error) {
-            alert("Viga lisamisel: " + error.message);
-            console.error(error);
-        } else {
+        if (error) alert("Viga lisamisel: " + error.message);
+        else {
             emailEl.value = "";
             laeKasutajad();
         }
     };
 }
 
-// Käivitamine
 window.addEventListener("load", initKasutajateLeht);
+
+
