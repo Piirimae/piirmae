@@ -1,17 +1,19 @@
-// fuajee.js
-// Fuajee loogika, mis kasutab rolli kasutajate tabelist
+import { sb } from "./supabase.js";
+import { kuvaKasutajaNimi, laeRoll, logout } from "./logic.js";
 
 (async () => {
-    const { data } = await sb.auth.getUser();
-    if (!data?.user) {
+    // Kontrollime, kas kasutaja on sisse logitud
+    const { data: userData } = await sb.auth.getUser();
+
+    if (!userData?.user) {
         window.location = "index.html";
         return;
     }
 
-    // Kuvame päises kasutaja nime + rolli ja seame window.userRole
+    // Kuvame kasutaja nime päises
     await kuvaKasutajaNimi();
 
-    const email = data.user.email;
+    const email = userData.user.email;
     const roll = window.userRole || (await laeRoll(email));
 
     const toad = document.getElementById("toad");
@@ -29,7 +31,7 @@
         return;
     }
 
-    // SUPER (kui soovid seda rolli kasutada)
+    // SUPER
     if (roll === "super") {
         toad.innerHTML = `
             <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
@@ -65,6 +67,8 @@
         <div class="room-card" onclick="location='kuuvaated.html'">📄 Kuuvaated</div>
     `;
 })();
+
+
 
 
 
