@@ -16,22 +16,39 @@ import { kuvaKasutajaNimi, laeRoll, logout } from "./auth.js";
     const toad = document.getElementById("toad");
 
     if (roll === "superadmin") {
-        toad.innerHTML = `...`;
+        toad.innerHTML = `
+            <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
+            <div class="room-card" onclick="location='arhiiv.html'">📁 Arhiiv</div>
+            <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
+            <div class="room-card" onclick="location='seaded.html'">🔧 Seaded</div>
+            <div class="room-card" onclick="location='kasutajad.html'">👥 Kasutajate haldus</div>
+        `;
         return;
     }
 
     if (roll === "admin") {
-        toad.innerHTML = `...`;
+        toad.innerHTML = `
+            <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
+            <div class="room-card" onclick="location='arhiiv.html'">📁 Arhiiv</div>
+            <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
+            <div class="room-card" onclick="location='seaded.html'">🔧 Seaded</div>
+        `;
         return;
     }
 
     if (roll === "sisestaja") {
-        toad.innerHTML = `...`;
+        toad.innerHTML = `
+            <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
+        `;
         return;
     }
 
-    toad.innerHTML = `<div class="room-card" onclick="location='kuuvaated.html'">📄 Kuuvaated</div>`;
+    toad.innerHTML = `
+        <div class="room-card" onclick="location='kuuvaated.html'">📄 Kuuvaated</div>
+    `;
 })();
+
+
 
 
 
