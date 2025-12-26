@@ -1,8 +1,12 @@
+import { sb } from "./supabase.js";
+import { kuvaKasutajaNimi, laeRoll, logout } from "./auth.js";
+
 // --- DOM elemendid ---
 const kuuValik = document.getElementById("kuuValik");
 const arhiiviMeta = document.getElementById("arhiiviMeta");
 const arhiiviKuva = document.getElementById("arhiiviKuva");
 const arhiiviNupud = document.getElementById("arhiiviNupud");
+
 console.log("arhiiv.js laaditud");
 
 // --- INIT ---
@@ -12,7 +16,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     await kuvaArhiiv();
 });
 
-// --- Lae kuude loetelu Supabasest ---
+// --- Lae kuude loetelu ---
 async function laeKuuValikud() {
     const { data, error } = await sb
         .from("arhiiv")
@@ -66,7 +70,6 @@ async function kuvaArhiiv() {
     kuvaNupud();
 }
 
-
 // --- Metaandmed ---
 function kuvaMeta(kirje) {
     arhiiviMeta.innerHTML = `
@@ -76,9 +79,7 @@ function kuvaMeta(kirje) {
     `;
 }
 
-
-
-
+// --- Tabel ---
 function kuvaTabel(state) {
     const veerud = Array.isArray(state.veerud) ? state.veerud : [];
     const rows = Array.isArray(state.rows) ? state.rows : [];
@@ -112,7 +113,6 @@ function kuvaTabel(state) {
     `;
 }
 
-
 // --- Nupud ---
 function kuvaNupud() {
     const roll = window.userRole || "vaataja";
@@ -133,7 +133,8 @@ function kuvaNupud() {
 
     arhiiviNupud.innerHTML = html;
 }
-// --- MODAL ELEMENTS ---
+
+// --- MODAL ---
 let parandusModal, parandusKinnita, parandusLoobu;
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -141,23 +142,22 @@ window.addEventListener("DOMContentLoaded", () => {
     parandusKinnita = document.getElementById("parandusKinnita");
     parandusLoobu = document.getElementById("parandusLoobu");
 
-    // MODALI AVAMINE
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("admin") && e.target.textContent.includes("Paranda arhiivi")) {
             parandusModal.style.display = "flex";
         }
     });
 
-    // MODALI SULGEMINE
     parandusLoobu.addEventListener("click", () => {
         parandusModal.style.display = "none";
     });
 
-    // PARANDAMISE KINNITAMINE
     parandusKinnita.addEventListener("click", () => {
         const kuuId = kuuValik.value;
         window.location = `kassatabel.html?paranda=${kuuId}`;
     });
 });
+
+
 
 
