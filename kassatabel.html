@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Kassatabel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <div id="kasutajaNimi"></div>
+    <button onclick="window.location='fuajee.html'" class="btn-small">Tagasi</button>
+    <button id="logoutBtn" class="btn-small">Logi välja</button>
+</header>
+
+<h2>Kassatabel – kuu vaade</h2>
+<div id="vaateReziim" class="vaate-reziim"></div>
+
+<div class="toolbar">
+    <label for="kuuValik"><strong>Kuu:</strong></label>
+    <select id="kuuValik">
+        <option value="2025-12" selected>Detsember 2025</option>
+        
+    </select>
+
+    <button id="lukustaNupp" class="state-locked">Tabel lukus (ava sisestamiseks)</button>
+    <button id="salvestaNupp">Salvesta</button>
+    <button id="arhiiviNupp">Salvesta arhiivi</button>
+    <button id="prindiNupp">Prindi</button>
+    <button id="laeAllaNupp">Lae alla</button>
+</div>
+
+<div id="teade" class="teade"></div>
+
+<table id="kassatabel">
+    <thead id="tabelHead"></thead>
+    <tbody id="tbody"></tbody>
+    <tfoot id="tabelFoot"></tfoot>
+</table>
+
+<div id="arhiiviKuva" class="arhiivi-kast" style="display:none;"></div>
+
+<!-- Skriptid -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="supabase.js"></script>
+<script src="auth.js"></script>
+<script src="seaded.js"></script>
+<script src="logic.js"></script>
+
+
+</body>
+</html>
+
+
+

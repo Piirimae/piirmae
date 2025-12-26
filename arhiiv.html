@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Arhiiv</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+    <div id="kasutajaNimi"></div>
+    <button onclick="window.location='fuajee.html'" class="btn-small">Tagasi</button>
+    <button id="logoutBtn" class="btn-small">Logi välja</button>
+</header>
+
+<h2>Arhiiv</h2>
+
+<div class="card">
+
+    <!-- Kuu valik -->
+    <label for="kuuValik">Vali kuu:</label>
+    <select id="kuuValik"></select>
+
+    <!-- Metaandmed -->
+    <div id="arhiiviMeta" class="meta"></div>
+
+    <!-- Arhiivi tabel -->
+    <div id="arhiiviKuva"></div>
+
+    <!-- Nupud -->
+    <div id="arhiiviNupud" class="arhiivi-nupud"></div>
+
+</div>
+<!-- PARANDAMISE MODAL -->
+<div id="parandusModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Arhiivi parandamine</h3>
+        <p>Kas soovid avada selle arhiivi parandamiseks?</p>
+        <p>Arhiiv laaditakse kassatabelisse ja avaneb muutmisrežiimis.</p>
+
+        <div class="modal-buttons">
+            <button id="parandusKinnita" class="btn-small">Jah, ava parandamiseks</button>
+            <button id="parandusLoobu" class="btn-small">Loobu</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="supabase.js"></script>
+<script src="auth.js"></script>
+<script src="arhiiv.js"></script>
+
+</body>
+</html>

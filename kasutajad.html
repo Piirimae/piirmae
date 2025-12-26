@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Kasutajate haldus</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<body class="page-kasutajad">
+<header class="header">
+    <div id="kasutajaNimi"></div>
+
+    <nav class="header-actions">
+        <button onclick="window.location='fuajee.html'" class="btn-small">⬅ Tagasi</button>
+        <button id="logoutBtn" class="btn-small">Logi välja</button>
+    </nav>
+</header>
+
+<main class="container">
+
+    <section class="intro">
+        <h1>Kasutajate haldus</h1>
+        <p class="subtitle">
+            See leht on mõeldud superadminile kasutajate ja nende rollide muutmiseks.
+        </p>
+    </section>
+
+    <!-- Ligipääsuveateade -->
+    <div id="accessError" class="error-box" style="display:none;">
+        Sul puudub õigus seda lehte vaadata.
+    </div>
+
+    <!-- Põhisisu -->
+    <section id="kasutajateSisu" style="display:none;">
+
+        <div class="table-wrapper">
+            <table id="kasutajaTabel" class="tabel">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Roll</th>
+                        <th>Loodud</th>
+                        <th>Tegevus</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h2>Lisa uus kasutaja</h2>
+
+        <div class="form-row add-user-row">
+            <input id="uusEmail" type="email" placeholder="E-posti aadress" class="input-text" />
+
+            <select id="uusRoll" class="input-select">
+                <option value="superadmin">superadmin</option>
+                <option value="admin">admin</option>
+                <option value="sisestaja">sisestaja</option>
+                <option value="vaatleja">vaatleja</option>
+            </select>
+
+            <button id="lisaBtn" class="btn-primary">Lisa</button>
+        </div>
+
+    </section>
+
+</main>
+
+<!-- Skriptid -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="auth.js"></script>
+<script src="kasutajad.js"></script>
+
+
+</body>
+</html>
+

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Logi sisse</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-esileht">
+<body class="centered">
+
+
+<div class="card login-card">
+    <h2>Tere tulemast majja</h2>
+    <p>Logi sisse e-postiga.</p>
+
+    <button id="emailLogin" class="btn-yellow">Saada sisselogimislink</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+document.getElementById("emailLogin").onclick = async () => {
+    const email = prompt("Sisesta oma e-post:");
+    if (!email) return;
+
+    const { error } = await sb.auth.signInWithOtp({
+        email: email,
+        options: {
+            emailRedirectTo: window.location.origin + "/fuajee.html"
+        }
+    });
+
+    if (error) {
+        alert("Viga: " + error.message);
+    } else {
+        alert("Sisselogimislink saadetud!");
+    }
+};
+</script>
+
+</body>
+</html>
+
