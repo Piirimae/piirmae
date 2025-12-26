@@ -19,10 +19,7 @@
 
 <div class="toolbar">
     <label for="kuuValik"><strong>Kuu:</strong></label>
-    <select id="kuuValik">
-        <option value="2025-12" selected>Detsember 2025</option>
-        
-    </select>
+    <select id="kuuValik"></select>
 
     <button id="lukustaNupp" class="state-locked">Tabel lukus (ava sisestamiseks)</button>
     <button id="salvestaNupp">Salvesta</button>
@@ -41,16 +38,16 @@
 
 <div id="arhiiviKuva" class="arhiivi-kast" style="display:none;"></div>
 
-<!-- Skriptid -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="supabase.js"></script>
-<script src="auth.js"></script>
-<script src="seaded.js"></script>
-<script src="logic.js"></script>
-
+<!-- ⭐ ÕIGED MOODULID -->
+<script type="module" src="supabase.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="seaded.js"></script>
+<script type="module" src="logic.js"></script>
 
 </body>
 </html>
+
+
 
 
 
