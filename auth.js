@@ -1,7 +1,10 @@
-// auth.js
+// auth.js (MOODUL)
 
-// Kuvab kasutaja nime ja laeb rolli "kasutajad" tabelist
-async function kuvaKasutajaNimi() {
+// Supabase ühendus
+import { sb } from "./supabase.js";
+
+// --- Kuvab kasutaja nime ja laeb rolli ---
+export async function kuvaKasutajaNimi() {
     const { data } = await sb.auth.getUser();
     const user = data?.user;
 
@@ -29,6 +32,25 @@ async function kuvaKasutajaNimi() {
     const elem = document.getElementById("kasutajaNimi");
     if (elem) elem.textContent = email;
 }
+
+// --- Lae roll otse ---
+export async function laeRoll(email) {
+    const { data, error } = await sb
+        .from("kasutajad")
+        .select("roll")
+        .eq("email", email)
+        .single();
+
+    return error ? "vaatleja" : data.roll;
+}
+
+// --- Logi välja ---
+export async function logout() {
+    await sb.auth.signOut();
+    window.location = "index.html";
+}
+
+
 
 
 
