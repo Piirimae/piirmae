@@ -5,23 +5,25 @@
     <title>Fuajee</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
-<header class="header">
-    <div id="kasutajaNimi"></div>
-    <button id="logoutBtn" class="btn-small">Logi välja</button>
-</header>
 <body class="page-fuajee">
 
-<h2>Fuajee</h2>
-<p>Vali tuba, kuhu soovid siseneda.</p>
+    <header>
+        <div id="kasutajaNimi"></div>
+        <button onclick="logout()">Logi välja</button>
+    </header>
 
-<div id="toad" class="room-grid"></div>
+    <h2>Tere tulemast fuajeesse</h2>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="supabase.js"></script>
-<script src="auth.js"></script>
-<script src="fuajee.js"></script>
+    <div id="toad" class="rooms"></div>
+
+    <!-- SUPABASE + FUAJEE LOOGIKA -->
+    <script type="module" src="supabase.js"></script>
+    <script type="module" src="logic.js"></script>
+    <script type="module" src="auth.js"></script
+    <script type="module" src="fuajee.js"></script>
 
 </body>
 </html>
+
+
