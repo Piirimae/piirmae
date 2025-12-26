@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Logimine...</title>
+    <script type="module">
+        import { sb } from "./supabase.js";
+
+        // Supabase loeb tokenid URL hashist automaatselt
+        const process = async () => {
+            const { data, error } = await sb.auth.getSession();
+
+            if (error) {
+                console.error(error);
+                alert("Sisselogimine ebaõnnestus.");
+                return;
+            }
+
+            // Kui sessioon olemas → suuna fuajeesse
+            window.location.href = "fuajee.html";
+        };
+
+        process();
+    </script>
+</head>
+<body>
+    Töötlen sisselogimist...
+</body>
+</html>
