@@ -5,9 +5,8 @@
     <title>Logi sisse</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="page-esileht">
-<body class="centered">
 
+<body class="page-esileht centered">
 
 <div class="card login-card">
     <h2>Tere tulemast majja</h2>
@@ -27,7 +26,7 @@ document.getElementById("emailLogin").onclick = async () => {
     const { error } = await sb.auth.signInWithOtp({
         email: email,
         options: {
-            emailRedirectTo: window.location.origin + "/fuajee.html"
+            emailRedirectTo: "https://piirimae.github.io/piirmae/fuajee.html"
         }
     });
 
@@ -41,4 +40,6 @@ document.getElementById("emailLogin").onclick = async () => {
 
 </body>
 </html>
+
+
 
