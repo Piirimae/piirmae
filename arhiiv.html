@@ -17,20 +17,17 @@
 
 <div class="card">
 
-    <!-- Kuu valik -->
     <label for="kuuValik">Vali kuu:</label>
     <select id="kuuValik"></select>
 
-    <!-- Metaandmed -->
     <div id="arhiiviMeta" class="meta"></div>
 
-    <!-- Arhiivi tabel -->
     <div id="arhiiviKuva"></div>
 
-    <!-- Nupud -->
     <div id="arhiiviNupud" class="arhiivi-nupud"></div>
 
 </div>
+
 <!-- PARANDAMISE MODAL -->
 <div id="parandusModal" class="modal" style="display:none;">
     <div class="modal-content">
@@ -45,10 +42,12 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="supabase.js"></script>
-<script src="auth.js"></script>
-<script src="arhiiv.js"></script>
+<!-- ⭐ ÕIGED MOODULID -->
+<script type="module" src="supabase.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="arhiiv.js"></script>
 
 </body>
 </html>
+
+
