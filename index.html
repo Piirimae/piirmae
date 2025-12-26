@@ -26,7 +26,8 @@ document.getElementById("emailLogin").onclick = async () => {
     const { error } = await sb.auth.signInWithOtp({
         email: email,
         options: {
-            emailRedirectTo: "https://piirimae.github.io/piirmae/fuajee.html"
+            emailRedirectTo: "https://piirimae.github.io/piirmae/auth-callback.html"
+
         }
     });
 
@@ -40,6 +41,7 @@ document.getElementById("emailLogin").onclick = async () => {
 
 </body>
 </html>
+
 
 
 
