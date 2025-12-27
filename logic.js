@@ -1,5 +1,5 @@
 import { sb } from "./supabase.js";
-import { kuvaKasutajaNimi, laeRoll } from "./auth.js";
+
 import { laeSeaded } from "./seaded.js";
 let tabelLukus = true;
 let seaded = null;
@@ -1423,6 +1423,7 @@ function uuendaVaateReziim() {
 
     await kuvaArhiiv();
 })();
+
 
 
 
