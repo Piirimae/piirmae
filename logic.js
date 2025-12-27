@@ -528,6 +528,8 @@ salvestaNupp.addEventListener("click", async () => {
     näitaTeadet("Salvestatud ja lukustatud.");
 });
 // --- ARHIIVI SALVESTAMINE ---
+arhiiviNupp.addEventListener("click", salvestaArhiivi);
+
 async function salvestaArhiivi() {
     try {
         // 1) Leia aktiivne kuu
@@ -754,6 +756,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 ;
+
 
 
 
