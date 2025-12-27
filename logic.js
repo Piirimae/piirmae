@@ -1,6 +1,6 @@
 import { sb } from "./supabase.js";
-
 import { laeSeaded } from "./seaded.js";
+
 let tabelLukus = true;
 let seaded = null;
 
@@ -20,7 +20,8 @@ const laeAllaNupp = document.getElementById("laeAllaNupp");
 const teadeEl = document.getElementById("teade");
 const arhiiviKuva = document.getElementById("arhiiviKuva");
 
-console.log("SUBMIT START");
+console.log("LOGIC STARTED");
+
 
 async function init() {
     seaded = await laeSeaded();
@@ -635,9 +636,12 @@ function uuendaVaateReziim() {
     await kuvaArhiiv();
 })();
 
-console.log("SUBMIT START");
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("INIT START");
+    init();
+});
 
-document.addEventListener("DOMContentLoaded", init);
+
 
 
 
