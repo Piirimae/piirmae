@@ -1,4 +1,5 @@
 import { sb } from "./supabase.js";
+import { sb } from "./seaded.js";
 
 export async function laeSeaded() {
     const { data: veerud } = await sb
@@ -95,6 +96,7 @@ window.lisaEripaevRida = () => {
 };
 
 laeLeht();
+
 
 
 
