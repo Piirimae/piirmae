@@ -3,53 +3,52 @@ import { laeSeaded } from "./seaded.js";
 
 let tabelLukus = true;
 let seaded = null;
-
-let praeguneKuu = document.getElementById("kuuValik").value;
-let reaalneKuu = praeguneKuu;
+let praeguneKuu = null;
+let reaalneKuu = null;
 let roll = null;
 
-// --- DOM elemendid ---
-const tabelEl = document.getElementById("kassatabel");
-const tbody = document.getElementById("tbody");
-const kuuValik = document.getElementById("kuuValik");
-const lukustaNupp = document.getElementById("lukustaNupp");
-const salvestaNupp = document.getElementById("salvestaNupp");
-const arhiiviNupp = document.getElementById("arhiiviNupp");
-const prindiNupp = document.getElementById("prindiNupp");
-const laeAllaNupp = document.getElementById("laeAllaNupp");
-const teadeEl = document.getElementById("teade");
-const arhiiviKuva = document.getElementById("arhiiviKuva");
+// Kõik algab DOMContentLoaded sees
+document.addEventListener("DOMContentLoaded", async () => {
+    console.log("DOM READY, LOGIC STARTED");
 
-console.log("LOGIC STARTED");
-
-function täidaKuuValik() {
+    // --- DOM elemendid ---
+    const tabelEl = document.getElementById("kassatabel");
+    const tbody = document.getElementById("tbody");
     const kuuValik = document.getElementById("kuuValik");
+    const lukustaNupp = document.getElementById("lukustaNupp");
+    const salvestaNupp = document.getElementById("salvestaNupp");
+    const arhiiviNupp = document.getElementById("arhiiviNupp");
+    const prindiNupp = document.getElementById("prindiNupp");
+    const laeAllaNupp = document.getElementById("laeAllaNupp");
+    const teadeEl = document.getElementById("teade");
+    const arhiiviKuva = document.getElementById("arhiiviKuva");
 
-    const praegu = new Date();
-    const aasta = praegu.getFullYear();
-    const kuu = String(praegu.getMonth() + 1).padStart(2, "0");
+    // Tee need globaalseks
+    window.tabelEl = tabelEl;
+    window.tbody = tbody;
+    window.kuuValik = kuuValik;
+    window.lukustaNupp = lukustaNupp;
+    window.salvestaNupp = salvestaNupp;
+    window.arhiiviNupp = arhiiviNupp;
+    window.prindiNupp = prindiNupp;
+    window.laeAllaNupp = laeAllaNupp;
+    window.teadeEl = teadeEl;
+    window.arhiiviKuva = arhiiviKuva;
 
-    const value = `${aasta}-${kuu}`;
-    const label = praegu.toLocaleString("et-EE", { month: "long", year: "numeric" });
-
-    kuuValik.innerHTML = `<option value="${value}" selected>${label}</option>`;
-}
-
-
-async function init() {
+    // Kuu valiku täitmine
     täidaKuuValik();
-    praeguneKuu = document.getElementById("kuuValik").value;
+    praeguneKuu = kuuValik.value;
+    reaalneKuu = praeguneKuu;
 
-    seaded = await laeSeaded();
-    await genereeriKuuTabel();
+    // Käivita init
+    await init();
 
-    const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
-    täidaTabelSupabaseAndmetega(andmed);
+    // Kontroll: nupp töötab
+    arhiiviNupp.addEventListener("click", () => {
+        console.log("Arhiivi nupp töötab");
+    });
+});
 
-    await kuvaArhiiv();
-    uuendaVaateReziim();
-    rakendaRolliLukustus();
-}
 
 // --- SUPABASE FUNKTSIOONID ---
 async function kuvaKasutajaNimi() {
@@ -734,6 +733,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
 
 
 
