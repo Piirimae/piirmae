@@ -3,11 +3,12 @@ import { laeSeaded } from "./seaded.js";
 
 let tabelLukus = true;
 let seaded = null;
-let praeguneKuu = null;
-let reaalneKuu = null;
+
+let praeguneKuu = document.getElementById("kuuValik").value;
+let reaalneKuu = praeguneKuu;
 let roll = null;
 
-// --- DOM elemendid (PANE TAGASI!) ---
+// --- DOM elemendid ---
 const tabelEl = document.getElementById("kassatabel");
 const tbody = document.getElementById("tbody");
 const kuuValik = document.getElementById("kuuValik");
@@ -20,15 +21,36 @@ const teadeEl = document.getElementById("teade");
 const arhiiviKuva = document.getElementById("arhiiviKuva");
 
 console.log("LOGIC STARTED");
+
+function täidaKuuValik() {
+    const kuuValik = document.getElementById("kuuValik");
+
+    const praegu = new Date();
+    const aasta = praegu.getFullYear();
+    const kuu = String(praegu.getMonth() + 1).padStart(2, "0");
+
+    const value = `${aasta}-${kuu}`;
+    const label = praegu.toLocaleString("et-EE", { month: "long", year: "numeric" });
+
+    kuuValik.innerHTML = `<option value="${value}" selected>${label}</option>`;
+}
+
+
 async function init() {
+    täidaKuuValik();
+    praeguneKuu = document.getElementById("kuuValik").value;
+
     seaded = await laeSeaded();
     await genereeriKuuTabel();
+
     const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
     täidaTabelSupabaseAndmetega(andmed);
+
     await kuvaArhiiv();
     uuendaVaateReziim();
     rakendaRolliLukustus();
 }
+
 // --- SUPABASE FUNKTSIOONID ---
 async function kuvaKasutajaNimi() {
     const user = await sb.auth.getUser();
@@ -175,7 +197,6 @@ function onTäna(dateStr) {
 function näitaTeadet(msg) {
     teadeEl.textContent = msg;
 }
-console.log("genereeriKuuTabel käivitus");
 
 // --- DÜNAAMILINE TABELI GENEREERIMINE ---
 async function genereeriKuuTabel() {
@@ -698,12 +719,42 @@ function uuendaVaateReziim() {
 
 
 // --- INIT ---
+(async () => {
+    await kuvaKasutajaNimi();
 
+    await genereeriKuuTabel();
+    const kuuId = kuuValik.value;
+    const andmed = await laeKuuAndmedSupabasest(kuuId);
+    täidaTabelSupabaseAndmetega(andmed);
+
+    await kuvaArhiiv();
+})();
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;
+
 
 
 
