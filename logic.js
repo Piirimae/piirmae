@@ -527,6 +527,25 @@ salvestaNupp.addEventListener("click", async () => {
     rakendaLukustusOlek();
     näitaTeadet("Salvestatud ja lukustatud.");
 });
+function koostaState() {
+    const read = Array.from(tbody.querySelectorAll("tr"));
+    return read.map(rida => {
+        const lahter1 = rida.querySelector(".lahter1")?.textContent ?? "";
+        const lahter2 = rida.querySelector(".lahter2")?.textContent ?? "";
+        const lahter3 = rida.querySelector(".lahter3")?.textContent ?? "";
+        const lahter4 = rida.querySelector(".lahter4")?.textContent ?? "";
+        const lahter5 = rida.querySelector(".lahter5")?.textContent ?? "";
+
+        return {
+            lahter1,
+            lahter2,
+            lahter3,
+            lahter4,
+            lahter5
+        };
+    });
+}
+
 // --- ARHIIVI SALVESTAMINE ---
 arhiiviNupp.addEventListener("click", salvestaArhiivi);
 
@@ -751,6 +770,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 ;
+
 
 
 
