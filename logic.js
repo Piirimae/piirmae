@@ -7,8 +7,20 @@ let praeguneKuu = null;
 let reaalneKuu = null;
 let roll = null;
 
+// --- DOM elemendid (PANE TAGASI!) ---
+const tabelEl = document.getElementById("kassatabel");
+const tbody = document.getElementById("tbody");
+const kuuValik = document.getElementById("kuuValik");
+const lukustaNupp = document.getElementById("lukustaNupp");
+const salvestaNupp = document.getElementById("salvestaNupp");
+const arhiiviNupp = document.getElementById("arhiiviNupp");
+const prindiNupp = document.getElementById("prindiNupp");
+const laeAllaNupp = document.getElementById("laeAllaNupp");
+const teadeEl = document.getElementById("teade");
+const arhiiviKuva = document.getElementById("arhiiviKuva");
 
 console.log("LOGIC STARTED");
+
 // --- SUPABASE FUNKTSIOONID ---
 async function kuvaKasutajaNimi() {
     const user = await sb.auth.getUser();
@@ -692,6 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
 
 
 
