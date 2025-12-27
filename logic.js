@@ -539,6 +539,62 @@ async function salvestaArhiivi() {
     }
 }
 
+// --- UUS ARHIIVI SALVESTAMINE SUPABASESSE ---
+async function arhiiviSupabasse(kuuId, stateJson) {
+    try {
+        // 1) Koosta arhiiviId (YYYY-MM-DD-HH-MM)
+        const now = new Date();
+        const arhiiviId = [
+            now.getFullYear(),
+            String(now.getMonth() + 1).padStart(2, "0"),
+            String(now.getDate()).padStart(2, "0"),
+            String(now.getHours()).padStart(2, "0"),
+            String(now.getMinutes()).padStart(2, "0")
+        ].join("-");
+
+        // 2) Leia, kas samal minutil on juba versioone
+        const { data: olemasolevad } = await sb
+            .from("arhiiv")
+            .select("versioon")
+            .eq("arhiiviId", arhiiviId);
+
+        let versioon = 1;
+        if (olemasolevad && olemasolevad.length > 0) {
+            versioon = Math.max(...olemasolevad.map(r => r.versioon)) + 1;
+        }
+
+        // 3) Leia salvestaja email
+        const { data: userData } = await sb.auth.getUser();
+        const salvestaja = userData?.user?.email ?? "tundmatu";
+
+        // 4) Salvesta arhiivi
+        const { error } = await sb
+            .from("arhiiv")
+            .insert({
+                arhiiviId: arhiiviId,
+                kuu_id: kuuId,
+                state: JSON.parse(stateJson),
+                salvestaja: salvestaja,
+                paeritolu: "aktiivne",
+                taastatud: false,
+                versioon: versioon
+            });
+
+        if (error) {
+            console.error("Arhiivi salvestamise viga:", error);
+            näitaTeadet("Arhiivi salvestamine ebaõnnestus.");
+            return false;
+        }
+
+        näitaTeadet(`Arhiivi salvestatud: ${arhiiviId} (versioon ${versioon})`);
+        return true;
+
+    } catch (err) {
+        console.error("Arhiivi salvestamise erind:", err);
+        näitaTeadet("Tekkis ootamatu viga arhiivi salvestamisel.");
+        return false;
+    }
+}
 
 
 // --- DÜNAAMILINE ARHIIVI KUVA ---
@@ -683,6 +739,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
 
 
 
