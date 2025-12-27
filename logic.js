@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 });
 
-
+console.log("LOGIC STARTED");
 // --- SUPABASE FUNKTSIOONID ---
 async function kuvaKasutajaNimi() {
     const user = await sb.auth.getUser();
@@ -733,6 +733,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
 
 
 
