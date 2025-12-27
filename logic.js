@@ -532,10 +532,8 @@ arhiiviNupp.addEventListener("click", salvestaArhiivi);
 
 async function salvestaArhiivi() {
     try {
-        // 1) Leia aktiivne kuu
-        const kuuId = praeguneKuu; // nt "2025-12"
+        const kuuId = praeguneKuu;
 
-        // 2) Koosta arhiiviId (YYYY-MM-DD-HH-MM)
         const now = new Date();
         const arhiiviId = [
             now.getFullYear(),
@@ -545,8 +543,7 @@ async function salvestaArhiivi() {
             String(now.getMinutes()).padStart(2, "0")
         ].join("-");
 
-        // 3) Leia, kas samal minutil on juba salvestusi (versioonid)
-        const { data: olemasolevad, error: vigaVersioon } = await sb
+        const { data: olemasolevad } = await sb
             .from("arhiiv")
             .select("versioon")
             .eq("arhiiviId", arhiiviId);
@@ -556,22 +553,18 @@ async function salvestaArhiivi() {
             versioon = Math.max(...olemasolevad.map(r => r.versioon)) + 1;
         }
 
-        // 4) Koosta state JSON (sinu olemasolev tabeli sisu)
-       const stateJson = JSON.stringify(koostaState());
+        // ← ÕIGE!
+        const stateJson = JSON.stringify(koostaState());
 
-        // NB: see on sinu enda funktsioon, mis juba töötab
-
-        // 5) Leia salvestaja email
         const { data: userData } = await sb.auth.getUser();
         const salvestaja = userData?.user?.email ?? "tundmatu";
 
-        // 6) Salvesta arhiivi
         const { error } = await sb
             .from("arhiiv")
             .insert({
                 arhiiviId: arhiiviId,
                 kuu_id: kuuId,
-                state: state,
+                state: stateJson,   // ← PARANDATUD!
                 salvestaja: salvestaja,
                 paeritolu: "aktiivne",
                 taastatud: false,
@@ -591,6 +584,7 @@ async function salvestaArhiivi() {
         alert("Tekkis ootamatu viga arhiivi salvestamisel.");
     }
 }
+
 
 
 
@@ -757,6 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 ;
+
 
 
 
