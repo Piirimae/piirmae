@@ -635,6 +635,10 @@ function uuendaVaateReziim() {
     await kuvaArhiiv();
 })();
 
+console.log("SUBMIT START");
+
+document.addEventListener("DOMContentLoaded", init);
+
 
 
 
