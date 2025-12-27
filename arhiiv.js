@@ -158,6 +158,12 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// Lisa event listener ainult siis, kui nupp on olemas
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+}
+
 
 
 
