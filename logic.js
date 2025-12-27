@@ -20,7 +20,15 @@ const teadeEl = document.getElementById("teade");
 const arhiiviKuva = document.getElementById("arhiiviKuva");
 
 console.log("LOGIC STARTED");
-
+async function init() {
+    seaded = await laeSeaded();
+    await genereeriKuuTabel();
+    const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
+    täidaTabelSupabaseAndmetega(andmed);
+    await kuvaArhiiv();
+    uuendaVaateReziim();
+    rakendaRolliLukustus();
+}
 // --- SUPABASE FUNKTSIOONID ---
 async function kuvaKasutajaNimi() {
     const user = await sb.auth.getUser();
@@ -704,6 +712,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
 
 
 
