@@ -7,47 +7,6 @@ let praeguneKuu = null;
 let reaalneKuu = null;
 let roll = null;
 
-// Kõik algab DOMContentLoaded sees
-document.addEventListener("DOMContentLoaded", async () => {
-    console.log("DOM READY, LOGIC STARTED");
-
-    // --- DOM elemendid ---
-    const tabelEl = document.getElementById("kassatabel");
-    const tbody = document.getElementById("tbody");
-    const kuuValik = document.getElementById("kuuValik");
-    const lukustaNupp = document.getElementById("lukustaNupp");
-    const salvestaNupp = document.getElementById("salvestaNupp");
-    const arhiiviNupp = document.getElementById("arhiiviNupp");
-    const prindiNupp = document.getElementById("prindiNupp");
-    const laeAllaNupp = document.getElementById("laeAllaNupp");
-    const teadeEl = document.getElementById("teade");
-    const arhiiviKuva = document.getElementById("arhiiviKuva");
-
-    // Tee need globaalseks
-    window.tabelEl = tabelEl;
-    window.tbody = tbody;
-    window.kuuValik = kuuValik;
-    window.lukustaNupp = lukustaNupp;
-    window.salvestaNupp = salvestaNupp;
-    window.arhiiviNupp = arhiiviNupp;
-    window.prindiNupp = prindiNupp;
-    window.laeAllaNupp = laeAllaNupp;
-    window.teadeEl = teadeEl;
-    window.arhiiviKuva = arhiiviKuva;
-
-    // Kuu valiku täitmine
-    täidaKuuValik();
-    praeguneKuu = kuuValik.value;
-    reaalneKuu = praeguneKuu;
-
-    // Käivita init
-    await init();
-
-    // Kontroll: nupp töötab
-    arhiiviNupp.addEventListener("click", () => {
-        console.log("Arhiivi nupp töötab");
-    });
-});
 
 console.log("LOGIC STARTED");
 // --- SUPABASE FUNKTSIOONID ---
@@ -733,6 +692,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
 
 
 
