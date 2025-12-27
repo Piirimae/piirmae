@@ -1,6 +1,6 @@
 import { sb } from "./supabase.js";
 import { kuvaKasutajaNimi, laeRoll } from "./auth.js";
-import { laeSeaded } from "./seaded.js";
+
 
 // DOM elemendid
 const kuuValik = document.getElementById("kuuValik");
@@ -162,6 +162,7 @@ laeAllaNupp.onclick = () => alert("PDF tuleb tulevikus");
 
 // Käivita
 initKassatabel();
+
 
 
 
