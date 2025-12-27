@@ -22,16 +22,35 @@ const arhiiviKuva = document.getElementById("arhiiviKuva");
 
 console.log("LOGIC STARTED");
 
+function täidaKuuValik() {
+    const kuuValik = document.getElementById("kuuValik");
+
+    const praegu = new Date();
+    const aasta = praegu.getFullYear();
+    const kuu = String(praegu.getMonth() + 1).padStart(2, "0");
+
+    const value = `${aasta}-${kuu}`;
+    const label = praegu.toLocaleString("et-EE", { month: "long", year: "numeric" });
+
+    kuuValik.innerHTML = `<option value="${value}" selected>${label}</option>`;
+}
+
 
 async function init() {
+    täidaKuuValik();
+    praeguneKuu = document.getElementById("kuuValik").value;
+
     seaded = await laeSeaded();
     await genereeriKuuTabel();
+
     const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
     täidaTabelSupabaseAndmetega(andmed);
+
     await kuvaArhiiv();
     uuendaVaateReziim();
     rakendaRolliLukustus();
 }
+
 // --- SUPABASE FUNKTSIOONID ---
 async function kuvaKasutajaNimi() {
     const user = await sb.auth.getUser();
@@ -640,6 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
 
 
 
