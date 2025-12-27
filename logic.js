@@ -557,7 +557,8 @@ async function salvestaArhiivi() {
         }
 
         // 4) Koosta state JSON (sinu olemasolev tabeli sisu)
-        const state = koostaStateJSON(); 
+       const stateJson = JSON.stringify(koostaState());
+
         // NB: see on sinu enda funktsioon, mis juba töötab
 
         // 5) Leia salvestaja email
@@ -756,6 +757,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 ;
+
 
 
 
