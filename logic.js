@@ -477,44 +477,68 @@ salvestaNupp.addEventListener("click", async () => {
     rakendaLukustusOlek();
     näitaTeadet("Salvestatud ja lukustatud.");
 });
-// --- DÜNAAMILINE ARHIIVI SALVESTAMINE ---
-arhiiviNupp.addEventListener("click", async () => {
-    const kuuId = kuuValik.value;
+// --- ARHIIVI SALVESTAMINE ---
+async function salvestaArhiivi() {
+    try {
+        // 1) Leia aktiivne kuu
+        const kuuId = praeguneKuu; // nt "2025-12"
 
-    const state = {
-        kuu: kuuId,
-        veerud: seaded.veerud,
-        rows: [],
-        kuuKokku: document.getElementById("kuuKokku").textContent
-    };
+        // 2) Koosta arhiiviId (YYYY-MM-DD-HH-MM)
+        const now = new Date();
+        const arhiiviId = [
+            now.getFullYear(),
+            String(now.getMonth() + 1).padStart(2, "0"),
+            String(now.getDate()).padStart(2, "0"),
+            String(now.getHours()).padStart(2, "0"),
+            String(now.getMinutes()).padStart(2, "0")
+        ].join("-");
 
-    tbody.querySelectorAll("tr").forEach(row => {
-        const inputs = row.querySelectorAll("input");
-        const rida = { kuupaev: row.dataset.date };
+        // 3) Leia, kas samal minutil on juba salvestusi (versioonid)
+        const { data: olemasolevad, error: vigaVersioon } = await sb
+            .from("arhiiv")
+            .select("versioon")
+            .eq("arhiiviId", arhiiviId);
 
-        inputs.forEach(inp => {
-            const veeruNimi = inp.dataset.veeruNimi;
-            const veeruTüüp = inp.dataset.veeruTüüp;
+        let versioon = 1;
+        if (olemasolevad && olemasolevad.length > 0) {
+            versioon = Math.max(...olemasolevad.map(r => r.versioon)) + 1;
+        }
 
-            if (!veeruNimi) return;
+        // 4) Koosta state JSON (sinu olemasolev tabeli sisu)
+        const state = koostaStateJSON(); 
+        // NB: see on sinu enda funktsioon, mis juba töötab
 
-            if (veeruTüüp === "toit" || veeruTüüp === "number") {
-                rida[veeruNimi] = Number(inp.value) || 0;
-            } else {
-                rida[veeruNimi] = inp.value || "";
-            }
-        });
+        // 5) Leia salvestaja email
+        const { data: userData } = await sb.auth.getUser();
+        const salvestaja = userData?.user?.email ?? "tundmatu";
 
-        state.rows.push(rida);
-    });
+        // 6) Salvesta arhiivi
+        const { error } = await sb
+            .from("arhiiv")
+            .insert({
+                arhiiviId: arhiiviId,
+                kuu_id: kuuId,
+                state: state,
+                salvestaja: salvestaja,
+                paeritolu: "aktiivne",
+                taastatud: false,
+                versioon: versioon
+            });
 
-    await arhiiviSupabasse(kuuId, JSON.stringify(state));
-    await logiTegevusSupabasse("arhiiv", { kuu: kuuId });
+        if (error) {
+            console.error("Arhiivi salvestamise viga:", error);
+            alert("Arhiivi salvestamine ebaõnnestus.");
+            return;
+        }
 
-    tabelLukus = true;
-    rakendaLukustusOlek();
-    näitaTeadet("Arhiivi salvestatud.");
-});
+        alert(`Arhiivi salvestatud: ${arhiiviId} (versioon ${versioon})`);
+
+    } catch (err) {
+        console.error("Arhiivi salvestamise erind:", err);
+        alert("Tekkis ootamatu viga arhiivi salvestamisel.");
+    }
+}
+
 
 
 // --- DÜNAAMILINE ARHIIVI KUVA ---
@@ -659,6 +683,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
 
 
 
