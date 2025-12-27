@@ -175,6 +175,7 @@ function onTäna(dateStr) {
 function näitaTeadet(msg) {
     teadeEl.textContent = msg;
 }
+console.log("genereeriKuuTabel käivitus");
 
 // --- DÜNAAMILINE TABELI GENEREERIMINE ---
 async function genereeriKuuTabel() {
@@ -703,6 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
+
 
 
 
