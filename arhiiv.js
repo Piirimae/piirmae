@@ -20,8 +20,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 async function laeKuuValikud() {
     const { data, error } = await sb
         .from("arhiiv")
-        .select("arhiiviId, kuu_id, created_at, salvestaja, versioon")
-        .order("created_at", { ascending: false });
+        .select("arhiiviId, kuu_id, created_at, salvestaja, versioon, paeritolu")
+        .order("kuu_id", { ascending: false }); // ⬅ SORT kuu_id järgi, mitte created_at
 
     if (error) {
         console.error("Kuu valikute laadimise viga:", error);
@@ -29,9 +29,9 @@ async function laeKuuValikud() {
     }
 
     kuuValik.innerHTML = data.map(r => {
-        const d = new Date(r.created_at);
-        const kuup = d.toLocaleDateString("et-EE");
-        const aeg = d.toLocaleTimeString("et-EE", { hour: "2-digit", minute: "2-digit" });
+        const label = r.paeritolu === "muudetud"
+            ? `${r.kuu_id} (muudetud v${r.versioon})`
+            : `${r.kuu_id} (v${r.versioon})`;
 
         return `
             <option 
@@ -40,14 +40,16 @@ async function laeKuuValikud() {
                 data-created="${r.created_at}"
                 data-salvestaja="${r.salvestaja}"
                 data-versioon="${r.versioon}"
+                data-paeritolu="${r.paeritolu || ''}"
             >
-                ${kuup} ${aeg} (v${r.versioon})
+                ${label}
             </option>
         `;
     }).join("");
 
     kuuValik.addEventListener("change", kuvaArhiiv);
 }
+
 
 // --- Lae ja kuva arhiiv ---
 async function kuvaArhiiv() {
@@ -196,8 +198,14 @@ window.addEventListener("DOMContentLoaded", () => {
 
     parandusKinnita.addEventListener("click", () => {
         const kuuId = kuuValik.value;
-        window.location = `kassatabel.html?paranda=${kuuId}`;
-    });
+    parandusKinnita.addEventListener("click", () => {
+    const opt = kuuValik.selectedOptions[0];
+    const kuu = opt.dataset.kuu;
+    const arhiiviId = opt.value;
+
+    window.location = `kassatabel.html?paranda=${kuu}&arhiiviId=${arhiiviId}`;
+});
+
 });
 
 // --- Taasta arhiiv ---
@@ -237,6 +245,7 @@ window.addEventListener("beforeprint", () => {
     const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     document.getElementById("printTitle").textContent = `${kuu} – ${leht}`;
 });
+
 
 
 
