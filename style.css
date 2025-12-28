@@ -622,6 +622,13 @@ button.delete-btn:hover {
     display: none;
 }
 
+@media print {
+    .print-value {
+        font-weight: bold !important;
+        color: black !important;
+    }
+}
+
 
 
 
