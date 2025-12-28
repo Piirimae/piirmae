@@ -11,6 +11,8 @@
     <div id="kasutajaNimi"></div>
     <button onclick="window.location='fuajee.html'" class="btn-small">Tagasi</button>
     <button id="logoutBtn" class="btn-small">Logi välja</button>
+    <button class="admin taasta-btn">Taasta aktiivseks kuuks</button>
+
 </header>
 
 <h2>Arhiiv</h2>
@@ -41,7 +43,20 @@
         </div>
     </div>
 </div>
+<!-- taastamise modal --->
+<div id="taastaModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Taasta arhiiv</h3>
+        <p>Kas soovid taastada selle arhiivi aktiivseks kuuks?</p>
+        <p id="taastaInfo"></p>
 
+        <div class="modal-buttons">
+            <button id="taastaKinnita" class="btn-small">Jah, taasta</button>
+            <button id="taastaLoobu" class="btn-small">Loobu</button>
+        </div>
+    </div>
+</div>
+    
 <!-- ⭐ ÕIGED MOODULID -->
 <script type="module" src="supabase.js"></script>
 <script type="module" src="auth.js"></script>
@@ -49,5 +64,6 @@
 
 </body>
 </html>
+
 
 
