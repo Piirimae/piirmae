@@ -20,85 +20,104 @@ window.addEventListener("DOMContentLoaded", async () => {
 async function laeKuuValikud() {
     const { data, error } = await sb
         .from("arhiiv")
-        .select("kuu_id")
-        .order("kuu_id", { ascending: false });
+        .select("arhiiviId, kuu_id, created_at, salvestaja, versioon")
+        .order("created_at", { ascending: false });
 
     if (error) {
         console.error("Kuu valikute laadimise viga:", error);
         return;
     }
 
-    kuuValik.innerHTML = data
-        .map(r => `<option value="${r.kuu_id}">${r.kuu_id}</option>`)
-        .join("");
+    kuuValik.innerHTML = data.map(r => {
+        const d = new Date(r.created_at);
+        const kuup = d.toLocaleDateString("et-EE");
+        const aeg = d.toLocaleTimeString("et-EE", { hour: "2-digit", minute: "2-digit" });
+
+        return `
+            <option 
+                value="${r.arhiiviId}"
+                data-kuu="${r.kuu_id}"
+                data-created="${r.created_at}"
+                data-salvestaja="${r.salvestaja}"
+                data-versioon="${r.versioon}"
+            >
+                ${kuup} ${aeg} (v${r.versioon})
+            </option>
+        `;
+    }).join("");
 
     kuuValik.addEventListener("change", kuvaArhiiv);
 }
 
+
 // --- Lae ja kuva arhiiv ---
 async function kuvaArhiiv() {
-    const kuuId = kuuValik.value;
+    const arhiiviId = kuuValik.value;
 
     const { data, error } = await sb
         .from("arhiiv")
         .select("*")
-        .eq("kuu_id", kuuId)
-        .order("id", { ascending: false })
-        .limit(1);
+        .eq("arhiiviId", arhiiviId)
+        .single();
 
-    if (error || !data.length) {
+    if (error || !data) {
         arhiiviMeta.innerHTML = "<p>Arhiivi ei leitud.</p>";
         arhiiviKuva.innerHTML = "";
         arhiiviNupud.innerHTML = "";
         return;
     }
 
-    const kirje = data[0];
-    let state = kirje.state;
+    const state = JSON.parse(data.state);
 
-    if (typeof state === "string") {
-        try {
-            state = JSON.parse(state);
-        } catch (e) {
-            console.error("Arhiivi JSON parse error:", e);
-            return;
-        }
-    }
-
-    kuvaMeta(kirje);
+    kuvaMeta(data);
     kuvaTabel(state);
     kuvaNupud();
 }
 
+
 // --- Metaandmed ---
 function kuvaMeta(kirje) {
+    const d = new Date(kirje.created_at);
+    const kuup = d.toLocaleDateString("et-EE");
+    const aeg = d.toLocaleTimeString("et-EE");
+
     arhiiviMeta.innerHTML = `
         <p><strong>Kuu:</strong> ${kirje.kuu_id}</p>
-        <p><strong>Arhiveeritud:</strong> ${new Date(kirje.created_at).toLocaleString("et-EE")}</p>
-        <p><strong>Arhiveeris:</strong> ${kirje.kasutaja || kirje.user_email}</p>
+        <p><strong>Arhiveeritud:</strong> ${kuup}, ${aeg}</p>
+        <p><strong>Arhiveeris:</strong> ${kirje.salvestaja}</p>
+        <p><strong>Versioon:</strong> ${kirje.versioon}</p>
     `;
 }
 
+
 // --- Tabel ---
 function kuvaTabel(state) {
-    const veerud = Array.isArray(state.veerud) ? state.veerud : [];
-    const rows = Array.isArray(state.rows) ? state.rows : [];
+    if (!Array.isArray(state) || state.length === 0) {
+        arhiiviKuva.innerHTML = "<p>Tühi arhiiv.</p>";
+        return;
+    }
+
+    const veergudeArv = state[0].veerud.length;
 
     const thead = `
         <thead>
             <tr>
                 <th>Kuupäev</th>
-                ${veerud.map(v => `<th>${v.pealkiri}</th>`).join("")}
+                ${Array.from({ length: veergudeArv })
+                    .map((_, i) => `<th>Veerg ${i + 1}</th>`)
+                    .join("")}
+                <th>Kokku</th>
             </tr>
         </thead>
     `;
 
     const tbody = `
         <tbody>
-            ${rows.map(r => `
+            ${state.map(r => `
                 <tr>
-                    <td>${r.kuupaev ?? ""}</td>
-                    ${veerud.map(v => `<td>${r[v.nimi] ?? ""}</td>`).join("")}
+                    <td>${r.kuupäev}</td>
+                    ${r.veerud.map(v => `<td>${v}</td>`).join("")}
+                    <td>${r.kokku}</td>
                 </tr>
             `).join("")}
         </tbody>
@@ -109,9 +128,10 @@ function kuvaTabel(state) {
             ${thead}
             ${tbody}
         </table>
-        <p><strong>Kuu kokku:</strong> ${state.kuuKokku ?? ""}</p>
     `;
 }
+
+  
 
 // --- Nupud ---
 function kuvaNupud() {
@@ -162,6 +182,75 @@ window.addEventListener("DOMContentLoaded", () => {
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", logout);
+}
+
+function kuvaTabel(state) {
+    if (!Array.isArray(state) || state.length === 0) {
+        arhiiviKuva.innerHTML = "<p>Tühi arhiiv.</p>";
+        return;
+    }
+
+    const veergudeArv = state[0].veerud.length;
+
+    const thead = `
+        <thead>
+            <tr>
+                <th>Kuupäev</th>
+                ${Array.from({ length: veergudeArv })
+                    .map((_, i) => `<th>Veerg ${i + 1}</th>`)
+                    .join("")}
+                <th>Kokku</th>
+            </tr>
+        </thead>
+    `;
+
+    const tbody = `
+        <tbody>
+            ${state.map(r => `
+                <tr>
+                    <td>${r.kuupäev}</td>
+                    ${r.veerud.map(v => `<td>${v}</td>`).join("")}
+                    <td>${r.kokku}</td>
+                </tr>
+            `).join("")}
+        </tbody>
+    `;
+    async function taastaArhiiv(arhiiviId) {
+    // 1) Lae arhiivi state
+    const { data, error } = await sb
+        .from("arhiiv")
+        .select("*")
+        .eq("arhiiviId", arhiiviId)
+        .single();
+
+    if (error || !data) {
+        alert("Arhiivi laadimine ebaõnnestus.");
+        return;
+    }
+
+    const state = JSON.parse(data.state);
+
+    // 2) Märgi Supabase'is taastatuks
+    await sb
+        .from("arhiiv")
+        .update({ taastatud: true })
+        .eq("arhiiviId", arhiiviId);
+
+    // 3) Salvesta state aktiivse kuu tabelisse
+    localStorage.setItem("taastatudState", JSON.stringify(state));
+    localStorage.setItem("taastatudKuu", data.kuu_id);
+
+    // 4) Ava kassatabel taastatud režiimis
+    window.location = `kassatabel.html?taastatud=${data.kuu_id}`;
+}
+
+
+    arhiiviKuva.innerHTML = `
+        <table class="arhiivi-tabel">
+            ${thead}
+            ${tbody}
+        </table>
+    `;
 }
 
 
