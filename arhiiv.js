@@ -49,7 +49,6 @@ async function laeKuuValikud() {
     kuuValik.addEventListener("change", kuvaArhiiv);
 }
 
-
 // --- Lae ja kuva arhiiv ---
 async function kuvaArhiiv() {
     const arhiiviId = kuuValik.value;
@@ -74,7 +73,6 @@ async function kuvaArhiiv() {
     kuvaNupud();
 }
 
-
 // --- Metaandmed ---
 function kuvaMeta(kirje) {
     const d = new Date(kirje.created_at);
@@ -88,7 +86,6 @@ function kuvaMeta(kirje) {
         <p><strong>Versioon:</strong> ${kirje.versioon}</p>
     `;
 }
-
 
 // --- Tabel ---
 function kuvaTabel(state) {
@@ -131,8 +128,6 @@ function kuvaTabel(state) {
     `;
 }
 
-  
-
 // --- Nupud ---
 function kuvaNupud() {
     const roll = window.userRole || "vaataja";
@@ -146,7 +141,7 @@ function kuvaNupud() {
     if (roll === "superadmin") {
         html += `
             <button class="admin">Paranda arhiivi</button>
-            <button class="admin">Taasta aktiivseks kuuks</button>
+            <button class="admin taasta-btn">Taasta aktiivseks kuuks</button>
             <button class="admin">Kustuta arhiiv</button>
         `;
     }
@@ -178,45 +173,8 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Lisa event listener ainult siis, kui nupp on olemas
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
-}
-
-function kuvaTabel(state) {
-    if (!Array.isArray(state) || state.length === 0) {
-        arhiiviKuva.innerHTML = "<p>Tühi arhiiv.</p>";
-        return;
-    }
-
-    const veergudeArv = state[0].veerud.length;
-
-    const thead = `
-        <thead>
-            <tr>
-                <th>Kuupäev</th>
-                ${Array.from({ length: veergudeArv })
-                    .map((_, i) => `<th>Veerg ${i + 1}</th>`)
-                    .join("")}
-                <th>Kokku</th>
-            </tr>
-        </thead>
-    `;
-
-    const tbody = `
-        <tbody>
-            ${state.map(r => `
-                <tr>
-                    <td>${r.kuupäev}</td>
-                    ${r.veerud.map(v => `<td>${v}</td>`).join("")}
-                    <td>${r.kokku}</td>
-                </tr>
-            `).join("")}
-        </tbody>
-    `;
-    async function taastaArhiiv(arhiiviId) {
-    // 1) Lae arhiivi state
+// --- Taasta arhiiv ---
+async function taastaArhiiv(arhiiviId) {
     const { data, error } = await sb
         .from("arhiiv")
         .select("*")
@@ -230,28 +188,24 @@ function kuvaTabel(state) {
 
     const state = JSON.parse(data.state);
 
-    // 2) Märgi Supabase'is taastatuks
     await sb
         .from("arhiiv")
         .update({ taastatud: true })
         .eq("arhiiviId", arhiiviId);
 
-    // 3) Salvesta state aktiivse kuu tabelisse
     localStorage.setItem("taastatudState", JSON.stringify(state));
     localStorage.setItem("taastatudKuu", data.kuu_id);
 
-    // 4) Ava kassatabel taastatud režiimis
     window.location = `kassatabel.html?taastatud=${data.kuu_id}`;
 }
 
-
-    arhiiviKuva.innerHTML = `
-        <table class="arhiivi-tabel">
-            ${thead}
-            ${tbody}
-        </table>
-    `;
+// --- Logout ---
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
 }
+
+
 
 
 
