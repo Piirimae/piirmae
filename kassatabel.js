@@ -190,9 +190,9 @@ if (onParandusRez) {
 
     // Prindinupp peab jääma
     prindiNupp.onclick = () => window.print();
-    laeAllaNupp.onclick = () => alert("PDF tuleb tulevikus");
+    laeAllaNupp.onclick = () => alert("PDF tuleb tulevikus");}
 
-} else {
+ else {
     // Tavaline režiim
     salvestaNupp.onclick = () => alert("Salvestamine tuleb järgmises etapis");
     arhiiviNupp.onclick = () => alert("Arhiiv tuleb järgmises etapis");
@@ -269,6 +269,7 @@ async function salvestaParandatudArhiiv() {
     alert("Arhiiv salvestatud.");
     window.location = "arhiiv.html";
 }
+
 
 
 
