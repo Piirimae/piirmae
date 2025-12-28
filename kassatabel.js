@@ -163,6 +163,12 @@ laeAllaNupp.onclick = () => alert("PDF tuleb tulevikus");
 // Käivita
 initKassatabel();
 
+window.addEventListener("beforeprint", () => {
+    const kuu = document.getElementById("kuuValik")?.selectedOptions[0]?.dataset?.kuu || "";
+    const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
+    document.getElementById("printTitle").textContent = `${kuu} – ${leht}`;
+});
+
 
 
 
