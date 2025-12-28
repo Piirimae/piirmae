@@ -605,4 +605,62 @@ button.delete-btn:hover {
     display: none;
 }
 
+/* --- KASSATABELI PRINT --- */
+@media print {
+
+    /* Muudame kogu tabeli must-valgeks */
+    #tabel,
+    #tabel th,
+    #tabel td {
+        background: white !important;
+        color: black !important;
+        border: 1px solid black !important;
+    }
+
+    /* Päis halliks (PDF-look) */
+    #tabel thead th {
+        background: #eee !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        font-weight: bold !important;
+    }
+
+    /* Numbrid boldiks */
+    #tabel td {
+        font-weight: bold !important;
+    }
+
+    /* Input-väljad muutuvad tekstiks */
+    #tabel input {
+        background: none !important;
+        border: none !important;
+        color: black !important;
+        font-weight: bold !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: auto !important;
+    }
+
+    /* Peida värvilised ribad, varjud, efektid */
+    #tabel * {
+        box-shadow: none !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+    }
+
+    /* Kitsendame veerud, et kõik mahuks A4-le */
+    #tabel {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
+
+    #tabel th,
+    #tabel td {
+        padding: 4px 6px !important;
+        font-size: 12px !important;
+        word-wrap: break-word !important;
+    }
+}
+
 
