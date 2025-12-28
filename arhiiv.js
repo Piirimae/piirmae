@@ -90,23 +90,22 @@ function kuvaMeta(kirje) {
 // --- Tabel ---
 function kuvaTabel(state) {
 
-    // --- UUS FORMAAT: massiiv ridadest ---
-    if (Array.isArray(state)) {
+    // --- UUS FORMAAT ---
+    if (state.paise && state.rows) {
 
-        if (state.length === 0) {
-            arhiiviKuva.innerHTML = "<p>Tühi arhiiv.</p>";
-            return;
-        }
-
-        const veergudeArv = state[0].veerud?.length ?? 0;
+        const paise = state.paise;
+        const rows = state.rows;
 
         const thead = `
             <thead>
                 <tr>
                     <th>Kuupäev</th>
-                    ${Array.from({ length: veergudeArv })
-                        .map((_, i) => `<th>Veerg ${i + 1}</th>`)
-                        .join("")}
+                    ${paise.map(v => {
+                        if (v.tüüp === "toit") {
+                            return `<th>${v.pealkiri}<br><small>${Number(v.hind).toFixed(2)} €</small></th>`;
+                        }
+                        return `<th>${v.pealkiri}</th>`;
+                    }).join("")}
                     <th>Kokku</th>
                 </tr>
             </thead>
@@ -114,7 +113,7 @@ function kuvaTabel(state) {
 
         const tbody = `
             <tbody>
-                ${state.map(r => `
+                ${rows.map(r => `
                     <tr>
                         <td>${r.kuupäev}</td>
                         ${r.veerud.map(v => `<td>${v}</td>`).join("")}
@@ -124,14 +123,35 @@ function kuvaTabel(state) {
             </tbody>
         `;
 
+        const tfoot = `
+            <tfoot>
+                <tr>
+                    <td>Kogus kokku</td>
+                    ${state.sumKogus.map(v => `<td>${v}</td>`).join("")}
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Kogus × hind</td>
+                    ${state.sumHind.map(v => `<td>${v}</td>`).join("")}
+                    <td>${state.kuuKokku}</td>
+                </tr>
+            </tfoot>
+        `;
+
         arhiiviKuva.innerHTML = `
             <table class="arhiivi-tabel">
                 ${thead}
                 ${tbody}
+                ${tfoot}
             </table>
         `;
         return;
     }
+
+    // --- VANA FORMAAT ---
+    arhiiviKuva.innerHTML = "<p>Vana arhiivi formaat — ei toetata täielikult.</p>";
+}
+
 
     // --- VANA FORMAAT: objekt ---
     if (state && typeof state === "object") {
@@ -250,6 +270,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", logout);
 }
+
 
 
 
