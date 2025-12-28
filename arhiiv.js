@@ -90,104 +90,66 @@ function kuvaMeta(kirje) {
 // --- Tabel ---
 function kuvaTabel(state) {
 
-    // --- UUS FORMAAT ---
-    if (state.paise && state.rows) {
-
-        const paise = state.paise;
-        const rows = state.rows;
-
-        const thead = `
-            <thead>
-                <tr>
-                    <th>Kuupäev</th>
-                    ${paise.map(v => {
-                        if (v.tüüp === "toit") {
-                            return `<th>${v.pealkiri}<br><small>${Number(v.hind).toFixed(2)} €</small></th>`;
-                        }
-                        return `<th>${v.pealkiri}</th>`;
-                    }).join("")}
-                    <th>Kokku</th>
-                </tr>
-            </thead>
-        `;
-
-        const tbody = `
-            <tbody>
-                ${rows.map(r => `
-                    <tr>
-                        <td>${r.kuupäev}</td>
-                        ${r.veerud.map(v => `<td>${v}</td>`).join("")}
-                        <td>${r.kokku}</td>
-                    </tr>
-                `).join("")}
-            </tbody>
-        `;
-
-        const tfoot = `
-            <tfoot>
-                <tr>
-                    <td>Kogus kokku</td>
-                    ${state.sumKogus.map(v => `<td>${v}</td>`).join("")}
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>Kogus × hind</td>
-                    ${state.sumHind.map(v => `<td>${v}</td>`).join("")}
-                    <td>${state.kuuKokku}</td>
-                </tr>
-            </tfoot>
-        `;
-
-        arhiiviKuva.innerHTML = `
-            <table class="arhiivi-tabel">
-                ${thead}
-                ${tbody}
-                ${tfoot}
-            </table>
-        `;
+    // --- AINULT UUS FORMAAT ---
+    if (!state.paise || !state.rows) {
+        arhiiviKuva.innerHTML = "<p>Arhiivi formaat tundmatu või vigane.</p>";
         return;
     }
 
-    // --- VANA FORMAAT ---
-    arhiiviKuva.innerHTML = "<p>Vana arhiivi formaat — ei toetata täielikult.</p>";
+    const paise = state.paise;
+    const rows = state.rows;
+
+    const thead = `
+        <thead>
+            <tr>
+                <th>Kuupäev</th>
+                ${paise.map(v => {
+                    if (v.tüüp === "toit") {
+                        return `<th>${v.pealkiri}<br><small>${Number(v.hind).toFixed(2)} €</small></th>`;
+                    }
+                    return `<th>${v.pealkiri}</th>`;
+                }).join("")}
+                <th>Kokku</th>
+            </tr>
+        </thead>
+    `;
+
+    const tbody = `
+        <tbody>
+            ${rows.map(r => `
+                <tr>
+                    <td>${r.kuupäev}</td>
+                    ${r.veerud.map(v => `<td>${v}</td>`).join("")}
+                    <td>${r.kokku}</td>
+                </tr>
+            `).join("")}
+        </tbody>
+    `;
+
+    const tfoot = `
+        <tfoot>
+            <tr>
+                <td>Kogus kokku</td>
+                ${state.sumKogus.map(v => `<td>${v}</td>`).join("")}
+                <td></td>
+            </tr>
+            <tr>
+                <td>Kogus × hind</td>
+                ${state.sumHind.map(v => `<td>${v}</td>`).join("")}
+                <td>${state.kuuKokku}</td>
+            </tr>
+        </tfoot>
+    `;
+
+    arhiiviKuva.innerHTML = `
+        <table class="arhiivi-tabel">
+            ${thead}
+            ${tbody}
+            ${tfoot}
+        </table>
+    `;
 }
 
-
-    // --- VANA FORMAAT: objekt ---
-    if (state && typeof state === "object") {
-
-        const veerud = state.veerud ?? [];
-        const rows = state.rows ?? [];
-
-        const thead = `
-            <thead>
-                <tr>
-                    <th>Kuupäev</th>
-                    ${veerud.map(v => `<th>${v.pealkiri}</th>`).join("")}
-                </tr>
-            </thead>
-        `;
-
-        const tbody = `
-            <tbody>
-                ${rows.map(r => `
-                    <tr>
-                        <td>${r.kuupaev ?? ""}</td>
-                        ${veerud.map(v => `<td>${r[v.nimi] ?? ""}</td>`).join("")}
-                    </tr>
-                `).join("")}
-            </tbody>
-        `;
-
-        arhiiviKuva.innerHTML = `
-            <table class="arhiivi-tabel">
-                ${thead}
-                ${tbody}
-            </table>
-            <p><strong>Kuu kokku:</strong> ${state.kuuKokku ?? ""}</p>
-        `;
-        return;
-    }
 
     // --- Kui ei vasta kummalegi ---
     arhiiviKuva.innerHTML = "<p>Arhiivi formaat tundmatu.</p>";
@@ -270,6 +232,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", logout);
 }
+
 
 
 
