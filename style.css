@@ -505,4 +505,104 @@ button.delete-btn:hover {
     text-align: right;
 }
 
+/* --- PRINT LAYOUT --- */
+@media print {
+
+    /* Peida kõik nupud, menüüd, logout jne */
+    button,
+    #arhiiviNupud,
+    #logoutBtn,
+    .admin,
+    .taasta-btn,
+    .paranda-btn,
+    nav,
+    header,
+    footer {
+        display: none !important;
+    }
+
+    /* Taust valgeks */
+    body {
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Print header (logo + pealkiri) */
+    #printHeader {
+        display: flex !important;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #000;
+    }
+
+    #printHeader img {
+        width: 80px;
+        height: auto;
+    }
+
+    #printHeader h1 {
+        font-size: 22px;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Tabel kompaktseks */
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        font-size: 12px !important;
+        table-layout: fixed !important; /* Kitsendab veerud automaatselt */
+        word-wrap: break-word !important;
+    }
+
+    th, td {
+        padding: 4px 6px !important;
+        border: 1px solid #000 !important;
+    }
+
+    /* Päis igale lehele */
+    thead {
+        display: table-header-group !important;
+    }
+
+    /* Jalus igale lehele */
+    tfoot {
+        display: table-footer-group !important;
+    }
+
+    /* Input-väljad muutuvad tekstiks */
+    input {
+        border: none !important;
+        background: none !important;
+        box-shadow: none !important;
+        pointer-events: none !important;
+        font-size: inherit !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: auto !important;
+    }
+
+    /* Arhiivi tabeli päis */
+    .arhiivi-tabel th {
+        background: #eee !important;
+        font-weight: bold !important;
+    }
+
+    /* Kassatabeli päis */
+    #tabel thead th {
+        background: #eee !important;
+        font-weight: bold !important;
+    }
+}
+
+/* Ekraanil printHeader peidetud */
+#printHeader {
+    display: none;
+}
+
 
