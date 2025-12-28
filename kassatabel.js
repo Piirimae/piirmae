@@ -174,6 +174,7 @@ window.addEventListener("beforeprint", () => {
         const span = document.createElement("span");
         span.textContent = inp.value;
         span.classList.add("print-value");
+        inp.dataset.wasVisible = "true";
         inp.style.display = "none";
         inp.parentNode.appendChild(span);
     });
@@ -182,9 +183,13 @@ window.addEventListener("beforeprint", () => {
 window.addEventListener("afterprint", () => {
     document.querySelectorAll(".print-value").forEach(span => span.remove());
     document.querySelectorAll("td input").forEach(inp => {
-        inp.style.display = "";
+        if (inp.dataset.wasVisible === "true") {
+            inp.style.display = "";
+        }
     });
 });
+
+
 
 
 
