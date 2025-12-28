@@ -540,23 +540,57 @@ salvestaNupp.addEventListener("click", async () => {
     rakendaLukustusOlek();
     näitaTeadet("Salvestatud ja lukustatud.");
 });
-function koostaState() {
-    const read = Array.from(tbody.querySelectorAll("tr"));
 
-    return read.map(rida => {
+//--- KOOSTASTATE ---
+function koostaState() {
+    // --- Päevade read ---
+    const rows = Array.from(tbody.querySelectorAll("tr")).map(rida => {
         const inputs = Array.from(rida.querySelectorAll("td input"));
         const kokkuCell = rida.querySelector(".kokku-cell")?.textContent ?? "0.00 €";
 
-        // loeme kõik inputid järjest
-        const veerud = inputs.map(inp => inp.value);
-
         return {
             kuupäev: rida.dataset.date,
-            veerud: veerud,
+            veerud: inputs.map(inp => inp.value),
             kokku: kokkuCell
         };
     });
+
+    // --- Päise metaandmed ---
+    const paise = seaded.veerud.map(v => ({
+        nimi: v.nimi,
+        pealkiri: v.pealkiri,
+        hind: v.hind ?? null,
+        tüüp: v.tüüp
+    }));
+
+    // --- Jaluse summad ---
+    const sumKogus = [];
+    const sumHind = [];
+
+    const veergudeArv = rows[0]?.veerud?.length ?? 0;
+
+    for (let i = 0; i < veergudeArv; i++) {
+        const kogusEl = document.getElementById(`sumKogus${i}`);
+        const hindEl = document.getElementById(`sumHind${i}`);
+
+        sumKogus.push(kogusEl ? kogusEl.textContent : "0");
+        sumHind.push(hindEl ? hindEl.textContent : "0.00 €");
+    }
+
+    // --- Kuu kokku ---
+    const kuuKokkuEl = document.getElementById("kuuKokku");
+    const kuuKokku = kuuKokkuEl ? kuuKokkuEl.textContent : "0.00 €";
+
+    // --- Lõplik state ---
+    return {
+        paise,
+        rows,
+        sumKogus,
+        sumHind,
+        kuuKokku
+    };
 }
+
 
 
 // --- ARHIIVI SALVESTAMINE ---
@@ -783,6 +817,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 ;
+
 
 
 
