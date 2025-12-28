@@ -152,8 +152,7 @@ function kuvaTabel(state) {
 
 
     // --- Kui ei vasta kummalegi ---
-    arhiiviKuva.innerHTML = "<p>Arhiivi formaat tundmatu.</p>";
-}
+
 
 
 // --- Nupud ---
@@ -232,6 +231,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", logout);
 }
+
 
 
 
