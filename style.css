@@ -513,75 +513,13 @@ button.delete-btn:hover {
     }
 }
 
-/* --- A4 ÜHELE LEHELE MAHUTAMISE REŽIIM --- */
 @media print {
-
-    /* A4 marginaalid */
-    @page {
-        size: A4 portrait;
-        margin: 10mm;
-    }
-
-    /* Ühtne font */
-    body, table {
-        font-family: Arial, sans-serif !important;
-    }
-
-    /* Tabel kompaktseks */
-    table {
-        width: 100% !important;
-        table-layout: fixed !important;
-        border-collapse: collapse !important;
-        font-size: 11px !important; /* väiksem font = rohkem mahub */
-    }
-
-    th, td {
-        padding: 2px 3px !important; /* väga kompaktne */
-        line-height: 1.1 !important; /* fikseeritud rea kõrgus */
-        border: 1px solid black !important;
-        word-wrap: break-word !important;
-    }
-
-    /* Päis halliks */
-    thead th {
-        background: #eee !important;
-        font-weight: bold !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    /* Päis igale lehele */
-    thead {
-        display: table-header-group !important;
-    }
-
-    /* Jalus igale lehele */
-    tfoot {
-        display: table-footer-group !important;
-    }
-
-    /* Väldi ridade lõhkumist */
-    tr {
-        page-break-inside: avoid !important;
-    }
-
-    /* Inputid → näita span’e */
-    input {
-        display: none !important;
-    }
-
-    .print-value {
-        display: inline !important;
-        font-weight: bold !important;
-        color: black !important;
-    }
-
-    /* Automaatne skaleerimine, kui tabel on natuke liiga suur */
-    body {
-        transform: scale(0.95); /* vajadusel 0.90 või 0.85 */
-        transform-origin: top left;
+    td, th {
+        padding: 4px 6px !important;
+        line-height: 1.3 !important;
     }
 }
+
 
 
 
