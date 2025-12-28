@@ -11,6 +11,12 @@ const prindiNupp = document.getElementById("prindiNupp");
 const laeAllaNupp = document.getElementById("laeAllaNupp");
 const vaateReziim = document.getElementById("vaateReziim");
 const tbody = document.getElementById("tbody");
+// --- Režiimi tuvastamine ---
+const url = new URL(window.location.href);
+const parandaKuu = url.searchParams.get("paranda");
+const parandaArhiiviId = url.searchParams.get("arhiiviId");
+
+const onParandusRez = parandaKuu && parandaArhiiviId;
 
 let tabelLukus = true;
 let praeguneKuu = null;
@@ -26,7 +32,15 @@ async function initKassatabel() {
     seaded = await laeSeaded();
 
     await laeKuuValikud();
+
+if (onParandusRez) {
+    praeguneKuu = parandaKuu;
+    kuuValik.value = parandaKuu;
+    kuuValik.disabled = true;
+} else {
     praeguneKuu = kuuValik.value;
+}
+
 
     await genereeriKuuTabel();
     const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
@@ -34,6 +48,7 @@ async function initKassatabel() {
 
     rakendaLukustusOlek(true);
 }
+
 
 // =========================
 //  KUU VALIKUD
@@ -131,6 +146,11 @@ function täidaTabelSupabaseAndmetega(andmed) {
         });
     });
 }
+if (onParandusRez) {
+    vaateReziim.textContent = `Režiim: arhiivist parandamine (${parandaKuu})`;
+    tabelLukus = false;
+    rakendaLukustusOlek(false);
+}
 
 // =========================
 //  LUKUSTUS
@@ -155,10 +175,31 @@ lukustaNupp.onclick = () => {
     rakendaLukustusOlek(tabelLukus);
 };
 
-salvestaNupp.onclick = () => alert("Salvestamine tuleb järgmises etapis");
-arhiiviNupp.onclick = () => alert("Arhiiv tuleb järgmises etapis");
-prindiNupp.onclick = () => window.print();
-laeAllaNupp.onclick = () => alert("PDF tuleb tulevikus");
+if (onParandusRez) {
+    // Peida tavalised salvestusnupud
+    salvestaNupp.style.display = "none";
+    arhiiviNupp.style.display = "none";
+
+    // Lisa parandusnupp
+    const salvestaParandusBtn = document.createElement("button");
+    salvestaParandusBtn.textContent = "Salvesta arhiivi (parandus)";
+    salvestaParandusBtn.id = "salvestaParandus";
+    salvestaParandusBtn.onclick = salvestaParandatudArhiiv;
+
+    arhiiviNupp.parentNode.appendChild(salvestaParandusBtn);
+
+    // Prindinupp peab jääma
+    prindiNupp.onclick = () => window.print();
+    laeAllaNupp.onclick = () => alert("PDF tuleb tulevikus");
+
+} else {
+    // Tavaline režiim
+    salvestaNupp.onclick = () => alert("Salvestamine tuleb järgmises etapis");
+    arhiiviNupp.onclick = () => alert("Arhiiv tuleb järgmises etapis");
+    prindiNupp.onclick = () => window.print();
+    laeAllaNupp.onclick = () => alert("PDF tuleb tulevikus");
+}
+
 
 // Käivita
 initKassatabel();
@@ -188,6 +229,46 @@ window.addEventListener("afterprint", () => {
         }
     });
 });
+
+async function salvestaParandatudArhiiv() {
+    // Koosta state (kasutan sinu olemasolevat loogikat)
+    const state = koostaState(); // kui nimi on teine, ütle mulle ja ma kohandan
+
+    // Lae vana arhiivi kirje
+    const { data: vana, error: viga } = await sb
+        .from("arhiiv")
+        .select("*")
+        .eq("arhiiviId", parandaArhiiviId)
+        .single();
+
+    if (viga || !vana) {
+        alert("Vana arhiivi kirjet ei leitud.");
+        return;
+    }
+
+    const uusVersioon = (vana.versioon || 1) + 1;
+
+    // Ülekirjutamine
+    const { error } = await sb
+        .from("arhiiv")
+        .update({
+            arhiiviId: new Date().toISOString(),
+            versioon: uusVersioon,
+            paeritolu: "muudetud",
+            state: JSON.stringify(state),
+            salvestaja: window.userName || "tundmatu"
+        })
+        .eq("arhiiviId", parandaArhiiviId);
+
+    if (error) {
+        console.error(error);
+        alert("Arhiivi salvestamine ebaõnnestus.");
+        return;
+    }
+
+    alert("Arhiiv salvestatud.");
+    window.location = "arhiiv.html";
+}
 
 
 
