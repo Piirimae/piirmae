@@ -506,6 +506,12 @@ button.delete-btn:hover {
 }
 
 /* --- PRINT LAYOUT (ÜHENDATUD JA KONFLIKTIVABA) --- */
+@media print {
+    .print-value {
+        font-weight: bold !important;
+        color: black !important;
+    }
+}
 
 /* --- A4 ÜHELE LEHELE MAHUTAMISE REŽIIM --- */
 @media print {
@@ -576,6 +582,7 @@ button.delete-btn:hover {
         transform-origin: top left;
     }
 }
+
 
 
 
