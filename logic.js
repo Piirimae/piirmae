@@ -529,22 +529,22 @@ salvestaNupp.addEventListener("click", async () => {
 });
 function koostaState() {
     const read = Array.from(tbody.querySelectorAll("tr"));
+
     return read.map(rida => {
-        const lahter1 = rida.querySelector(".lahter1")?.textContent ?? "";
-        const lahter2 = rida.querySelector(".lahter2")?.textContent ?? "";
-        const lahter3 = rida.querySelector(".lahter3")?.textContent ?? "";
-        const lahter4 = rida.querySelector(".lahter4")?.textContent ?? "";
-        const lahter5 = rida.querySelector(".lahter5")?.textContent ?? "";
+        const inputs = Array.from(rida.querySelectorAll("td input"));
+        const kokkuCell = rida.querySelector(".kokku-cell")?.textContent ?? "0.00 €";
+
+        // loeme kõik inputid järjest
+        const veerud = inputs.map(inp => inp.value);
 
         return {
-            lahter1,
-            lahter2,
-            lahter3,
-            lahter4,
-            lahter5
+            kuupäev: rida.dataset.date,
+            veerud: veerud,
+            kokku: kokkuCell
         };
     });
 }
+
 
 // --- ARHIIVI SALVESTAMINE ---
 arhiiviNupp.addEventListener("click", salvestaArhiivi);
@@ -770,6 +770,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 ;
+
 
 
 
