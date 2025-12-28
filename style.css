@@ -516,9 +516,10 @@ button.delete-btn:hover {
 @media print {
     td, th {
         padding: 4px 6px !important;
-        line-height: 1.3 !important;
+        line-height: 1.2 !important;
     }
 }
+
 
 
 
