@@ -452,4 +452,57 @@ button.delete-btn:hover {
     background: #ffe28a;
     color: #000;
 }
+/* --- ARHIIVI TABEL --- */
+
+.arhiivi-tabel {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+    background: white;
+    border: 1px solid #ccc;
+}
+
+.arhiivi-tabel thead th {
+    background: #f5f5f5;
+    padding: 8px;
+    border-bottom: 2px solid #bbb;
+    text-align: left;
+    font-weight: 600;
+}
+
+.arhiivi-tabel tbody td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.arhiivi-tabel tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.arhiivi-tabel tbody tr:hover {
+    background: #f0f7ff;
+}
+
+.arhiivi-tabel tfoot td {
+    padding: 8px;
+    font-weight: 600;
+    background: #f9f9f9;
+    border-top: 2px solid #bbb;
+}
+
+.arhiivi-tabel tfoot tr:first-child td {
+    border-top: 2px solid #ccc;
+}
+
+.arhiivi-tabel tfoot tr:last-child td {
+    background: #eef7ff;
+    font-size: 15px;
+}
+
+.arhiivi-tabel td:last-child,
+.arhiivi-tabel th:last-child {
+    text-align: right;
+}
+
 
