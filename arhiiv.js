@@ -186,27 +186,28 @@ window.addEventListener("DOMContentLoaded", () => {
     parandusKinnita = document.getElementById("parandusKinnita");
     parandusLoobu = document.getElementById("parandusLoobu");
 
+    // Ava modal
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("admin") && e.target.textContent.includes("Paranda arhiivi")) {
             parandusModal.style.display = "flex";
         }
     });
 
+    // Sulge modal
     parandusLoobu.addEventListener("click", () => {
         parandusModal.style.display = "none";
     });
 
+    // Kinnita parandus
     parandusKinnita.addEventListener("click", () => {
-        const kuuId = kuuValik.value;
-    parandusKinnita.addEventListener("click", () => {
-    const opt = kuuValik.selectedOptions[0];
-    const kuu = opt.dataset.kuu;
-    const arhiiviId = opt.value;
+        const opt = kuuValik.selectedOptions[0];
+        const kuu = opt.dataset.kuu;
+        const arhiiviId = opt.value;
 
-    window.location = `kassatabel.html?paranda=${kuu}&arhiiviId=${arhiiviId}`;
+        window.location = `kassatabel.html?paranda=${kuu}&arhiiviId=${arhiiviId}`;
+    });
 });
 
-});
 
 // --- Taasta arhiiv ---
 async function taastaArhiiv(arhiiviId) {
@@ -245,6 +246,7 @@ window.addEventListener("beforeprint", () => {
     const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     document.getElementById("printTitle").textContent = `${kuu} – ${leht}`;
 });
+
 
 
 
