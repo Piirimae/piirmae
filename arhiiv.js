@@ -89,44 +89,90 @@ function kuvaMeta(kirje) {
 
 // --- Tabel ---
 function kuvaTabel(state) {
-    if (!Array.isArray(state) || state.length === 0) {
-        arhiiviKuva.innerHTML = "<p>Tühi arhiiv.</p>";
+
+    // --- UUS FORMAAT: massiiv ridadest ---
+    if (Array.isArray(state)) {
+
+        if (state.length === 0) {
+            arhiiviKuva.innerHTML = "<p>Tühi arhiiv.</p>";
+            return;
+        }
+
+        const veergudeArv = state[0].veerud?.length ?? 0;
+
+        const thead = `
+            <thead>
+                <tr>
+                    <th>Kuupäev</th>
+                    ${Array.from({ length: veergudeArv })
+                        .map((_, i) => `<th>Veerg ${i + 1}</th>`)
+                        .join("")}
+                    <th>Kokku</th>
+                </tr>
+            </thead>
+        `;
+
+        const tbody = `
+            <tbody>
+                ${state.map(r => `
+                    <tr>
+                        <td>${r.kuupäev}</td>
+                        ${r.veerud.map(v => `<td>${v}</td>`).join("")}
+                        <td>${r.kokku}</td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        `;
+
+        arhiiviKuva.innerHTML = `
+            <table class="arhiivi-tabel">
+                ${thead}
+                ${tbody}
+            </table>
+        `;
         return;
     }
 
-    const veergudeArv = state[0].veerud.length;
+    // --- VANA FORMAAT: objekt ---
+    if (state && typeof state === "object") {
 
-    const thead = `
-        <thead>
-            <tr>
-                <th>Kuupäev</th>
-                ${Array.from({ length: veergudeArv })
-                    .map((_, i) => `<th>Veerg ${i + 1}</th>`)
-                    .join("")}
-                <th>Kokku</th>
-            </tr>
-        </thead>
-    `;
+        const veerud = state.veerud ?? [];
+        const rows = state.rows ?? [];
 
-    const tbody = `
-        <tbody>
-            ${state.map(r => `
+        const thead = `
+            <thead>
                 <tr>
-                    <td>${r.kuupäev}</td>
-                    ${r.veerud.map(v => `<td>${v}</td>`).join("")}
-                    <td>${r.kokku}</td>
+                    <th>Kuupäev</th>
+                    ${veerud.map(v => `<th>${v.pealkiri}</th>`).join("")}
                 </tr>
-            `).join("")}
-        </tbody>
-    `;
+            </thead>
+        `;
 
-    arhiiviKuva.innerHTML = `
-        <table class="arhiivi-tabel">
-            ${thead}
-            ${tbody}
-        </table>
-    `;
+        const tbody = `
+            <tbody>
+                ${rows.map(r => `
+                    <tr>
+                        <td>${r.kuupaev ?? ""}</td>
+                        ${veerud.map(v => `<td>${r[v.nimi] ?? ""}</td>`).join("")}
+                    </tr>
+                `).join("")}
+            </tbody>
+        `;
+
+        arhiiviKuva.innerHTML = `
+            <table class="arhiivi-tabel">
+                ${thead}
+                ${tbody}
+            </table>
+            <p><strong>Kuu kokku:</strong> ${state.kuuKokku ?? ""}</p>
+        `;
+        return;
+    }
+
+    // --- Kui ei vasta kummalegi ---
+    arhiiviKuva.innerHTML = "<p>Arhiivi formaat tundmatu.</p>";
 }
+
 
 // --- Nupud ---
 function kuvaNupud() {
@@ -204,6 +250,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", logout);
 }
+
 
 
 
