@@ -168,6 +168,24 @@ window.addEventListener("beforeprint", () => {
     const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     document.getElementById("printTitle").textContent = `${kuu} – ${leht}`;
 });
+// --- INPUTIDE ASENDAMINE PRINTIMISE AJAL ---
+window.addEventListener("beforeprint", () => {
+    document.querySelectorAll("td input").forEach(inp => {
+        const span = document.createElement("span");
+        span.textContent = inp.value;
+        span.classList.add("print-value");
+        inp.style.display = "none";
+        inp.parentNode.appendChild(span);
+    });
+});
+
+window.addEventListener("afterprint", () => {
+    document.querySelectorAll(".print-value").forEach(span => span.remove());
+    document.querySelectorAll("td input").forEach(inp => {
+        inp.style.display = "";
+    });
+});
+
 
 
 
