@@ -19,6 +19,19 @@ const prindiNupp = document.getElementById("prindiNupp");
 const laeAllaNupp = document.getElementById("laeAllaNupp");
 const teadeEl = document.getElementById("teade");
 const arhiiviKuva = document.getElementById("arhiiviKuva");
+const taastatudState = localStorage.getItem("taastatudState");
+const taastatudKuu = localStorage.getItem("taastatudKuu");
+
+if (taastatudState && taastatudKuu) {
+    const state = JSON.parse(taastatudState);
+    taastaTabelState(state);
+    praeguneKuu = taastatudKuu;
+
+    // puhasta, et uuesti ei laeks
+    localStorage.removeItem("taastatudState");
+    localStorage.removeItem("taastatudKuu");
+}
+
 
 console.log("LOGIC STARTED");
 
@@ -770,6 +783,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 ;
+
 
 
 
