@@ -1,5 +1,4 @@
 // auth.js
-
 // Kuvab kasutaja nime ja laeb rolli "kasutajad" tabelist
 async function kuvaKasutajaNimi() {
     const { data } = await sb.auth.getUser();
