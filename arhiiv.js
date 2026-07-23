@@ -184,6 +184,7 @@ function kuvaTabel(state) {
 // --- Nupud ---
 function kuvaNupud() {
     const roll = window.userRole || "vaataja";
+    const arhiiviId = kuuValik.value; // Võtame praeguse arhiivi ID
 
     let html = `
         <button onclick="window.print()">Prindi</button>
@@ -194,13 +195,14 @@ function kuvaNupud() {
     if (roll === "superadmin") {
         html += `
             <button class="admin">Paranda arhiivi</button>
-            <button class="admin taasta-btn">Taasta aktiivseks kuuks</button>
+            <button class="admin taasta-btn" onclick="taastaArhiiv('${arhiiviId}')">Taasta aktiivseks kuuks</button>
             <button class="admin">Kustuta arhiiv</button>
         `;
     }
 
     arhiiviNupud.innerHTML = html;
 }
+
 
 // --- MODAL ---
 let parandusModal, parandusKinnita, parandusLoobu;
