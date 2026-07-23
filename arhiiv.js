@@ -21,7 +21,7 @@ async function laeKuuValikud() {
     const { data, error } = await sb
         .from("arhiiv")
         .select("arhiiviId, kuu_id, created_at, salvestaja, versioon, paeritolu")
-        .order("kuu_id", { ascending: false }); // ⬅ SORT kuu_id järgi, mitte created_at
+        .order("created_at", { ascending: false }); // ✅ PARANDATUD: created_at järgi sorteerimine
 
     if (error) {
         console.error("Kuu valikute laadimise viga:", error);
@@ -29,9 +29,15 @@ async function laeKuuValikud() {
     }
 
     kuuValik.innerHTML = data.map(r => {
-        const label = r.paeritolu === "muudetud"
-            ? `${r.kuu_id} (muudetud v${r.versioon})`
-            : `${r.kuu_id} (v${r.versioon})`;
+        // ✅ NUTIK VERSIOON: Näita versioon numbrit VÕI märgistust
+        let versiooniMärgistus = "";
+        if (r.paeritolu === "automaatne") {
+            versiooniMärgistus = "(automaatika)";
+        } else {
+            versiooniMärgistus = `(v${r.versioon})`;
+        }
+
+        const label = `${r.kuu_id} ${versiooniMärgistus}`;
 
         return `
             <option 
@@ -68,7 +74,9 @@ async function kuvaArhiiv() {
         return;
     }
 
-    const state = JSON.parse(data.state);
+    const state = typeof data.state === "string" 
+        ? JSON.parse(data.state) 
+        : data.state;
 
     kuvaMeta(data);
     kuvaTabel(state);
@@ -81,11 +89,27 @@ function kuvaMeta(kirje) {
     const kuup = d.toLocaleDateString("et-EE");
     const aeg = d.toLocaleTimeString("et-EE");
 
+    // ✅ NUTIK "ARHIVEERIS" TEKST
+    let arhiveerijaTekst = "";
+    if (kirje.paeritolu === "automaatne") {
+        arhiveerijaTekst = "(automaatika)";
+    } else {
+        arhiveerijaTekst = kirje.salvestaja;
+    }
+
+    // ✅ NUTIK "VERSIOON" TEKST
+    let versiooniTekst = "";
+    if (kirje.paeritolu === "automaatne") {
+        versiooniTekst = "(automaatika)";
+    } else {
+        versiooniTekst = kirje.versioon;
+    }
+
     arhiiviMeta.innerHTML = `
         <p><strong>Kuu:</strong> ${kirje.kuu_id}</p>
         <p><strong>Arhiveeritud:</strong> ${kuup}, ${aeg}</p>
-        <p><strong>Arhiveeris:</strong> ${kirje.salvestaja}</p>
-        <p><strong>Versioon:</strong> ${kirje.versioon}</p>
+        <p><strong>Arhiveeris:</strong> ${arhiveerijaTekst}</p>
+        <p><strong>Versioon:</strong> ${versiooniTekst}</p>
     `;
 }
 
@@ -222,7 +246,9 @@ async function taastaArhiiv(arhiiviId) {
         return;
     }
 
-    const state = JSON.parse(data.state);
+    const state = typeof data.state === "string" 
+        ? JSON.parse(data.state) 
+        : data.state;
 
     await sb
         .from("arhiiv")
@@ -246,15 +272,3 @@ window.addEventListener("beforeprint", () => {
     const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     document.getElementById("printTitle").textContent = `${kuu} – ${leht}`;
 });
-
-
-
-
-
-
-
-
-
-
-
-

@@ -151,6 +151,57 @@ async function arhiiviSupabasse(kuuId, stateJson) {
     }
 }
 
+// --- AUTOMAATNE ARHIIVIMISE FUNKTSIOON (KUU LÕPPSEIS) ---
+async function salvestaVanaKuuArhiivi(kuuId) {
+    try {
+        const stateJson = JSON.stringify(koostaState());
+        
+        const now = new Date();
+        const arhiiviId = [
+            now.getFullYear(),
+            String(now.getMonth() + 1).padStart(2, "0"),
+            String(now.getDate()).padStart(2, "0"),
+            String(now.getHours()).padStart(2, "0"),
+            String(now.getMinutes()).padStart(2, "0")
+        ].join("-");
+
+        // Leia, kas samal minutil on juba versioone
+        const { data: olemasolevad } = await sb
+            .from("arhiiv")
+            .select("versioon")
+            .eq("arhiiviId", arhiiviId);
+
+        let versioon = 1;
+        if (olemasolevad && olemasolevad.length > 0) {
+            versioon = Math.max(...olemasolevad.map(r => r.versioon)) + 1;
+        }
+
+        // Automaatse salvestamise puhul ei pea sisselogijat teadma
+        const { error } = await sb
+            .from("arhiiv")
+            .insert({
+                arhiiviId: arhiiviId,
+                kuu_id: kuuId,
+                state: stateJson,
+                salvestaja: "automaatne",
+                paeritolu: "automaatne",
+                taastatud: false,
+                versioon: versioon
+            });
+
+        if (error) {
+            console.error("Automaatse arhiivimise viga:", error);
+            return false;
+        }
+
+        console.log(`✓ Kuu ${kuuId} lõppseis automaatselt salvestatud arhiivi (${arhiiviId} v${versioon})`);
+        return true;
+
+    } catch (err) {
+        console.error("Automaatse arhiivimise erind:", err);
+        return false;
+    }
+}
 
 async function logiTegevusSupabasse(tegevus, detailid = {}) {
     const { data: userData } = await sb.auth.getUser();
@@ -654,7 +705,6 @@ async function salvestaArhiivi() {
 
 
 
-
 // --- DÜNAAMILINE ARHIIVI KUVA ---
 async function kuvaArhiiv() {
     const kuuId = kuuValik.value;
@@ -685,7 +735,7 @@ async function kuvaArhiiv() {
 
     const tbodyHtml = state.rows.map(r => `
         <tr>
-            <td>${r.kuupaev}</td>
+            <td>${r.kuupäev}</td>
             ${veerud.map(v => `<td>${r[v.nimi] ?? ""}</td>`).join("")}
         </tr>
     `).join("");
@@ -743,9 +793,20 @@ laeAllaNupp.addEventListener("click", () => {
 });
 
 
-// --- KUU VAHETUS ---
+// --- KUU VAHETUS (AUTOMAATNE ARHIIVIMIS MÄRGISTUSE FUNKTSIOON) ---
 kuuValik.addEventListener("change", async () => {
+    const vanaKuu = praeguneKuu;  // Salvesta vana kuu enne muutmist
     const uusKuu = kuuValik.value;
+    
+    // ✓ AUTOMAATNE ARHIIVIMIS: Kui vahetub eri kuu, salvesta vana kuu lõppseis
+    if (vanaKuu !== uusKuu) {
+        console.log(`Kuu vahetamine: ${vanaKuu} → ${uusKuu}`);
+        const edukas = await salvestaVanaKuuArhiivi(vanaKuu);
+        if (edukas) {
+            näitaTeadet(`Kuu ${vanaKuu} lõppseis automaatselt salvestatud.`);
+        }
+    }
+    
     praeguneKuu = uusKuu;
 
     await genereeriKuuTabel();
@@ -797,58 +858,3 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     init();
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
