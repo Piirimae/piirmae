@@ -11,10 +11,18 @@ console.log("arhiiv.js laaditud");
 
 // --- INIT ---
 window.addEventListener("DOMContentLoaded", async () => {
-    await kuvaKasutajaNimi();
+    try {
+        // Üritame laadida kasutaja andmed, aga ei lase veal lehte lõhkuda
+        await kuvaKasutajaNimi();
+    } catch (authError) {
+        console.error("Kasutajanime kuvamise viga (auth.js):", authError);
+    }
+
+    // Need peavad käivituma igal juhul, et arhiiv kuvataks
     await laeKuuValikud();
     await kuvaArhiiv();
 });
+
 
 // --- Lae kuude loetelu ---
 async function laeKuuValikud() {
