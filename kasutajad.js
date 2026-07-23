@@ -1,4 +1,8 @@
-// kasutajad.js
+// kasutajad.js (MOODUL)
+
+// ✅ LISATUD: Vajalikud impordid faili algusesse
+import { sb } from "./supabase.js";
+import { kuvaKasutajaNimi } from "./auth.js";
 
 // Väike abifunktsioon: vorminda kuupäev
 function formatDate(ts) {
@@ -20,16 +24,16 @@ async function initKasutajateLeht() {
     // Kui mitte, siis paneme vaikimisi "vaatleja".
     const roll = window.userRole || "vaatleja";
 
-    // Ainult superadmin näeb seda lehte (super saab niikuinii mujalt ligi, vajadusel lisame hiljem).
+    // Ainult superadmin näeb seda lehte
     if (roll !== "superadmin") {
-        accessError.style.display = "block";
-        sisu.style.display = "none";
+        if (accessError) accessError.style.display = "block";
+        if (sisu) sisu.style.display = "none";
         return;
     }
 
     // Kui jõudsime siia, on kasutaja superadmin → näita sisu
-    accessError.style.display = "none";
-    sisu.style.display = "block";
+    if (accessError) accessError.style.display = "none";
+    if (sisu) sisu.style.display = "block";
 
     // Seome nupud ja laadime algandmed
     seoNupud();
@@ -38,7 +42,9 @@ async function initKasutajateLeht() {
 
 async function laeKasutajad() {
     const tbody = document.querySelector("#kasutajaTabel tbody");
-    tbody.innerHTML = "Laen andmeid...";
+    if (!tbody) return;
+    
+    tbody.innerHTML = "<tr><td colspan='4'>Laen andmeid...</td></tr>";
 
     const { data, error } = await sb
         .from("kasutajad")
@@ -47,7 +53,7 @@ async function laeKasutajad() {
 
     if (error) {
         console.error("Viga kasutajate laadimisel:", error);
-        tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Viga kasutajate laadimisel</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Viga kasutajate laadimisel: ${error.message}</td></tr>`;
         return;
     }
 
@@ -82,11 +88,11 @@ async function laeKasutajad() {
 
         // Määra selecti väärtus
         const select = tr.querySelector(".rollSelect");
-        if (u.roll) select.value = u.roll;
+        if (u.roll && select) select.value = u.roll;
     });
 
-    // Lisa sündmused rolli muutmiseks
-    document.querySelectorAll(".rollSelect").forEach(sel => {
+    // ✅ PARANDATUD: Sündmuste sidumine dünaamiliselt loodud elementidele
+    tbody.querySelectorAll(".rollSelect").forEach(sel => {
         sel.onchange = async () => {
             const id = sel.dataset.id;
             const uusRoll = sel.value;
@@ -105,8 +111,7 @@ async function laeKasutajad() {
         };
     });
 
-    // Lisa sündmused kustutamiseks
-    document.querySelectorAll(".kustutaBtn").forEach(btn => {
+    tbody.querySelectorAll(".kustutaBtn").forEach(btn => {
         btn.onclick = async () => {
             const id = btn.dataset.id;
             if (!confirm("Kas kustutada kasutaja?")) return;
@@ -130,9 +135,14 @@ function seoNupud() {
     const lisaBtn = document.getElementById("lisaBtn");
     if (!lisaBtn) return;
 
+    // Eemaldame vana kuulaja, et vältida topeltsidumist
+    lisaBtn.onclick = null;
+
     lisaBtn.onclick = async () => {
         const emailEl = document.getElementById("uusEmail");
         const rollEl = document.getElementById("uusRoll");
+
+        if (!emailEl || !rollEl) return;
 
         const email = emailEl.value.trim();
         const roll = rollEl.value;
@@ -159,6 +169,7 @@ function seoNupud() {
 // Käivitamine
 window.addEventListener("load", initKasutajateLeht);
 
-window.addEventListener("load", initKasutajateLeht);
+
+
 
 
