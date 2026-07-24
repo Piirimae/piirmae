@@ -24,7 +24,7 @@ export async function kuvaKasutajaNimi() {
             console.error("Viga andmebaasist rolli lugemisel:", error);
             window.userRole = "vaatleja";
         } else if (tulemus && tulemus.length > 0) {
-            // ✅ PARANDATUD: Võtame massiivi ESIMESE elemendi [0] seest rolli
+            // ✅ PARANDATUD: Võtame massiivi ESIMESE rea seest rolli [0]
             window.userRole = tulemus[0].roll;
         } else {
             window.userRole = "vaatleja";
@@ -40,6 +40,7 @@ export async function kuvaKasutajaNimi() {
     if (elem) elem.textContent = email;
 }
 
+// --- Abifunktsioon otse laadimiseks ---
 export async function laeRoll(email) {
     if (!email) return "vaatleja";
     const { data } = await sb
@@ -47,10 +48,12 @@ export async function laeRoll(email) {
         .select("roll")
         .eq("email", email.toLowerCase().trim());
         
-    if (data && data.length > 0) return data[0].roll; // ✅ PARANDATUD: [0] lisatud
+    // ✅ PARANDATUD: Võtame massiivi ESIMESE rea seest rolli [0]
+    if (data && data.length > 0) return data[0].roll; 
     return "vaatleja";
 }
 
+// --- Logi välja ---
 export async function logout() {
     await sb.auth.signOut();
     window.location = "index.html";
