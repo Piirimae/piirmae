@@ -4,30 +4,64 @@
     <meta charset="UTF-8">
     <title>Kuuvaated</title>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Stiilid laadimisketta jaoks, et Sa ei peaks style.css faili puutuma -->
+    <style>
+        .loader-konteiner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            font-family: sans-serif;
+            color: #555;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #f1c40f; /* Kollane/kuldne toon nagu Sinu nuppudel */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body>
+<body class="page-kuuvaated">
 
 <header class="header">
     <div id="kasutajaNimi"></div>
-   
-    <button id="logoutBtn" class="btn-small">Logi välja</button>
+    <div class="header-actions">
+        <button id="logoutBtn" class="btn-small">Logi välja</button>
+    </div>
 </header>
 
-<!-- kuuvaated.html sees: -->
-<h2>Kuuvaated – jooksva kuu reaalne seis</h2>
-<div id="vaateReziim" class="vaate-reziim">Režiim: Ainult lugemiseks (Kassatabeli hetkeseis)</div>
+<main class="container">
+    <h2>Kuuvaated – jooksva kuu reaalne seis</h2>
+    <div id="vaateReziim" class="vaate-reziim">Režiim: Ainult lugemiseks (Kassatabeli hetkeseis)</div>
 
-<!-- Siia sisse joonistub tabel: -->
-<div id="kuuvaadeTabeliKoht" class="table-wrapper"></div>
+    <!-- Siia sisse joonistub tabel. Vaikimisi kuvatakse siin kohe laadimisketast -->
+    <div id="kuuvaadeTabeliKoht" class="table-wrapper">
+        <div id="laadija" class="loader-konteiner">
+            <div class="spinner"></div>
+            <p>Laen kassatabeli viimast seisundit, palun oota...</p>
+        </div>
+    </div>
 
-<footer class="vaatleja-footer" style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-top: 2px solid #e9ecef;">
-    <p><strong>Abi ja küsimused:</strong> Inge Piirimäe (superadmin)</p>
-    <p><strong>E-post:</strong> piirimaeinge@gmail.com | <strong>Telefon:</strong> +372 5555 5555</p>
-</footer>
+    <footer class="vaatleja-footer" style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-top: 2px solid #e9ecef;">
+        <p><strong>Abi ja küsimused:</strong> Inge Piirimäe (superadmin)</p>
+        <p><strong>E-post:</strong> piirimaeinge@gmail.com | <strong>Telefon:</strong> +372 5555 5555</p>
+    </footer>
+</main>
 
 <!-- Skriptid -->
 <script src="https://jsdelivr.net"></script>
-<script type="module" src="kuuvaated.js"></script> <!-- ✅ Ainus skript siin! -->
+<script type="module" src="kuuvaated.js"></script>
 
 </body>
 </html>
+
