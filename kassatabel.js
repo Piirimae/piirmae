@@ -36,7 +36,10 @@ async function laeSeaded() {
 //  INIT
 // =========================
 async function initKassatabel() {
+    // 1. Ootame ära, kuni auth.js laeb kasutaja nime ja määrab mällu window.userRole
     await kuvaKasutajaNimi();
+
+    // 2. Laeme tabeli seaded ja kuud
     seaded = await laeSeaded();
     await laeKuuValikud();
 
@@ -48,12 +51,22 @@ async function initKassatabel() {
         praeguneKuu = kuuValik.value;
     }
 
+    // 3. Genereerime tabeli struktuuri ja täidame andmetega
     await genereeriKuuTabel();
     const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
     täidaTabelSupabaseAndmetega(andmed);
 
-    // Seadistame režiimipõhised nupud ja lukud SIIN, kui DOM on valmis
-    seadistaNupudJaLukustus();
+    // 4. LUGEGE ROLLI JA RAKENDAGE LUKUSTUS VASTAVALT SELLELE
+    const roll = window.userRole || "vaatleja";
+    console.log("Kassatabel kontrollib rolli õiguseid:", roll);
+
+    if (roll === "superadmin" || roll === "admin" || roll === "sisestaja") {
+        tabelLukus = false;
+        rakendaLukustusOlek(false); // Avame tabeli sisestamiseks
+    } else {
+        tabelLukus = true;
+        rakendaLukustusOlek(true); // Vaatlejale jääb lukku
+    }
 }
 
 // =========================
