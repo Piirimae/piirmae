@@ -2,39 +2,43 @@ import { sb } from "./supabase.js";
 import { kuvaKasutajaNimi, logout } from "./auth.js";
 
 window.addEventListener("DOMContentLoaded", async () => {
-    // 1. Kontrolli, kas kasutaja on üldse Supabases sisse loginud
-    const { data } = await sb.auth.getUser();
-    if (!data?.user) {
+    // 1. Kontrolli sisselogimist Supabases
+    const { data: userData } = await sb.auth.getUser();
+    if (!userData?.user) {
         window.location = "index.html";
         return;
     }
 
-    const email = data.user.email.toLowerCase().trim();
+    const email = userData.user.email.toLowerCase().trim();
+    console.log("1. Fuajee tuvastas e-maili:", email);
 
-    // 2. Kuvame nime päises (ootame selle ära)
+    // 2. Kuva nimi päises
     await kuvaKasutajaNimi();
 
-    // 3. TUVASTAME ROLLI: Küsime otse andmebaasist tabelist "kasutajad" värske info
-    console.log("Küsin fuajee jaoks andmebaasist rolli kasutajale:", email);
-    
-    const { data: kasutajaKirje, error: dbError } = await sb
+    // 3. PÄRING ANDMEBAASI
+    const { data: kasutajadMassiiv, error: dbError } = await sb
         .from("kasutajad")
         .select("roll")
-        .eq("email", email)
-        .maybeSingle(); // Turvalisem kui .single(), ei krahhi kui struktuur muutub
+        .eq("email", email);
 
     if (dbError) {
-        console.error("Viga andmebaasist rolli lugemisel fuajees:", dbError);
+        console.error("KRIITILINE VIGA: Andmebaas keeldus vastamast:", dbError);
     }
 
-    // Kui andmebaasist saadi roll, kasutame seda. Kui mitte, paneme vaatleja.
-    const roll = kasutajaKirje ? kasutajaKirje.roll : "vaatleja";
-    console.log("Fuajees tuvastatud rolliks sai:", roll);
+    console.log("2. Andmebaasist saabus otse selline massiiv:", kasutajadMassiiv);
+
+    // 4. ✅ PARANDATUD: Võtame massiivi ESIMESE elemendi [0] seest rolli
+    let roll = "vaatleja";
+    if (kasutajadMassiiv && kasutajadMassiiv.length > 0) {
+        roll = kasutajadMassiiv[0].roll; // Enne oli siin viga (puudus [0])
+    }
+
+    console.log("3. Fuajees kasutusele võetav roll:", roll);
 
     const toad = document.getElementById("toad");
     if (!toad) return;
 
-    // 4. Joonistame toad vastavalt tuvastatud reaalsele rollile
+    // 5. Joonistame toad vastavalt rollile
     if (roll === "superadmin") {
         toad.innerHTML = `
             <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
@@ -60,7 +64,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         `;
     }
 
-    // 5. Seome väljalogimise nupu
+    // 6. Seome väljalogimise nupu
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
         logoutBtn.onclick = logout;
