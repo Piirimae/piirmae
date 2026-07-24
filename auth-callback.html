@@ -6,24 +6,38 @@
     <script type="module">
         import { sb } from "./supabase.js";
 
-        // Supabase loeb tokenid URL hashist automaatselt
         const process = async () => {
-            const { data, error } = await sb.auth.getSession();
+            // Ootame, kuni Supabase loeb URL-ist sisselogimise andmed sisse
+            const { data: { session }, error } = await sb.auth.getSession();
 
             if (error) {
-                console.error(error);
+                console.error("Sessiooni viga:", error);
                 alert("Sisselogimine ebaõnnestus.");
+                window.location.href = "index.html";
                 return;
             }
 
-            // Kui sessioon olemas → suuna fuajeesse
-            window.location.href = "fuajee.html";
+            if (session) {
+                // Sisselogimine õnnestus -> suuname fuajeesse
+                window.location.href = "fuajee.html";
+            } else {
+                // Kui millegipärast sessiooni ei tekkinud, igaks juhuks kontrollime uuesti poole sekundi pärast
+                setTimeout(async () => {
+                    const checkAgain = await sb.auth.getSession();
+                    if (checkAgain.data.session) {
+                        window.location.href = "fuajee.html";
+                    } else {
+                        alert("Sessioon aegus või on vigane.");
+                        window.location.href = "index.html";
+                    }
+                }, 500);
+            }
         };
 
         process();
     </script>
 </head>
 <body>
-    Töötlen sisselogimist...
+    Töötlen sisselogimist, palun oota...
 </body>
 </html>
