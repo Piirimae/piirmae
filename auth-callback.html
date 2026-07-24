@@ -7,7 +7,7 @@
         import { sb } from "./supabase.js";
 
         const process = async () => {
-            // Ootame, kuni Supabase loeb URL-ist sisselogimise andmed sisse
+            // Ootame, kuni Supabase laeb URL-ist sisselogimise andmed sisse
             const { data: { session }, error } = await sb.auth.getSession();
 
             if (error) {
@@ -17,20 +17,33 @@
                 return;
             }
 
-            if (session) {
-                // Sisselogimine õnnestus -> suuname fuajeesse
-                window.location.href = "fuajee.html";
-            } else {
-                // Kui millegipärast sessiooni ei tekkinud, igaks juhuks kontrollime uuesti poole sekundi pärast
-                setTimeout(async () => {
-                    const checkAgain = await sb.auth.getSession();
-                    if (checkAgain.data.session) {
-                        window.location.href = "fuajee.html";
+            if (session && session.user) {
+                const email = session.user.email.toLowerCase().trim();
+
+                try {
+                    // Küsime andmebaasist kiiresti selle e-maili rolli
+                    const { data: kasutaja, error: dbError } = await sb
+                        .from("kasutajad")
+                        .select("roll")
+                        .eq("email", email)
+                        .maybeSingle();
+
+                    const roll = kasutaja ? kasutaja.roll : "vaatleja";
+
+                    // 🚀 AUTOMAATNE REEDIREKT VASTAVALT ROLLELE:
+                    if (roll === "vaatleja") {
+                        console.log("Kasutaja on vaatleja, suunan otse kuuvaadetesse...");
+                        window.location.href = "kuuvaated.html";
                     } else {
-                        alert("Sessioon aegus või on vigane.");
-                        window.location.href = "index.html";
+                        console.log("Kasutaja on administraator, suunan fuajeesse...");
+                        window.location.href = "fuajee.html";
                     }
-                }, 500);
+                } catch (e) {
+                    console.error("Viga rolli tuvastamisel callbackis:", e);
+                    window.location.href = "kuuvaated.html"; // Igaks juhuks turvalisem vaade
+                }
+            } else {
+                window.location.href = "index.html";
             }
         };
 
@@ -41,3 +54,4 @@
     Töötlen sisselogimist, palun oota...
 </body>
 </html>
+
