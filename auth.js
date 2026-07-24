@@ -1,21 +1,7 @@
-// auth.js (MOODUL)
-
-// Supabase ühendus
-import { sb } from "./supabase.js";
-
-// --- Kuvab kasutaja nime ja laeb rolli ---
+// auth.js (Katkend funktsioonist kuvaKasutajaNimi)
 export async function kuvaKasutajaNimi() {
-    let user = null;
-    
-    try {
-        const { data, error } = await sb.auth.getUser();
-        if (error) throw error;
-        user = data?.user;
-    } catch (authError) {
-        console.error("Autentimise andmete hankimine ebaõnnestus:", authError);
-        window.location = "index.html";
-        return;
-    }
+    const { data } = await sb.auth.getUser();
+    const user = data?.user;
 
     if (!user) {
         window.location = "index.html";
@@ -23,65 +9,45 @@ export async function kuvaKasutajaNimi() {
     }
 
     const email = user.email;
-    window.userName = email; // Vajalik kassatabel.html paranduse salvestamiseks
+    const uid = user.id; // Supabase süsteemne UUID
+    window.userName = email;
 
-    // LOEME ROLLI KASUTAJAD TABELIST (Turvatud try-catch plokiga)
     try {
-        const { data: kasutaja, error } = await sb
+        // 1. Otsime kasutajat e-maili järgi
+        let { data: kasutaja, error } = await sb
             .from("kasutajad")
-            .select("roll")
+            .select("*")
             .eq("email", email)
-            .single();
+            .maybeSingle(); // maybeSingle ei viska viga, kui rida pole
 
-        // Kui andmebaasist tuli loogiline viga (nt kasutajat pole)
-        if (error || !kasutaja) {
-            console.warn("Kasutaja rolli ei leitud, määratakse 'vaatleja':", error);
-            window.userRole = "vaatleja";
-        } else {
-            window.userRole = kasutaja.roll;
+        // 2. KUI KASUTAJA ON ADMINI POOLT LISATUD, AGA ID ON TÜHI -> SEOME ID ÄRA
+        if (kasutaja && !kasutaja.id) {
+            await sb
+                .from("kasutajad")
+                .update({ id: uid })
+                .eq("email", email);
+            kasutaja.id = uid; // Uuendame objekti mälus
         }
+
+        // 3. Kui kasutajat pole üldse tabelis, teeme temast automaatselt vaatleja
+        if (!kasutaja) {
+            const { data: uusKasutaja } = await sb
+                .from("kasutajad")
+                .insert({ id: uid, email: email, roll: "vaatleja" })
+                .select()
+                .single();
+            kasutaja = uusKasutaja;
+        }
+
+        window.userRole = kasutaja ? kasutaja.roll : "vaatleja";
+
     } catch (dbError) {
-        // Püüab kinni HTTP 500 serverivead ja hoiab ära koodi krahhi
-        console.error("Kriitiline Supabase andmebaasi viga (HTTP 500) rolli laadimisel:", dbError);
-        window.userRole = "vaatleja"; 
+        console.error("Viga rolli kontrollimisel:", dbError);
+        window.userRole = "vaatleja";
     }
 
-    // Kuvame nime liideses
     const elem = document.getElementById("kasutajaNimi");
     if (elem) elem.textContent = email;
-}
-
-// --- Lae roll otse ---
-export async function laeRoll(email) {
-    try {
-        const { data, error } = await sb
-            .from("kasutajad")
-            .select("roll")
-            .eq("email", email)
-            .single();
-
-        if (error || !data) return "vaatleja";
-        return data.roll;
-    } catch (e) {
-        console.error("Viga laeRoll funktsioonis:", e);
-        return "vaatleja";
-    }
-}
-
-// --- Logi välja ---
-export async function logout() {
-    try {
-        await sb.auth.signOut();
-    } catch (e) {
-        console.error("Väljalogimise viga:", e);
-    }
-    window.location = "index.html";
-}
-
-// Lisa event listener ainult siis, kui nupp on olemas
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
 }
 
 
