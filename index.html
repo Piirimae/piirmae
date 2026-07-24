@@ -25,12 +25,13 @@ document.getElementById("emailLogin").onclick = async () => {
     const email = prompt("Sisesta oma e-post:");
     if (!email) return;
 
-    const { error } = await sb.auth.signInWithOtp({
-        email: email,
-        options: {
-            emailRedirectTo: "https://github.io"
-        }
-    });
+   const { error } = await sb.auth.signInWithOtp({
+    email: email,
+    options: {
+        // ✅ PARANDATUD: Suunab kasutaja otse Sinu repositooriumi callback faili
+        emailRedirectTo: "https://github.io"
+    }
+});
 
     if (error) {
         alert("Viga: " + error.message);
