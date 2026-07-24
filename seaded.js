@@ -1,3 +1,4 @@
+// seaded.js //
 import { sb } from "./supabase.js";
 
 export async function laeSeaded() {
