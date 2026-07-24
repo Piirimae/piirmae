@@ -598,12 +598,10 @@ salvestaNupp.addEventListener("click", async () => {
     tabelLukus = true;
     rakendaLukustusOlek();
     näitaTeadet("Salvestatud ja lukustatud.");
-        // --- Sinu failis logic.js olemasolevad read funktsiooni lõpust (read 184-186): ---
-    if (teadeEl) teadeEl.textContent = "Andmed salvestatud!";
     alert("Andmed salvestatud!");
 
     // =========================================================================
-    // ✅ 🌟 PANE UUS KÜLMVAATE SNAPSHOT TÄPSELT SIIA (Ridade 186 ja 187 vahele) 🌟
+    // ✅ 🌟 ÕIGE KOHT: KÜLMVAATE SNAPSHOT SALVESTATAKSE SIIN 🌟
     // =========================================================================
     try {
         console.log("LOGIC: Põhitabel salvestatud. Loon kuuvaatest külmutatud snapshoti...");
@@ -617,7 +615,7 @@ salvestaNupp.addEventListener("click", async () => {
 
         // Saadame täieliku andmete paki ühe JSON-reana kuuvaated_snapshot tabelisse
         await sb.from("kuuvaated_snapshot").upsert({
-            kuu_id: praeguneKuu,
+            kuu_id: kuuId, // Kasutame Sinu nupu alguses defineeritud muutujat kuuId!
             state: hetkeSeisJson,
             uuendaja: logitudKasutaja,
             uuendatud_at: new Date().toISOString()
@@ -631,9 +629,7 @@ salvestaNupp.addEventListener("click", async () => {
     // 🌟 KÜLMVAATE LOOGIKA LÕPP
     // =========================================================================
 
-} // ← See on funktsiooni salvestaKuuAndmedSupabasesse AMETLIK LÕPP (Rida 189)
-
-});
+}); // ← ✅ PARANDATUD: Klikisündmuse ametlik ja korrektne lõpp asub siin!
 
 //--- KOOSTASTATE ---
 function koostaState() {
