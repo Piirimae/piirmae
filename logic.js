@@ -53,6 +53,11 @@ function täidaKuuValik() {
 async function init() {
     täidaKuuValik();
     praeguneKuu = document.getElementById("kuuValik").value;
+    
+    // ✅ Ootame ära auth.js kontrolli ja võtame sealt õige rolli mällu
+    await kuvaKasutajaNimi();
+    roll = window.userRole; 
+    console.log("LOGIC: Kasutaja roll tuvastatud:", roll);
 
     seaded = await laeSeaded();
     await genereeriKuuTabel();
@@ -62,7 +67,7 @@ async function init() {
 
     await kuvaArhiiv();
     uuendaVaateReziim();
-    rakendaRolliLukustus();
+    rakendaRolliLukustus(); // Nüüd teab see funktsioon, et oled superadmin
 }
 
 // --- SUPABASE FUNKTSIOONID ---
