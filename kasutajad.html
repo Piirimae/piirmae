@@ -49,18 +49,37 @@
 
         <h2>Lisa uus kasutaja</h2>
 
-        <div class="form-row add-user-row">
-            <input id="uusEmail" type="email" placeholder="E-posti aadress" class="input-text" />
+        <h2 style="margin-top: 40px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Lisa uus kasutaja</h2>
 
-            <select id="uusRoll" class="input-select">
-                <option value="superadmin">superadmin</option>
-                <option value="admin">admin</option>
-                <option value="sisestaja">sisestaja</option>
-                <option value="vaatleja">vaatleja</option>
-            </select>
-
-            <button id="lisaBtn" class="btn-primary">Lisa</button>
+<!-- Uus, ilusam ja loogilisem vormi ülesehitus -->
+<div class="form-container" style="background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; margin-top: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div class="form-grid" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;">
+        
+        <!-- E-posti sisestus -->
+        <div class="form-group" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 8px;">
+            <label for="uusEmail" style="font-weight: bold; font-size: 0.9em; color: #4a5568;">Kasutaja e-posti aadress:</label>
+            <input id="uusEmail" type="email" placeholder="Näiteks: kasutaja@gmail.com" class="input-text" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 1em;" />
         </div>
+
+        <!-- Rolli valik -->
+        <div class="form-group" style="width: 200px; display: flex; flex-direction: column; gap: 8px;">
+            <label for="uusRoll" style="font-weight: bold; font-size: 0.9em; color: #4a5568;">Määra õiguste roll:</label>
+            <select id="uusRoll" class="input-select" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 1em; background-color: white; height: 42px;">
+                <option value="vaatleja">vaatleja (ainult piltvaade)</option>
+                <option value="sisestaja">sisestaja (saab täita)</option>
+                <option value="admin">admin</option>
+                <option value="superadmin">superadmin</option>
+            </select>
+        </div>
+
+        <!-- Lisa nupp -->
+        <div class="form-group" style="min-width: 120px;">
+            <button id="lisaBtn" class="btn-primary" style="width: 100%; height: 42px; padding: 0 20px; font-size: 1em; font-weight: bold; cursor: pointer; border-radius: 4px;">+ Lisa kasutaja</button>
+        </div>
+
+    </div>
+</div>
+>
 
     </section>
 
