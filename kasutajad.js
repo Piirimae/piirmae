@@ -2,9 +2,8 @@
 import { sb } from "./supabase.js";
 import { kuvaKasutajaNimi } from "./auth.js";
 
-// Abifunktsioon kuupäeva vormindamiseks
 function formatDate(ts) {
-    if (!ts) return "Pole sisse loginud";
+    if (!ts) return "Pole veel sisse loginud";
     return new Date(ts).toLocaleString("et-EE");
 }
 
@@ -12,14 +11,14 @@ function formatDate(ts) {
 //  INIT
 // ==========================================
 async function initKasutajateLeht() {
-    // 1. Laeme sisselogitud kasutaja ja tema rolli (window.userRole)
+    // 1. Laeme sisselogitud kasutaja ja tuvastame rolli
     await kuvaKasutajaNimi();
 
     const accessError = document.getElementById("accessError");
     const sisu = document.getElementById("kasutajateSisu");
     const roll = window.userRole || "vaatleja";
 
-    // ✅ LUBAME LIGIPÄÄSU nii superadminile kui tavalisele adminile
+    // Lubame ligipääsu ainult superadminile ja adminile
     if (roll !== "superadmin" && roll !== "admin") {
         if (accessError) accessError.style.display = "block";
         if (sisu) sisu.style.display = "none";
@@ -29,8 +28,7 @@ async function initKasutajateLeht() {
     if (accessError) accessError.style.display = "none";
     if (sisu) sisu.style.display = "block";
 
-    // ✅ KOHANDAME LISAMISE VALIKUID: Kui sisselogitu on tavaline admin, 
-    // siis eemaldame uue kasutaja vormist valiku "superadmin"
+    // ✅ TURVALISUS: Kui sisselogitu on tavaline admin, peidame rippmenüüst valiku "superadmin"
     if (roll === "admin") {
         const uusRollSelect = document.getElementById("uusRoll");
         if (uusRollSelect) {
@@ -50,9 +48,9 @@ async function laeKasutajad() {
     const tbody = document.querySelector("#kasutajaTabel tbody");
     if (!tbody) return;
     
-    tbody.innerHTML = "<tr><td colspan='4'>Laen kasutajaid...</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='4'>Laen kasutajate nimekirja...</td></tr>";
 
-    // Küsime andmebaasist kasutajate nimekirja
+    // Küsime andmebaasist kasutajate nimekirja e-maili järgi järjekorras
     const { data, error } = await sb
         .from("kasutajad")
         .select("*")
@@ -60,7 +58,12 @@ async function laeKasutajad() {
 
     if (error) {
         console.error("Viga kasutajate laadimisel:", error);
-        tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Tõrge andmebaasist lugemisel: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Viga andmebaasist lugemisel: ${error.message}</td></tr>`;
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">Kasutajaid ei ole registreeritud.</td></tr>`;
         return;
     }
 
@@ -70,8 +73,7 @@ async function laeKasutajad() {
     data.forEach(u => {
         const tr = document.createElement("tr");
 
-        // ✅ TURVALISUSE REEGEL: Kui nimekirjas on superadmin, aga sisselogitu on tavaline admin,
-        // siis lukustame selle rea, et admin ei saaks superadmini muuta ega kustutada!
+        // ✅ TURVALISUSE REEGEL: Tavaline admin ei tohi superadmini rida muuta ega kustutada
         const onLukus = (praeguneKasutajaRoll === "admin" && u.roll === "superadmin");
 
         tr.innerHTML = `
@@ -92,12 +94,11 @@ async function laeKasutajad() {
 
         tbody.appendChild(tr);
 
-        // Määrame rippmenüü vaikeväärtuseks andmebaasis oleva rolli
         const select = tr.querySelector(".rollSelect");
         if (u.roll && select) select.value = u.roll;
     });
 
-    // --- SÜNDMUS: ROLLI MUUTMINE ---
+    // --- ROLLI MUUTMISE KUULAJA ---
     tbody.querySelectorAll(".rollSelect").forEach(sel => {
         sel.onchange = async () => {
             const email = sel.dataset.email;
@@ -111,12 +112,12 @@ async function laeKasutajad() {
             if (error) {
                 alert("Viga rolli muutmisel: " + error.message);
             } else {
-                alert(`Kasutaja ${email} rolliks on nüüd ${uusRoll}`);
+                alert(`Kasutaja ${email} uueks rolliks määrati: ${uusRoll}`);
             }
         };
     });
 
-    // --- SÜNDMUS: KASUTAJA KUSTUTAMINE ---
+    // --- KUSTUTAMISE KUULAJA ---
     tbody.querySelectorAll(".kustutaBtn").forEach(btn => {
         btn.onclick = async () => {
             const email = btn.dataset.email;
@@ -137,18 +138,21 @@ async function laeKasutajad() {
 }
 
 // ==========================================
-//  UUE KASUTAJA LISAMINE
+//  NUPPUDE SIDUMINE (LISAMINE)
 // ==========================================
 function seoNupud() {
     const lisaBtn = document.getElementById("lisaBtn");
     if (!lisaBtn) return;
 
-    lisaBtn.onclick = null; // Eemaldame vana sündmused, et vältida topeltsidumist
+    lisaBtn.onclick = null; // Eemaldame vana onclick sündmuse
     lisaBtn.onclick = async () => {
         const emailEl = document.getElementById("uusEmail");
         const rollEl = document.getElementById("uusRoll");
 
-        if (!emailEl || !rollEl) return;
+        if (!emailEl || !rollEl) {
+            console.error("Viga: HTML-is puuduvad sisendväljad id-ga uusEmail või uusRoll!");
+            return;
+        }
 
         const email = emailEl.value.trim().toLowerCase();
         const roll = rollEl.value;
@@ -158,23 +162,24 @@ function seoNupud() {
             return;
         }
 
-        // Kirjutame uue rea ainult e-maili ja rolliga tabelisse "kasutajad"
+        // Saadame andmed otse Supabase tabelisse "kasutajad"
         const { error } = await sb
             .from("kasutajad")
             .insert({ email, roll });
 
         if (error) {
-            alert("Viga kasutaja lisamisel (võimalik, et see e-mail on juba nimekirjas): " + error.message);
+            alert("Viga lisamisel (võimalik, et see email on juba nimekirjas): " + error.message);
+            console.error(error);
         } else {
-            emailEl.value = "";
-            alert(`Kasutaja ${email} edukalt eelregistreeritud rolliga: ${roll}.`);
-            laeKasutajad();
+            emailEl.value = ""; // Tühjendame kasti pärast edukat lisamist
+            alert(`Kasutaja ${email} edukalt eelregistreeritud rolliga ${roll}!`);
+            laeKasutajad(); // Värskendame tabelit automaatselt, et uus kasutaja ilmuks ritta
         }
     };
 }
 
-// Käivitamine
 window.addEventListener("load", initKasutajateLeht);
+
 
 
 
