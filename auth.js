@@ -1,7 +1,6 @@
 // auth.js (MOODUL)
 import { sb } from "./supabase.js";
 
-// --- Kuvab kasutaja nime ja laeb rolli kõigi lehtede jaoks ---
 export async function kuvaKasutajaNimi() {
     const { data: userData } = await sb.auth.getUser();
     const user = userData?.user;
@@ -12,25 +11,32 @@ export async function kuvaKasutajaNimi() {
     }
 
     const email = user.email.toLowerCase().trim();
+    const uid = user.id;
     window.userName = email; 
 
     try {
+        // Küsime andmebaasist nimekirja
         const { data: tulemus, error } = await sb
             .from("kasutajad")
-            .select("roll")
+            .select("roll, id")
             .eq("email", email);
 
         if (error) {
-            console.error("Viga andmebaasist rolli lugemisel:", error);
+            console.error("Andmebaasi viga:", error);
             window.userRole = "vaatleja";
         } else if (tulemus && tulemus.length > 0) {
-            // ✅ PARANDATUD: Võtame massiivi ESIMESE rea seest rolli [0]
+            // ✅ LEITUD: Võtame massiivi ESIMESE rea seest rolli [0] indeksiga
             window.userRole = tulemus[0].roll;
+
+            // Kui andmebaasis pole veel selle kasutaja ID-d kirjas, salvestame selle tuleviku jaoks
+            if (!tulemus[0].id) {
+                await sb.from("kasutajad").update({ id: uid }).eq("email", email);
+            }
         } else {
             window.userRole = "vaatleja";
         }
     } catch (e) {
-        console.error("Viga auth süsteemis:", e);
+        console.error("Tõrge auth süsteemis:", e);
         window.userRole = "vaatleja";
     }
 
@@ -40,7 +46,6 @@ export async function kuvaKasutajaNimi() {
     if (elem) elem.textContent = email;
 }
 
-// --- Abifunktsioon otse laadimiseks ---
 export async function laeRoll(email) {
     if (!email) return "vaatleja";
     const { data } = await sb
@@ -48,12 +53,10 @@ export async function laeRoll(email) {
         .select("roll")
         .eq("email", email.toLowerCase().trim());
         
-    // ✅ PARANDATUD: Võtame massiivi ESIMESE rea seest rolli [0]
-    if (data && data.length > 0) return data[0].roll; 
+    if (data && data.length > 0) return data[0].roll; // ✅ Parandatud massiivi indeks [0]
     return "vaatleja";
 }
 
-// --- Logi välja ---
 export async function logout() {
     await sb.auth.signOut();
     window.location = "index.html";
