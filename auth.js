@@ -1,53 +1,66 @@
-// auth.js (Katkend funktsioonist kuvaKasutajaNimi)
-export async function kuvaKasutajaNimi() {
-    const { data } = await sb.auth.getUser();
-    const user = data?.user;
+// auth.js (MOODUL)
+import { sb } from "./supabase.js";
 
+// --- Kuvab kasutaja nime ja laeb rolli kõigi lehtede jaoks ---
+export async function kuvaKasutajaNimi() {
+    // 1. Küsime Supabaselt sisselogitud kasutaja infot
+    const { data: userData } = await sb.auth.getUser();
+    const user = userData?.user;
+
+    // Kui kasutaja pole sisse loginud, suuname kohe esilehele
     if (!user) {
         window.location = "index.html";
         return;
     }
 
-    const email = user.email;
-    const uid = user.id; // Supabase süsteemne UUID
-    window.userName = email;
+    const email = user.email.toLowerCase().trim();
+    window.userName = email; // Vajalik salvestamisteks
 
     try {
-        // 1. Otsime kasutajat e-maili järgi
-        let { data: kasutaja, error } = await sb
+        // 2. Küsime tabelist "kasutajad" massiivi (nimekirja) selle e-maili kohta
+        const { data: tulemus, error } = await sb
             .from("kasutajad")
-            .select("*")
-            .eq("email", email)
-            .maybeSingle(); // maybeSingle ei viska viga, kui rida pole
+            .select("roll")
+            .eq("email", email);
 
-        // 2. KUI KASUTAJA ON ADMINI POOLT LISATUD, AGA ID ON TÜHI -> SEOME ID ÄRA
-        if (kasutaja && !kasutaja.id) {
-            await sb
-                .from("kasutajad")
-                .update({ id: uid })
-                .eq("email", email);
-            kasutaja.id = uid; // Uuendame objekti mälus
+        if (error) {
+            console.error("Viga andmebaasist rolli lugemisel:", error);
+            window.userRole = "vaatleja";
+        } else if (tulemus && tulemus.length > 0) {
+            // ✅ LEITUD: Määrame akna mällu andmebaasis oleva tegeliku rolli
+            window.userRole = tulemus[0].roll;
+        } else {
+            // Kui e-maili andmebaasis pole, on ta vaikimisi vaatleja
+            window.userRole = "vaatleja";
         }
-
-        // 3. Kui kasutajat pole üldse tabelis, teeme temast automaatselt vaatleja
-        if (!kasutaja) {
-            const { data: uusKasutaja } = await sb
-                .from("kasutajad")
-                .insert({ id: uid, email: email, roll: "vaatleja" })
-                .select()
-                .single();
-            kasutaja = uusKasutaja;
-        }
-
-        window.userRole = kasutaja ? kasutaja.roll : "vaatleja";
-
-    } catch (dbError) {
-        console.error("Viga rolli kontrollimisel:", dbError);
+    } catch (e) {
+        console.error("Viga auth süsteemis:", e);
         window.userRole = "vaatleja";
     }
 
+    console.log(`[AUTH] Kasutaja ${email} rolliks määrati: ${window.userRole}`);
+
+    // Kuvame e-maili veebilehe päises asuvasse kasti
     const elem = document.getElementById("kasutajaNimi");
     if (elem) elem.textContent = email;
+}
+
+// --- Abifunktsioon otse laadimiseks ---
+export async function laeRoll(email) {
+    if (!email) return "vaatleja";
+    const { data } = await sb
+        .from("kasutajad")
+        .select("roll")
+        .eq("email", email.toLowerCase().trim());
+        
+    if (data && data.length > 0) return data[0].roll;
+    return "vaatleja";
+}
+
+// --- Logi välja ---
+export async function logout() {
+    await sb.auth.signOut();
+    window.location = "index.html";
 }
 
 
