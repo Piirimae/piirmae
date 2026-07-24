@@ -26,11 +26,18 @@ window.addEventListener("DOMContentLoaded", async () => {
         .eq("kuu_id", jooksevKuu)
         .order("kuupaev", { ascending: true });
 
-    if (error) {
-        console.error("Viga andmete laadimisel:", error);
-        laud.innerHTML = "<tr><td style='color:red; padding:20px;'>Viga andmete laadimisel andmebaasist.</td></tr>";
+        // kuuvaated.js seest veakäsitluse katkend:
+    if (error || !andmed || andmed.length === 0) {
+        console.error("Viga või andmed puuduvad:", error);
+        // ✅ PARANDATUD: Kirjutame laadimisketta üle veateatega, et see ei jääks pöörlema
+        laud.innerHTML = `
+            <div style="padding: 20px; background: #fff5f5; color: #cc0000; border: 1px solid #ffcccc; border-radius: 4px;">
+                Hetkel aktiivseid kassatabeli ridu ei leitud või tekkis andmebaasi ühenduse tõrge.
+            </div>
+        `;
         return;
     }
+
 
     // Teeme andmetest kiire otsinguindeksi kuupäeva järgi
     const andmeIndex = {};
