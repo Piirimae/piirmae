@@ -70,13 +70,7 @@ async function init() {
     rakendaRolliLukustus(); // Nüüd teab see funktsioon, et oled superadmin
 }
 
-// --- SUPABASE FUNKTSIOONID ---
-async function kuvaKasutajaNimi() {
-    const user = await sb.auth.getUser();
-    const email = user.data.user.email;
-    const el = document.getElementById("kasutajaNimi");
-    if (el) el.textContent = email;
-}
+
 
 async function laeKuuAndmedSupabasest(kuuId) {
     const { data, error } = await sb
