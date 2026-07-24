@@ -1,41 +1,40 @@
-// kasutajad.js (MOODUL)
-
-// ✅ LISATUD: Vajalikud impordid faili algusesse
+// kasutajad.js (Uuendatud ligipääsu loogika)
 import { sb } from "./supabase.js";
 import { kuvaKasutajaNimi } from "./auth.js";
 
-// Väike abifunktsioon: vorminda kuupäev
 function formatDate(ts) {
-    if (!ts) return "";
+    if (!ts) return "Pole veel sisse loginud";
     return new Date(ts).toLocaleString("et-EE");
 }
 
-// Kontrolli rolli ja lae sisu
 async function initKasutajateLeht() {
-    // Kuvatakse ühtset päist
-    if (typeof kuvaKasutajaNimi === "function") {
-        await kuvaKasutajaNimi();
-    }
+    await kuvaKasutajaNimi();
 
     const accessError = document.getElementById("accessError");
     const sisu = document.getElementById("kasutajateSisu");
 
-    // Hetkel eeldame, et window.userRole on juba määratud kuvaKasutajaNimi() sees.
-    // Kui mitte, siis paneme vaikimisi "vaatleja".
     const roll = window.userRole || "vaatleja";
 
-    // Ainult superadmin näeb seda lehte
-    if (roll !== "superadmin") {
+    // ✅ LUBAME LIGIPÄÄSU nii superadminile kui adminile
+    if (roll !== "superadmin" && roll !== "admin") {
         if (accessError) accessError.style.display = "block";
         if (sisu) sisu.style.display = "none";
         return;
     }
 
-    // Kui jõudsime siia, on kasutaja superadmin → näita sisu
     if (accessError) accessError.style.display = "none";
     if (sisu) sisu.style.display = "block";
 
-    // Seome nupud ja laadime algandmed
+    // Kui sisselogitud on tavaline admin, kohandame uue kasutaja lisamise valikuid
+    if (roll === "admin") {
+        const uusRollSelect = document.getElementById("uusRoll");
+        if (uusRollSelect) {
+            // Eemaldame võimaluse adminil luua superadmineid
+            const superOpt = uusRollSelect.querySelector('option[value="superadmin"]');
+            if (superOpt) superOpt.remove();
+        }
+    }
+
     seoNupud();
     laeKasutajad();
 }
@@ -52,27 +51,25 @@ async function laeKasutajad() {
         .order("email");
 
     if (error) {
-        console.error("Viga kasutajate laadimisel:", error);
-        tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Viga kasutajate laadimisel: ${error.message}</td></tr>`;
-        return;
-    }
-
-    if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4">Kasutajaid ei ole</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Viga laadimisel: ${error.message}</td></tr>`;
         return;
     }
 
     tbody.innerHTML = "";
+    const praeguneKasutajaRoll = window.userRole;
 
     data.forEach(u => {
         const tr = document.createElement("tr");
 
+        // ✅ Kui nimekirjas on superadmin, aga sisselogitu on tavaline admin, 
+        // siis lukustame valiku, et admin ei saaks superadmini muuta ega kustutada
+        const onLukus = praeguneKasutajaRoll === "admin" && u.roll === "superadmin";
+
         tr.innerHTML = `
             <td>${u.email}</td>
             <td>
-                <select data-id="${u.id}" class="rollSelect">
-                    <option value="super">super</option>
-                    <option value="superadmin">superadmin</option>
+                <select data-email="${u.email}" class="rollSelect" ${onLukus ? "disabled" : ""}>
+                    ${praeguneKasutajaRoll === "superadmin" ? '<option value="superadmin">superadmin</option>' : ''}
                     <option value="admin">admin</option>
                     <option value="sisestaja">sisestaja</option>
                     <option value="vaatleja">vaatleja</option>
@@ -80,50 +77,48 @@ async function laeKasutajad() {
             </td>
             <td>${formatDate(u.created_at)}</td>
             <td>
-                <button class="kustutaBtn" data-id="${u.id}">Kustuta</button>
+                <button class="kustutaBtn" data-email="${u.email}" ${onLukus ? "disabled" : ""}>Kustuta</button>
             </td>
         `;
 
         tbody.appendChild(tr);
 
-        // Määra selecti väärtus
         const select = tr.querySelector(".rollSelect");
         if (u.roll && select) select.value = u.roll;
     });
 
-    // ✅ PARANDATUD: Sündmuste sidumine dünaamiliselt loodud elementidele
+    // Muutmise loogika e-maili põhjal (sest uutel kasutajatel pole veel ID-d!)
     tbody.querySelectorAll(".rollSelect").forEach(sel => {
         sel.onchange = async () => {
-            const id = sel.dataset.id;
+            const email = sel.dataset.email;
             const uusRoll = sel.value;
 
             const { error } = await sb
                 .from("kasutajad")
                 .update({ roll: uusRoll })
-                .eq("id", id);
+                .eq("email", email);
 
             if (error) {
                 alert("Viga rolli muutmisel: " + error.message);
-                console.error(error);
             } else {
-                alert("Roll muudetud");
+                alert("Roll edukalt muudetud!");
             }
         };
     });
 
+    // Kustutamise loogika e-maili põhjal
     tbody.querySelectorAll(".kustutaBtn").forEach(btn => {
         btn.onclick = async () => {
-            const id = btn.dataset.id;
-            if (!confirm("Kas kustutada kasutaja?")) return;
+            const email = btn.dataset.email;
+            if (!confirm(`Kas kustutada kasutaja ${email}?`)) return;
 
             const { error } = await sb
                 .from("kasutajad")
                 .delete()
-                .eq("id", id);
+                .eq("email", email);
 
             if (error) {
                 alert("Viga kustutamisel: " + error.message);
-                console.error(error);
             } else {
                 laeKasutajad();
             }
@@ -135,16 +130,14 @@ function seoNupud() {
     const lisaBtn = document.getElementById("lisaBtn");
     if (!lisaBtn) return;
 
-    // Eemaldame vana kuulaja, et vältida topeltsidumist
     lisaBtn.onclick = null;
-
     lisaBtn.onclick = async () => {
         const emailEl = document.getElementById("uusEmail");
         const rollEl = document.getElementById("uusRoll");
 
         if (!emailEl || !rollEl) return;
 
-        const email = emailEl.value.trim();
+        const email = emailEl.value.trim().toLowerCase();
         const roll = rollEl.value;
 
         if (!email) {
@@ -152,21 +145,21 @@ function seoNupud() {
             return;
         }
 
+        // Lisame rea ainult e-maili ja rolliga. ID jääb esialgu nulliks.
         const { error } = await sb
             .from("kasutajad")
             .insert({ email, roll });
 
         if (error) {
-            alert("Viga lisamisel: " + error.message);
-            console.error(error);
+            alert("Viga lisamisel (võimalik, et see email on juba olemas): " + error.message);
         } else {
             emailEl.value = "";
+            alert(`Kasutaja ${email} lisatud rolliga ${roll}. Süsteem seob tema konto esimesel sisselogimisel.`);
             laeKasutajad();
         }
     };
 }
 
-// Käivitamine
 window.addEventListener("load", initKasutajateLeht);
 
 
