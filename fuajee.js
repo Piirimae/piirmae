@@ -1,28 +1,40 @@
 import { sb } from "./supabase.js";
-import { kuvaKasutajaNimi, laeRoll, logout } from "./auth.js";
+import { kuvaKasutajaNimi, logout } from "./auth.js";
 
 window.addEventListener("DOMContentLoaded", async () => {
-    // 1. Kontrolli sisselogimist
+    // 1. Kontrolli, kas kasutaja on üldse Supabases sisse loginud
     const { data } = await sb.auth.getUser();
     if (!data?.user) {
         window.location = "index.html";
         return;
     }
 
-    // 2. Kuva nimi päises
-    try {
-        await kuvaKasutajaNimi();
-    } catch (e) {
-        console.error("Nime kuvamise viga:", e);
+    const email = data.user.email.toLowerCase().trim();
+
+    // 2. Kuvame nime päises (ootame selle ära)
+    await kuvaKasutajaNimi();
+
+    // 3. TUVASTAME ROLLI: Küsime otse andmebaasist tabelist "kasutajad" värske info
+    console.log("Küsin fuajee jaoks andmebaasist rolli kasutajale:", email);
+    
+    const { data: kasutajaKirje, error: dbError } = await sb
+        .from("kasutajad")
+        .select("roll")
+        .eq("email", email)
+        .maybeSingle(); // Turvalisem kui .single(), ei krahhi kui struktuur muutub
+
+    if (dbError) {
+        console.error("Viga andmebaasist rolli lugemisel fuajees:", dbError);
     }
 
-    const email = data.user.email;
-    const roll = window.userRole || (await laeRoll(email));
+    // Kui andmebaasist saadi roll, kasutame seda. Kui mitte, paneme vaatleja.
+    const roll = kasutajaKirje ? kasutajaKirje.roll : "vaatleja";
+    console.log("Fuajees tuvastatud rolliks sai:", roll);
 
     const toad = document.getElementById("toad");
     if (!toad) return;
 
-    // 3. Kuvame toad vastavalt rollile
+    // 4. Joonistame toad vastavalt tuvastatud reaalsele rollile
     if (roll === "superadmin") {
         toad.innerHTML = `
             <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
@@ -48,7 +60,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         `;
     }
 
-    // 4. Seome väljalogimise nupu, kui see on lehel olemas
+    // 5. Seome väljalogimise nupu
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
         logoutBtn.onclick = logout;
