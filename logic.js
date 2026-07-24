@@ -93,23 +93,7 @@ async function salvestaSupabasse(rida) {
 
     if (error) console.error("Viga salvestamisel:", error);
 }
-   // --- 🌟 KÜLMVAATE SNAPSHOT SALVESTAMISE LÕPPU 🌟 ---
-        try {
-            const hetkeSeisJson = JSON.stringify(koostaState());
-            const { data: userD } = await sb.auth.getUser();
-            const logitudKasutaja = userD?.user?.email ?? "tundmatu";
-
-            await sb.from("kuuvaated_snapshot").upsert({
-                kuu_id: praeguneKuu,
-                state: hetkeSeisJson,
-                uuendaja: logitudKasutaja,
-                uuendatud_at: new Date().toISOString()
-            });
-            console.log("LOGIC: Külmvaade edukalt uuendatud tavalise salvestamise käigus.");
-        } catch (sErr) {
-            console.error("Viga kuuvaate snapshoti uuendamisel:", sErr);
-        }
-        // --- 🌟 KÜLMVAATE LÕPP 🌟 ---
+  
 
 console.log("SALVESTAMINE ALGAS");
 // --- UUS ARHIIVI SALVESTAMINE SUPABASESSE ---
