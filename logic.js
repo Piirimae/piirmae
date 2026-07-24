@@ -644,7 +644,31 @@ function koostaState() {
     };
 }
 
+// logic.js (Lisada olemasoleva salvestamise funktsiooni sisse)
+async function uuendaKuuKülmvaade() {
+    const kuuId = document.getElementById("kuuValik").value;
+    
+    // Koostame tabeli hetkeseisust objekti (päised, read, summad)
+    const hetkeSeis = {
+        paise: seaded.veerud,
+        // Siia saab panna Sinu logic.js poolt arvutatud kuu kokkuvõtted, sumKogus jne
+        kuuKokku: document.getElementById("kuuKokku")?.textContent || "0.00"
+    };
 
+    console.log("LOGIC: Loon kuuvaatest külmutatud pildi...");
+
+    // Saadame andmebaasi - UPSERT kirjutab vana kuu seisu üle uuega
+    const { error } = await sb
+        .from("kuuvaated_snapshot")
+        .upsert({
+            kuu_id: kuuId,
+            state: JSON.stringify(hetkeSeis),
+            uuendaja: window.userName || "tundmatu",
+            uuendatud_at: new Date().toISOString()
+        });
+
+    if (error) console.error("Külmvaate uuendamine ebaõnnestus:", error);
+}
 
 // --- ARHIIVI SALVESTAMINE ---
 arhiiviNupp.addEventListener("click", salvestaArhiivi);
