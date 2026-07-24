@@ -546,15 +546,17 @@ function rakendaLukustusOlek() {
 
 function rakendaRolliLukustus() {
     if (praeguneKuu !== reaalneKuu) {
-        tabelLukus = true;   // ← PARANDATUD
+        tabelLukus = true;
+        rakendaLukustusOlek(); // ← ✅ LISATUD SULUD, et funktsioon käivituks
         return true;
     }
 
-    if (roll !== "admin" && roll !== "sisestaja") {
-        tabelLukus = true;   // ← PARANDATUD
+    // ✅ LUBAME KA SUPERADMINIL SISENEDA:
+    if (roll !== "superadmin" && roll !== "admin" && roll !== "sisestaja") {
+        tabelLukus = true;
+        rakendaLukustusOlek(); // ← ✅ LISATUD SULUD, et funktsioon käivituks
         return true;
     }
-
     return false;
 }
 
