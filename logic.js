@@ -123,12 +123,13 @@ async function arhiiviSupabasse(kuuId, stateJson) {
         const salvestaja = userData?.user?.email ?? "tundmatu";
 
         // 4) Salvesta arhiivi
+        const parsedState = JSON.parse(stateJson);
         const { error } = await sb
             .from("arhiiv")
             .insert({
                 arhiiviId: arhiiviId,
                 kuu_id: kuuId,
-                state: JSON.parse(stateJson),
+                state: parsedState,
                 salvestaja: salvestaja,
                 paeritolu: "aktiivne",
                 taastatud: false,
@@ -141,6 +142,26 @@ async function arhiiviSupabasse(kuuId, stateJson) {
             return false;
         }
 
+        // --- 🌟 UUENDUS: LOOME SAMAL AJAL KA KÜLMUTATUD PILDI VAATLEJATE JAOKS 🌟 ---
+        try {
+            console.log("LOGIC: Kopeerin arhiivi seisundi kuuvaated_snapshot tabelisse...");
+            
+            await sb
+                .from("kuuvaated_snapshot")
+                .upsert({
+                    kuu_id: kuuId, // Näiteks "2026-07"
+                    state: stateJson, // Kasutame valmis etteantud JSON-stringi!
+                    uuendaja: salvestaja,
+                    uuendatud_at: new Date().toISOString()
+                });
+                
+            console.log("LOGIC: Külmvaade edukalt vaatlejate jaoks külmutatud.");
+        } catch (snapshotErr) {
+            console.error("Viga kuuvaate snapshoti loomisel:", snapshotErr);
+            // Ära katkesta põhitööd, kui ainult külmvaate kopeerimine ebaõnnestub
+        }
+        // --- 🌟 KÜLMVAATE TÄIENDUSE LÕPP 🌟 ---
+
         näitaTeadet(`Arhiivi salvestatud: ${arhiiviId} (versioon ${versioon})`);
         return true;
 
@@ -150,6 +171,7 @@ async function arhiiviSupabasse(kuuId, stateJson) {
         return false;
     }
 }
+
 
 // --- AUTOMAATNE ARHIIVIMISE FUNKTSIOON (KUU LÕPPSEIS) ---
 async function salvestaVanaKuuArhiivi(kuuId) {
