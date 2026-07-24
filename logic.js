@@ -598,6 +598,41 @@ salvestaNupp.addEventListener("click", async () => {
     tabelLukus = true;
     rakendaLukustusOlek();
     näitaTeadet("Salvestatud ja lukustatud.");
+        // --- Sinu failis logic.js olemasolevad read funktsiooni lõpust (read 184-186): ---
+    if (teadeEl) teadeEl.textContent = "Andmed salvestatud!";
+    alert("Andmed salvestatud!");
+
+    // =========================================================================
+    // ✅ 🌟 PANE UUS KÜLMVAATE SNAPSHOT TÄPSELT SIIA (Ridade 186 ja 187 vahele) 🌟
+    // =========================================================================
+    try {
+        console.log("LOGIC: Põhitabel salvestatud. Loon kuuvaatest külmutatud snapshoti...");
+        
+        // Sinu oma funktsioon koostaState() korjab siin kokku kõik summad ja read
+        const hetkeSeisJson = JSON.stringify(koostaState());
+        
+        // Tuvastame salvestaja e-maili
+        const { data: userD } = await sb.auth.getUser();
+        const logitudKasutaja = userD?.user?.email ?? "tundmatu";
+
+        // Saadame täieliku andmete paki ühe JSON-reana kuuvaated_snapshot tabelisse
+        await sb.from("kuuvaated_snapshot").upsert({
+            kuu_id: praeguneKuu,
+            state: hetkeSeisJson,
+            uuendaja: logitudKasutaja,
+            uuendatud_at: new Date().toISOString()
+        });
+        
+        console.log("LOGIC: Külmvaade edukalt kuuvaated_snapshot tabelisse saadetud.");
+    } catch (sErr) {
+        console.error("Viga kuuvaate snapshoti uuendamisel salvestamise lõpus:", sErr);
+    }
+    // =========================================================================
+    // 🌟 KÜLMVAATE LOOGIKA LÕPP
+    // =========================================================================
+
+} // ← See on funktsiooni salvestaKuuAndmedSupabasesse AMETLIK LÕPP (Rida 189)
+
 });
 
 //--- KOOSTASTATE ---
