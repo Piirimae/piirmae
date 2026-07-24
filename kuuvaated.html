@@ -9,14 +9,22 @@
 
 <header class="header">
     <div id="kasutajaNimi"></div>
-    <button onclick="window.location='fuajee.html'" class="btn-small">Tagasi</button>
+   
     <button id="logoutBtn" class="btn-small">Logi välja</button>
 </header>
 
-<h2>Kuuvaated</h2>
+<h2>Kuuvaated – jooksva kuu seis</h2>
+<div id="vaateReziim" class="vaate-reziim">Režiim: Ainult lugemiseks (Külmvaade)</div>
 
-<div id="kuuvaadeTabeliKoht"></div> <!-- Siia sisse joonistub külmvaade -->
+<!-- Siia sisse joonistub kogu pilt-tabel: -->
+<div id="kuuvaadeTabeliKoht" class="table-wrapper"></div>
 
+<footer class="vaatleja-footer" style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-top: 2px solid #e9ecef; border-radius: 4px;">
+    <p><strong>Abi ja küsimused:</strong> Inge Piirimäe (superadmin)</p>
+    <p><strong>E-post:</strong> piirimaeinge@gmail.com | <strong>Telefon:</strong> +372 5555 5555</p>
+</footer>
+
+<!-- Skriptid -->
 <script src="https://jsdelivr.net"></script>
 <script type="module" src="kuuvaated.js"></script> <!-- ✅ AINUS SKRIPT SIIN! -->
 </body>
