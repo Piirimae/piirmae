@@ -32,44 +32,48 @@ async function laeSeaded() {
     };
 }
 
-// =========================
 //  INIT
 // =========================
 async function initKassatabel() {
-    // 1. Ootame ära, kuni auth.js laeb kasutaja nime ja määrab mällu window.userRole
     await kuvaKasutajaNimi();
 
-    // 2. Laeme tabeli seaded ja kuud
     seaded = await laeSeaded();
     await laeKuuValikud();
 
     if (onParandusRez) {
         praeguneKuu = parandaKuu;
-        kuuValik.value = parandaKuu;
-        kuuValik.disabled = true;
+        if (kuuValik) {
+            kuuValik.value = parandaKuu;
+            kuuValik.disabled = true;
+        }
     } else {
-        praeguneKuu = kuuValik.value;
+        praeguneKuu = kuuValik ? kuuValik.value : "";
     }
 
-    // 3. Genereerime tabeli struktuuri ja täidame andmetega
+    // Genereerime tabeli kesta
     await genereeriKuuTabel();
+    
+    // Laeme andmed Supabasest
     const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
+    console.log("Supabasest laetud kassatabeli andmed:", andmed); // ÕIGES KOHAS LOGI
+    
+    // Täidame tabeli sisuga
     täidaTabelSupabaseAndmetega(andmed);
 
-    // 4. LUGEGE ROLLI JA RAKENDAGE LUKUSTUS VASTAVALT SELLELE
+    // ✅ PARANDATUD: Nupud ja režiimid seadistatakse ENNE rolli lõplikku lukustust
+    seadistaNupudJaLukustus();
+
+    // LUGEGE ROLLI JA RAKENDAGE LUKUSTUS VASTAVALT SELLELE
     const roll = window.userRole || "vaatleja";
     console.log("Kassatabel kontrollib rolli õiguseid:", roll);
 
     if (roll === "superadmin" || roll === "admin" || roll === "sisestaja") {
         tabelLukus = false;
-        rakendaLukustusOlek(false); // Avame tabeli sisestamiseks
+        rakendaLukustusOlek(false); 
     } else {
         tabelLukus = true;
-        rakendaLukustusOlek(true); // Vaatlejale jääb lukku
+        rakendaLukustusOlek(true); 
     }
-
-    // 5. ✅ PARANDATUD: Seome nuppude onclick sündmused külge!
-    seadistaNupudJaLukustus();
 }
 
 // =========================
@@ -195,17 +199,35 @@ async function genereeriKuuTabel() {
 //  TABELI TÄITMINE
 // =========================
 function täidaTabelSupabaseAndmetega(andmed) {
+    if (!andmed || andmed.length === 0) {
+        console.warn("Tabeli täitmiseks puuduvad andmed või massiiv on tühi.");
+        return;
+    }
+
     andmed.forEach(r => {
-        const tr = tbody.querySelector(`tr[data-date="${r.kuupaev}"]`);
-        if (!tr) return;
+        // Kontrollime andmebaasi kuupäeva. Kui see on täispikk "2026-07-01T00:00:00", võtame ainult esimesed 10 sümbolit.
+        const puhasKuupaev = r.kuupaev && r.kuupaev.includes("T") 
+            ? r.kuupaev.split("T")[0] 
+            : r.kuupaev;
+
+        // Otsime rida puhastatud kuupäeva järgi
+        const tr = tbody.querySelector(`tr[data-date="${puhasKuupaev}"]`);
+        
+        if (!tr) {
+            console.warn(`Tabelist ei leitud rida kuupäevaga: ${puhasKuupaev} (Andmebaasi algne väärtus: ${r.kuupaev})`);
+            return;
+        }
 
         const inputs = tr.querySelectorAll("input");
         inputs.forEach(inp => {
             const nimi = inp.dataset.veeruNimi;
-            if (r[nimi] !== undefined) inp.value = r[nimi];
+            if (r[nimi] !== undefined && r[nimi] !== null) {
+                inp.value = r[nimi];
+            }
         });
     });
 }
+
 
 function rakendaLukustusOlek(lukus) {
     tbody.querySelectorAll("input").forEach(inp => {
