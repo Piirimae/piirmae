@@ -1,3 +1,4 @@
+// seaded-leht.js //
 import { laeSeaded, lisaVeerg, kustutaVeerg, uuendaVeerg, lisaEripaev, kustutaEripaev } from "./seaded.js";
 
 async function laeLeht() {
