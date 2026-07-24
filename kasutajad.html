@@ -6,8 +6,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="page-kasutajad">
-
+<body class="page-kasutajad"> <!-- ✅ PARANDATUD: Topelt body-märgend eemaldatud -->
 <header class="header">
     <div id="kasutajaNimi"></div>
 
@@ -22,7 +21,7 @@
     <section class="intro">
         <h1>Kasutajate haldus</h1>
         <p class="subtitle">
-            See leht on mõeldud superadminile kasutajate ja nende rollide muutmiseks.
+            See leht on mõeldud superadminile kasutajate ja niiden rollide muutmiseks.
         </p>
     </section>
 
@@ -67,13 +66,17 @@
 
 </main>
 
-<!-- ⭐ MOODULID (ÕIGED!) -->
-<script type="module" src="supabase.js"></script>
-<script type="module" src="auth.js"></script>
+<!-- Skriptid -->
+<!-- Supabase CDN jääb siia, kuna see loob globaalse akna-objekti 'supabase' -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ✅ PARANDATUD: Skriptid on nüüd laetud tüübiga type="module" -->
+<!-- Kuna kasutajad.js impordib teisi faile ise, piisab vaid selle ühe faili sissetoomisest -->
 <script type="module" src="kasutajad.js"></script>
 
 </body>
 </html>
+
 
 
 
