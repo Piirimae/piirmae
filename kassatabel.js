@@ -67,6 +67,9 @@ async function initKassatabel() {
         tabelLukus = true;
         rakendaLukustusOlek(true); // Vaatlejale jääb lukku
     }
+
+    // 5. ✅ PARANDATUD: Seome nuppude onclick sündmused külge!
+    seadistaNupudJaLukustus();
 }
 
 // =========================
@@ -81,11 +84,11 @@ function seadistaNupudJaLukustus() {
         rakendaLukustusOlek(false);
 
         // Peida tavalised salvestusnupud
-        salvestaNupp.style.display = "none";
-        arhiiviNupp.style.display = "none";
+        if (salvestaNupp) salvestaNupp.style.display = "none";
+        if (arhiiviNupp) arhiiviNupp.style.display = "none";
 
         // Kontrolli, et nuppu ei loodaks mitu korda
-        if (!document.getElementById("salvestaParandus")) {
+        if (!document.getElementById("salvestaParandus") && arhiiviNupp) {
             const salvestaParandusBtn = document.createElement("button");
             salvestaParandusBtn.textContent = "Salvesta arhiivi (parandus)";
             salvestaParandusBtn.id = "salvestaParandus";
@@ -93,21 +96,20 @@ function seadistaNupudJaLukustus() {
             arhiiviNupp.parentNode.appendChild(salvestaParandusBtn);
         }
     } else {
-        // Tavaline režiim lukustatakse algatuseks
-        tabelLukus = true;
-        rakendaLukustusOlek(true);
-
-        salvestaNupp.onclick = () => alert("Salvestamine tuleb järgmises etapis");
-        arhiiviNupp.onclick = () => alert("Arhiiv tuleb järgmises etapis");
+        // Tavaline režiim
+        if (salvestaNupp) salvestaNupp.onclick = () => alert("Salvestamine tuleb järgmises etapis");
+        if (arhiiviNupp) arhiiviNupp.onclick = () => alert("Arhiiv tuleb järgmises etapis");
     }
 
     // Ühised nupud
-    lukustaNupp.onclick = () => {
-        tabelLukus = !tabelLukus;
-        rakendaLukustusOlek(tabelLukus);
-    };
-    prindiNupp.onclick = () => window.print();
-    laeAllaNupp.onclick = () => alert("PDF tuleb tulevikus");
+    if (lukustaNupp) {
+        lukustaNupp.onclick = () => {
+            tabelLukus = !tabelLukus;
+            rakendaLukustusOlek(tabelLukus);
+        };
+    }
+    if (prindiNupp) prindiNupp.onclick = () => window.print();
+    if (laeAllaNupp) laeAllaNupp.onclick = () => alert("PDF tuleb tulevikus");
 }
 
 // =========================
@@ -131,8 +133,11 @@ async function vahetaKuud() {
     const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
     täidaTabelSupabaseAndmetega(andmed);
 
-    tabelLukus = false;
-    rakendaLukustusOlek(false);
+    // Pärast kuu vahetust määrame lukustuse uuesti vastavalt rollile
+    const roll = window.userRole || "vaatleja";
+    const onLubatudRoll = (roll === "superadmin" || roll === "admin" || roll === "sisestaja");
+    tabelLukus = !onLubatudRoll;
+    rakendaLukustusOlek(tabelLukus);
 }
 
 // =========================
@@ -155,16 +160,17 @@ async function genereeriKuuTabel() {
     const head = document.getElementById("tabelHead");
     const foot = document.getElementById("tabelFoot");
 
-    head.innerHTML = `
-        <tr>
-            <th>Kuupäev</th>
-            ${seaded.veerud.map(v => `<th>${v.pealkiri}</th>`).join("")}
-        </tr>
-    `;
+    if (head) {
+        head.innerHTML = `
+            <tr>
+                <th>Kuupäev</th>
+                ${seaded.veerud.map(v => `<th>${v.pealkiri}</th>`).join("")}
+            </tr>
+        `;
+    }
 
     tbody.innerHTML = "";
 
-    // Arvutame kuu päevade arvu dünaamiliselt (31 asemele õige pikkus)
     const [aasta, kuu] = praeguneKuu.split("-");
     const paevadeArv = new Date(aasta, kuu, 0).getDate();
 
@@ -182,7 +188,7 @@ async function genereeriKuuTabel() {
         tbody.appendChild(tr);
     }
 
-    foot.innerHTML = `<tr><td colspan="${seaded.veerud.length + 1}" id="kuuKokku"></td></tr>`;
+    if (foot) foot.innerHTML = `<tr><td colspan="${seaded.veerud.length + 1}" id="kuuKokku"></td></tr>`;
 }
 
 // =========================
@@ -206,9 +212,11 @@ function rakendaLukustusOlek(lukus) {
         inp.disabled = lukus;
     });
 
-    lukustaNupp.textContent = lukus
-        ? "Tabel lukus (ava sisestamiseks)"
-        : "Tabel avatud (lukusta)";
+    if (lukustaNupp) {
+        lukustaNupp.textContent = lukus
+            ? "Tabel lukus (ava sisestamiseks)"
+            : "Tabel avatud (lukusta)";
+    }
 }
 
 // =========================
@@ -266,14 +274,15 @@ async function salvestaParandatudArhiiv() {
 }
 
 // =========================
-//  PRINTIMISE SÜNDMUSED
+//  PRINTIMISE KÄSITLEMINE
 // =========================
 window.addEventListener("beforeprint", () => {
-    const kuu = document.getElementById("kuuValik")?.selectedOptions[0]?.value || "";
+    const kuu = kuuValik?.value || "";
     const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     const printTitle = document.getElementById("printTitle");
     if (printTitle) printTitle.textContent = `${kuu} – ${leht}`;
 
+    // Asendame input sisendid ajutiselt span tekstiga, et jooned ja ääred ei prindituks
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
         span.textContent = inp.value;
