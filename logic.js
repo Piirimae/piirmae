@@ -857,12 +857,13 @@ function uuendaVaateReziim() {
 document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
     
-  // logic.js faili kõige lõppu lisada:
+ 
+    init();
+});
+ // logic.js faili kõige lõppu lisada:
 
 // Impordime andmete laadimise funktsiooni kassatabel.js seest
 import { laeAndmedJaLukustus } from "./kassatabel.js";
 
 // Kui logic.js on tabeli genereerimise täielikult lõpetanud, kutsume selle välja:
 laeAndmedJaLukustus(); 
-    init();
-});
