@@ -851,16 +851,7 @@ function uuendaVaateReziim() {
 
 
 // --- INIT ---
-(async () => {
-    await kuvaKasutajaNimi();
 
-    await genereeriKuuTabel();
-    const kuuId = kuuValik.value;
-    const andmed = await laeKuuAndmedSupabasest(kuuId);
-    täidaTabelSupabaseAndmetega(andmed);
-
-    await kuvaArhiiv();
-})();
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
