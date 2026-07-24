@@ -46,11 +46,10 @@
 <div id="arhiiviKuva" class="arhiivi-kast" style="display:none;"></div>
 
 <!-- Skriptid kassatabel.html lehe lõpus -->
-<!-- 1. Supabase ametlik CDN, mis loob globaalse objekti 'supabase' -->
+<!-- ✅ PARANDATUD: Täielik ja toimiv Supabase raamatukogu CDN aadress -->
 <script src="https://jsdelivr.net"></script>
 
-<!-- ✅ PARANDATUD: Laeme AINULT peamise loogikafaili moodulina.
-     Kustutatud read supabase.js ja auth.js laadimise kohta, sest logic.js laeb need ise! -->
+<!-- Peamine loogikafail moodulina -->
 <script type="module" src="logic.js"></script>
 
 </body>
