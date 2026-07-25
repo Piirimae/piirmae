@@ -1,9 +1,9 @@
-
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi, logout } from "./auth.js";
 
 let pohiGraafik = null;
+let grupiSektorGraafik = null; // UUS: Parema tiiva sektorgraafiku objekt
 let seaded = null;
 let hinnadAjalugu = [];
 let laetudKassaAndmed = [];
@@ -22,6 +22,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     TäidaKuuDropdown();
     SeadistaFiltriKuulajad();
+    SeadistaKaartideKlikid(); // UUS: Kaartide tagasitõmbumise kuulajad
     
     // Vaikimisi käivitame jooksva kuu Pulsi
     await UuendaPulssi();
@@ -57,6 +58,10 @@ function SeadistaFiltriKuulajad() {
         if (ajaTyyp.value === "vahemik") {
             kuuGrupp.style.display = "none";
             vahemikGrupp.style.display = "flex";
+        } else if (ajaTyyp.value === "nadal") {
+            // Nädalate vaade kasutab siin näitena jooksva aasta andmeid, kohandatav vastavalt vajadusele
+            kuuGrupp.style.display = "none";
+            vahemikGrupp.style.display = "none";
         } else {
             kuuGrupp.style.display = "flex";
             vahemikGrupp.style.display = "none";
@@ -65,18 +70,24 @@ function SeadistaFiltriKuulajad() {
 
     document.getElementById("uuendaPulssBtn").onclick = UuendaPulssi;
     
-    // "Eelmine kuu" nupu loogika lennult liikumiseks
+    // Perioodi navigatsiooni nupp
     document.getElementById("eelmineKuuBtn").onclick = async () => {
         const kuuSelect = document.getElementById("pulssKuu");
         const praeguneIndex = kuuSelect.selectedIndex;
-        if (praeguneIndex < kuuSelect.options.length - 1) {
+        if (praeguneIndex < kuuSelect.options.length - 1 && ajaTyyp.value === "kuu") {
             kuuSelect.selectedIndex = praeguneIndex + 1;
-            ajaTyyp.value = "kuu";
-            kuuGrupp.style.display = "flex";
-            vahemikGrupp.style.display = "none";
             await UuendaPulssi();
         }
     };
+}
+
+// UUS: Kui hiir liigub kaartidelt välja, kaotame aktiivse klassi ja nad tõmbuvad graafiku alla tagasi
+function SeadistaKaartideKlikid() {
+    document.querySelectorAll(".nihkes-kaart").forEach(kaart => {
+        kaart.addEventListener("mouseleave", () => {
+            kaart.classList.remove("aktiivne");
+        });
+    });
 }
 
 // --- Andmete pärimine ja arvutused ---
@@ -105,6 +116,10 @@ async function UuendaPulssi() {
         const kuni = document.getElementById("vahemikKuni").value;
         if (alates) query = query.gte("kuupaev", alates);
         if (kuni) query = query.lte("kuupaev", kuni);
+    } else if (ajaTyyp === "nadal") {
+        // Nädalavaate puhul päritakse vaikimisi kogu jooksev aasta, grupeerimine tehakse graafikus
+        const jooksevAasta = new Date().getFullYear();
+        query = query.gte("kuupaev", `${jooksevAasta}-01-01`).lte("kuupaev", `${jooksevAasta}-12-31`);
     }
 
     const { data, error } = await query.order("kuupaev", { ascending: true });
@@ -112,6 +127,8 @@ async function UuendaPulssi() {
     laetudKassaAndmed = data || [];
 
     GenerreeriKombineeritudGraafik();
+    ArvutaJaKuvaPerioodiInfo(ajaTyyp); // UUS: Täidab parema tiiva kolmanda kasti staatika
+    UuendaGrupiSektoritGlobaalselt(); // UUS: Täidab esmase sektordiagrammi kogu perioodi andmetega
 }
 
 // --- Suure kombineeritud graafiku joonistamine (Tulp + Joon) ---
@@ -130,7 +147,7 @@ function GenerreeriKombineeritudGraafik() {
                 päevaKäive += kogus * leiaHind(v.nimi, r.kuupaev);
                 päevaArtiklid += kogus;
             } else if (v.tüüp === "number") {
-                päevaKäive += kogus; // Staatiline number lisandub käibesse otse
+                päevaKäive += kogus;
             }
         });
 
@@ -180,9 +197,19 @@ function GenerreeriKombineeritudGraafik() {
                 yArtiklid: { type: "linear", position: "right", title: { display: true, text: "Kogus tükkides (tk)" }, grid: { drawOnChartArea: false } }
             },
             onClick: (e, elements) => {
-                // ✅ KLIKILUGU: Kui klikitakse joone mummule või tulbale, loome lohistatava sektordiagrammi!
                 if (elements.length > 0) {
                     const idx = elements[0].index;
+                    
+                    // Toome parema tiiva kaardid esile ja uuendame nende sisu vastavalt klikitud päevale
+                    const kaartGrupid = document.getElementById("kaartTootegrupid");
+                    const kaartInfo = document.getElementById("kaartPerioodiInfo");
+                    
+                    kaartGrupid.classList.add("aktiivne");
+                    kaartInfo.classList.add("aktiivne");
+
+                    UuendaGrupiSektoritPaevaLõikes(idx);
+                    
+                    // Käivitame ka Sinu algse lohistatava akna loogika, kui seda soovid paralleelselt kasutada
                     LooLohistatavSektor(idx, e.native.clientX, e.native.clientY);
                 }
             }
@@ -190,6 +217,100 @@ function GenerreeriKombineeritudGraafik() {
     });
 }
 
+// --- UUS: Kolmanda akna (Perioodi info) dünaamiline arvutus ---
+function ArvutaJaKuvaPerioodiInfo(vordlusTyyp) {
+    if (laetudKassaAndmed.length === 0) return;
+
+    const koikPaevad = laetudKassaAndmed.length;
+    let myugiPaevad = 0;
+    let kokkuTooteid = 0;
+    let kokkuKassa = 0;
+    let esinesHinnamuutusi = false;
+
+    laetudKassaAndmed.forEach(r => {
+        let paevaKassa = 0;
+        let paevaTooted = 0;
+        let paevalOliMyyki = false;
+
+        seaded.veerud.forEach(v => {
+            const kogus = Number(r[v.nimi]) || 0;
+            if (kogus > 0) paevalOliMyyki = true;
+
+            if (v.tüüp === "toit") {
+                paevaKassa += kogus * leiaHind(v.nimi, r.kuupaev);
+                paevaTooted += kogus;
+            } else if (v.tüüp === "number") {
+                paevaKassa += kogus;
+            }
+        });
+
+        if (paevalOliMyyki) myugiPaevad++;
+        kokkuTooteid += paevaTooted;
+        kokkuKassa += paevaKassa;
+
+        // Kontrollime, kas sellel kuupäeval kattus mõni hind finantsajalooga
+        const muutusSellelPaeval = hinnadAjalugu.some(h => h.kehtiv_alates === r.kuupaev);
+        if (muutusSellelPaeval) esinesHinnamuutusi = true;
+    });
+
+    // Kirjutame tulemused HTML-i elementidesse
+    document.getElementById("infoKoikPaevad").innerText = koikPaevad;
+    document.getElementById("infoMyugiPaevad").innerText = myugiPaevad;
+    document.getElementById("infoTootedKogus").innerText = `${kokkuTooteid} tk`;
+    document.getElementById("infoKassaSumma").innerText = `${kokkuKassa.toFixed(2)} €`;
+    const tyypTekstid = { kuu: "Kuu baasil", nadal: "Aasta nädalad", vahemik: "Vaba vahemik" };
+    document.getElementById("infoVordlusTüüp").innerText = tyypTekstid[vordlusTyyp] || vordlusTyyp;
+    // Näitame või peidame Sinu soovitud hinnamuutuste hoiatustuld
+    const hoiatusHinnad = document.getElementById("infoHinnaMuutused");
+    if (esinesHinnamuutusi) {hoiatusHinnad.style.display = "block";} 
+    else {hoiatusHinnad.style.display = "none";}}
+    // --- UUS: Sektor 1 (Tootegrupid) uuendamine kogu perioodi kohta ---
+    function UuendaGrupiSektoritGlobaalselt() {const gruppideSummad = {};
+    laetudKassaAndmed.forEach(r => {seaded.veerud.forEach(v => {
+    if (v.tüüp === "toit") {
+    const kogus = Number(r[v.nimi]) || 0;
+    if (kogus > 0) {
+    gruppideSummad[v.pealkiri] = (gruppideSummad[v.pealkiri] || 0) + kogus;
+    }
+    }
+    });
+    });
+    JoonistaSektorDiagramm(Object.keys(gruppideSummad), Object.values(gruppideSummad), "Kogu perioodi jaotus");
+    }
+    // --- UUS: Sektor 1 uuendamine klikitud päeva põhiselt ---
+    function UuendaGrupiSektoritPaevaLõikes(index) {
+        const rida = laetudKassaAndmed[index];
+        if (!rida) return;const sildid = [];
+        const kogused = [];seaded.veerud.forEach(v => {
+            if (v.tüüp === "toit") {
+                const k = Number(rida[v.nimi]) || 0;
+                if (k > 0) {sildid.push(v.pealkiri);kogused.push(k);
+                           }
+            }
+        });
+        JoonistaSektorDiagramm(sildid, kogused, Jaotus: ${rida.kuupaev});
+    }
+   function JoonistaSektorDiagramm(labels, data, pealkiri) {
+   if (grupiSektorGraafik) grupiSektorGraafik.destroy();
+   const ctx = document.getElementById("grupiSektorGraafik").getContext("2d");
+   grupiSektorGraafik = new Chart(ctx, {
+       type: "pie",
+       data: {
+       labels: labels,
+       datasets: [{
+       data: data,
+       backgroundColor: ["#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#1abc9c", "#e67e22"]
+       }]
+       },
+       options: {
+       responsive: true,
+       maintainAspectRatio: false,
+       plugins: {legend: { display: false }, // Peidame nimekirja, et mahuks ära paremasse tiiba
+       title: { display: true, text: pealkiri, font: { size: 11 } }
+        }
+       }
+   });
+   }
 // --- Dünaamiliste, lohistatavate sektordiagrammiketaste loomine ---
 let popupIdCounter = 0;
 
@@ -292,6 +413,15 @@ function MuudaAkenLohistatavaks(element) {
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
-element.style.top = (element.offsetTop - pos2) + "px";
-element.style.left = (element.offsetLeft - pos1) + "px";}
-function closeDragElement() {document.onmouseup = null;document.onmousemove = null;}}
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
+
+    
+
