@@ -278,18 +278,27 @@ function ArvutaJaKuvaPerioodiInfo(vordlusTyyp) {
     JoonistaSektorDiagramm(Object.keys(gruppideSummad), Object.values(gruppideSummad), "Kogu perioodi jaotus");
     }
     // --- UUS: Sektor 1 uuendamine klikitud päeva põhiselt ---
-    function UuendaGrupiSektoritPaevaLõikes(index) {
-        const rida = laetudKassaAndmed[index];
-        if (!rida) return;const sildid = [];
-        const kogused = [];seaded.veerud.forEach(v => {
-            if (v.tüüp === "toit") {
-                const k = Number(rida[v.nimi]) || 0;
-                if (k > 0) {sildid.push(v.pealkiri);kogused.push(k);
-                           }
+function UuendaGrupiSektoritPaevaLõikes(index) {
+    const rida = laetudKassaAndmed[index];
+    if (!rida) return; 
+    
+    const sildid = [];
+    const kogused = []; 
+    
+    seaded.veerud.forEach(v => {
+        if (v.tüüp === "toit") {
+            const k = Number(rida[v.nimi]) || 0;
+            if (k > 0) { 
+                sildid.push(v.pealkiri); 
+                kogused.push(k);
             }
-        });
-    JoonistaSektorDiagramm(sildid, kogused, Jaotus: ${rida.kuupaev});
-    }
+        }
+    });
+
+    // PARANDATUD RIDA: Lisatud graafiku pealkirjale mallijutt (backticks ``)
+    JoonistaSektorDiagramm(sildid, kogused, `Jaotus: ${rida.kuupaev}`);
+}
+
    function JoonistaSektorDiagramm(labels, data, pealkiri) {
    if (grupiSektorGraafik) grupiSektorGraafik.destroy();
    const ctx = document.getElementById("grupiSektorGraafik").getContext("2d");
