@@ -61,6 +61,26 @@ export async function logout() {
     await sb.auth.signOut();
     window.location = "index.html";
 }
+// auth.js (Lisa faili lõppu)
+export async function logiTegevus(tegevus, detailid = {}) {
+    try {
+        const { data: userData } = await sb.auth.getUser();
+        const userEmail = userData?.user?.email || "tundmatu";
+
+        const { error } = await sb
+            .from("logid")
+            .insert({
+                tegevus: tegevus,
+                detailid: detailid,
+                user_email: userEmail,
+                timestamp: new Date().toISOString()
+            });
+
+        if (error) console.error("Viga tegevuse logimisel Supabasesse:", error);
+    } catch (err) {
+        console.error("Viga logiTegevus funktsioonis:", err);
+    }
+}
 
 
 
