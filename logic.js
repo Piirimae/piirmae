@@ -201,10 +201,17 @@ async function salvestaVanaKuuArhiivi(kuuId) {
                 versioon: versioon
             });
 
-        if (error) {
+               if (error) {
             console.error("Automaatse arhiivimise viga:", error);
             return false;
         }
+
+        
+        await logiTegevusSupabasse("automaatne_arhiiv", { kuu: kuuId, arhiiviId: arhiiviId });
+
+        console.log(`✓ Kuu ${kuuId} lõppseis automaatselt salvestatud arhiivi (${arhiiviId} v${versioon})`);
+        return true;
+
 
         console.log(`✓ Kuu ${kuuId} lõppseis automaatselt salvestatud arhiivi (${arhiiviId} v${versioon})`);
         return true;
@@ -601,10 +608,16 @@ salvestaNupp.addEventListener("click", async () => {
 
    
 
+      
     tabelLukus = true;
     rakendaLukustusOlek();
+    
+    // ✅ LISATUD: Logime tegevuse "salvestus" koos kuu ID-ga
+    await logiTegevusSupabasse("salvestus", { kuu: kuuId });
+
     näitaTeadet("Salvestatud ja lukustatud.");
     alert("Andmed salvestatud!");
+
 
     // =========================================================================
     // ✅ 🌟 ÕIGE KOHT: KÜLMVAATE SNAPSHOT SALVESTATAKSE SIIN 🌟
