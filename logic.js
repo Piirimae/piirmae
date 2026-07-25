@@ -599,7 +599,7 @@ salvestaNupp.addEventListener("click", async () => {
         }
     }
 
-    await logiTegevusSupabasse("salvestus", { kuu: kuuId });
+   
 
     tabelLukus = true;
     rakendaLukustusOlek();
@@ -733,22 +733,27 @@ async function salvestaArhiivi() {
                 versioon: versioon
             });
 
+        // ... (eelnev insert loogika)
+
         if (error) {
             console.error("Arhiivi salvestamise viga:", error);
             alert("Arhiivi salvestamine ebaõnnestus.");
             return;
         }
 
-        alert(`Arhiivi salvestatud: ${arhiiviId} (versioon ${versioon})`);
+        // ✅ ÕIGE KOHT: Logimine asünkroonse funktsiooni sees
+        try {
+            await logiTegevusSupabasse("arhiiv", { kuu: kuuId, arhiiviId: arhiiviId });
+        } catch (logiErr) {
+            console.error("Viga logimisel:", logiErr);
+        }
 
+        alert(`Arhiiv salvestatud: ${arhiiviId}`);
     } catch (err) {
-        console.error("Arhiivi salvestamise erind:", err);
-        alert("Tekkis ootamatu viga arhiivi salvestamisel.");
+        console.error("Viga:", err);
     }
-    // arhiiviSupabasse sisse:
-await logiTegevus("arhiiv", { kuu: kuuId, arhiiviId: arhiiviId });
-
 }
+
 
 
 
