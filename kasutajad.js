@@ -132,6 +132,9 @@ async function laeKasutajad() {
                 alert("Viga kustutamisel: " + error.message);
             } else {
                 laeKasutajad();
+                // lisaBtn.onclick sisse pärast edukat inserti:
+await logiTegevus("+kasutaja", { email: email, roll: roll });
+
             }
         };
     });
@@ -174,6 +177,9 @@ function seoNupud() {
             emailEl.value = ""; // Tühjendame kasti pärast edukat lisamist
             alert(`Kasutaja ${email} edukalt eelregistreeritud rolliga ${roll}!`);
             laeKasutajad(); // Värskendame tabelit automaatselt, et uus kasutaja ilmuks ritta
+           // lisaBtn.onclick sisse pärast edukat inserti:
+await logiTegevus("+kasutaja", { email: email, roll: roll });
+ 
         }
     };
 }
