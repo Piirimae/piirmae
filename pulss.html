@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <title>Piirimäe Pulss</title>
     <link rel="stylesheet" href="style.css">
-    
-   
-    <!-- Supabase laadimine unpkg serverist -->
-    <script src="https://unpkg.com"></script>
-
     <style>
         .pulss-container { padding: 20px; font-family: sans-serif; max-width: 1200px; margin: 0 auto; }
         .filter-panel { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
@@ -70,10 +65,16 @@
     </div>
 </div>
 
-<!-- Sinu peamine loogikafail moodulina lehe lõpus -->
+<!-- 🚀 SEADISTATUD LAADIMISJÄRJEKORD: -->
+<!-- 1. Supabase globaalne teek -->
+<script src="https://jsdelivr.net"></script>
+
+<!-- 2. Sinu kohalik moodul-loogika, mis tõmbab taustal käima ka chart.js ja loob suure joonise -->
+<script type="module" src="chart.js"></script>
 <script type="module" src="pulss.js"></script>
 
 </body>
 </html>
+
 
 
