@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Piirimäe Pulss</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .pulss-container { padding: 20px; font-family: sans-serif; max-width: 1200px; margin: 0 auto; }
+        .filter-panel { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-weight: bold; font-size: 0.85em; color: #4a5568; }
+        .filter-group select, .filter-group input { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white; }
+        .main-chart-wrapper { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); position: relative; }
+        
+        /* Lohistatavate sektordiagrammide (akende) stiilid */
+        .draggable-popup { position: absolute; width: 350px; background: white; border: 1px solid #cbd5e1; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 100; cursor: move; padding: 15px; }
+        .popup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; cursor: move; }
+        .popup-title { font-weight: bold; font-size: 0.9em; color: #2d3748; }
+        .popup-close { cursor: pointer; background: #e2e8f0; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .popup-close:hover { background: #e53e3e; color: white; }
+    </style>
+</head>
+<body class="page-pulss">
+
+<header class="header">
+    <div id="kasutajaNimi"></div>
+    <div class="header-actions">
+        <button onclick="window.location='fuajee.html'" class="btn-small">⬅ Fuajee</button>
+        <button id="logoutBtn" class="btn-small">Logi välja</button>
+    </div>
+</header>
+
+<div class="pulss-container">
+    <div class="intro">
+        <h2>📈 Piirimäe Pulss</h2>
+        <p class="subtitle">Visuaalne kassa, artiklite ja bestsellerite reaalajas rütmianalüüs.</p>
+    </div>
+
+    <!-- Filtripaneel täiusliku ajaakna valikuks -->
+    <div class="filter-panel">
+        <div class="filter-group">
+            <label>Ajavahemiku tüüp:</label>
+            <select id="ajaTyyp">
+                <option value="kuu">Kuu vaade</option>
+                <option value="aasta">Aasta vaade</option>
+                <option value="vahemik">Vaba kuupäeva vahemik</option>
+            </select>
+        </div>
+
+        <div class="filter-group" id="kuuValikGrupp">
+            <label>Vali kuu:</label>
+            <select id="pulssKuu"></select>
+        </div>
+
+        <div class="filter-group" id="vahemikValikGrupp" style="display: none;">
+            <label>Alates - Kuni:</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="date" id="vahemikAlates">
+                <input type="date" id="vahemikKuni">
+            </div>
+        </div>
+
+        <button id="eelmineKuuBtn" class="btn-small">⬅ Eelmine kuu</button>
+        <button id="uuendaPulssBtn" class="btn-primary" style="height: 38px;">Uuenda vaadet</button>
+    </div>
+
+    <!-- Suur põhigraafiku ala (Tulp + Joon) -->
+    <div class="main-chart-wrapper" id="graafikuAla">
+        <canvas id="pohiGraafik" height="400"></canvas>
+        <!-- Lohistatavad kettad tekivad siia sisse dünaamiliselt -->
+    </div>
+</div>
+
+<!-- Raamatukogud graafikute jaoks -->
+<script src="https://jsdelivr.net"></script>
+<script src="https://jsdelivr.net"></script>
+<script type="module" src="pulss.js"></script>
+
+</body>
+</html>
