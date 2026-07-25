@@ -1,7 +1,7 @@
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi } from "./auth.js";
-import { logiTegevus } from "./auth.js";
+
 
 
 
