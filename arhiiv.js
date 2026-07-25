@@ -274,12 +274,16 @@ const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", logout);
 }
-
+   // Printimine
 window.addEventListener("beforeprint", () => {
-    const opt = kuuValik.selectedOptions[0];
-    const kuu = opt ? opt.dataset.kuu : "";
+    const valitudVariant = kuuValik?.selectedOptions;
+    const kuu = valitudVariant && valitudVariant.length > 0 ? valitudVariant[0].dataset.kuu : "";
+    
     const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     const printTitle = document.getElementById("printTitle");
-    if (printTitle) printTitle.textContent = `${kuu} – ${leht}`;
+    
+    if (printTitle) {
+        printTitle.textContent = `${kuu} – ${leht}`;
+    }
 });
 
