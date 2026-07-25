@@ -29,6 +29,49 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* UUS: Paindlik jaluse paigutus kontaktide ja nupu jaoks */
+        .vaatleja-footer {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .footer-kontakt {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .footer-kontakt p {
+            margin: 0;
+        }
+        /* Pulsi nupu stiil */
+        .btn-pulss {
+            background: #f1c40f;
+            color: #000;
+            border: 1px solid #d4af37;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-pulss:hover {
+            background: #f39c12;
+            transform: translateY(-1px);
+        }
+        .btn-pulss:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="page-kuuvaated">
@@ -52,9 +95,19 @@
         </div>
     </div>
 
-    <footer class="vaatleja-footer" style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-top: 2px solid #e9ecef;">
-        <p><strong>Abi ja küsimused:</strong> Inge Piirimäe (superadmin)</p>
-        <p><strong>E-post:</strong> piirimaeinge@gmail.com | <strong>Telefon:</strong> +372 5555 5555</p>
+    <!-- PARANDATUD JALUS: Kontaktid vasakul, Pulsi nupp paremal -->
+    <footer class="vaatleja-footer">
+        <div class="footer-kontakt">
+            <p><strong>Abi ja küsimused:</strong> Inge Piirimäe (superadmin)</p>
+            <p><strong>E-post:</strong> piirimaeinge@gmail.com | <strong>Telefon:</strong> +372 5555 5555</p>
+        </div>
+        
+        <!-- UUS: Otsetee analüütika lehele -->
+        <div class="footer-tegevused">
+            <button onclick="window.location='pulss.html'" class="btn-pulss">
+                📈 Piirimäe Pulss Analüütika
+            </button>
+        </div>
     </footer>
 </main>
 
@@ -64,4 +117,5 @@
 
 </body>
 </html>
+
 
