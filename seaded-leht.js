@@ -10,6 +10,7 @@ window.kustutaVeergVali = async (id) => {
     if (confirm("Kas kindlasti kustutada see veerg?")) {
         await kustutaVeerg(id);
         await laeLeht();
+        await logiTegevus("-veerg", { veeruId: id });
     }
 };
 
@@ -17,6 +18,7 @@ window.kustutaEripaevVali = async (kuupaev) => {
     if (confirm(`Kas kustutada eripäev ${kuupaev}?`)) {
         await kustutaEripaev(kuupaev);
         await laeLeht();
+        await logiTegevus("-eripäev", { kuupaev: kuupaev });
     }
 };
 
@@ -57,6 +59,7 @@ async function laeLeht() {
 
 window.lisaVeeruRida = () => {
     lisaVeerg("uus", "Uus veerg", null, "tekst").then(laeLeht);
+    await logiTegevus("+veerg", { nimi: nimi, pealkiri: pealkiri });
 };
 
 window.lisaEripaevRida = () => {
@@ -65,6 +68,7 @@ window.lisaEripaevRida = () => {
     const nimi = prompt("Nimi");
     const värv = prompt("Värv (#rrggbb)");
     lisaEripaev(kuup, nimi, värv).then(laeLeht);
+    await logiTegevus("+eripäev", { kuupaev: kuupaev, nimi: nimi });
 };
 
 // Käivitame lehe laadimise
