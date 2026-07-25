@@ -211,6 +211,17 @@ function kuvaNupud() {
     arhiiviNupud.innerHTML = html;
 }
 
+async function kustutaValitudArhiiv(arhiiviId, kuuId) {
+    if (!confirm("Kas oled täiesti kindel, et soovid selle arhiveeringu kustutada?")) return;
+    if (!confirm("HOIATUS: See tegevus on pöördumatu! Kas jätkata?")) return;
+
+    const { error } = await sb.from("arhiiv").delete().eq("arhiiviId", arhiiviId);
+    if (!error) {
+        await logiTegevus("kustuta_arhiiv", { arhiiviId: arhiiviId, kuu: kuuId });
+        alert("Arhiiv kustutatud.");
+        window.location.reload();
+    }
+}
 
 // --- MODAL ---
 let parandusModal, parandusKinnita, parandusLoobu;
@@ -233,6 +244,9 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     // Kinnita parandus
+    // salvestaParandatudArhiiv sisse:
+await logiTegevus("paranda_arhiiv", { kuu: parandaKuu, arhiiviId: parandaArhiiviId });
+
     parandusKinnita.addEventListener("click", () => {
         const opt = kuuValik.selectedOptions[0];
         const kuu = opt.dataset.kuu;
@@ -244,6 +258,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 // --- Taasta arhiiv ---
+// taastaArhiiv sisse:
+await logiTegevus("taasta_aktiivne-kuu", { kuu: data.kuu_id, arhiiviId: arhiiviId });
+
 async function taastaArhiiv(arhiiviId) {
     const { data, error } = await sb
         .from("arhiiv")
