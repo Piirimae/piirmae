@@ -60,6 +60,7 @@ async function kuvaLogid() {
     .select("id, timestamp, tegevus, detailid, user_email")
     .order("timestamp", { ascending: false });
 
+  // Rakendame filtrid ainult siis, kui väärtus on reaalselt valitud
   if (aeg) query = query.contains("detailid", { kuu: aeg });
   if (kasutaja) query = query.eq("user_email", kasutaja);
   if (tegevus) query = query.eq("tegevus", tegevus);
@@ -68,6 +69,7 @@ async function kuvaLogid() {
   if (error) return console.error(error);
 
   const card = document.getElementById("logiKonteiner");
+  if (!card) return;
   card.innerHTML = "";
 
   const table = document.createElement("table");
@@ -94,8 +96,8 @@ async function kuvaLogid() {
       <td>${logi.id}</td>
       <td>${new Date(logi.timestamp).toLocaleString("et-EE")}</td>
       <td>${logi.user_email}</td>
-      <td>${logi.tegevus}</td>
-      <td><pre>${JSON.stringify(logi.detailid, null, 2)}</pre></td>
+      <td><strong>${logi.tegevus}</strong></td>
+      <td><pre style="margin:0; font-family:monospace; font-size:0.9em;">${JSON.stringify(logi.detailid, null, 2)}</pre></td>
     `;
     tbody.appendChild(tr);
   });
@@ -111,5 +113,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   await laeTegevused();
   await kuvaLogid();
 
-  document.getElementById("filtreeriBtn").onclick = kuvaLogid;
+  const filtreeriBtn = document.getElementById("filtreeriBtn");
+  if (filtreeriBtn) filtreeriBtn.onclick = kuvaLogid;
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) logoutBtn.onclick = logout;
 });
+
