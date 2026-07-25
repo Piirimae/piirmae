@@ -288,7 +288,7 @@ function ArvutaJaKuvaPerioodiInfo(vordlusTyyp) {
                            }
             }
         });
-        JoonistaSektorDiagramm(sildid, kogused, Jaotus: ${rida.kuupaev});
+    JoonistaSektorDiagramm(sildid, kogused, Jaotus: ${rida.kuupaev});
     }
    function JoonistaSektorDiagramm(labels, data, pealkiri) {
    if (grupiSektorGraafik) grupiSektorGraafik.destroy();
