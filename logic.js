@@ -491,32 +491,7 @@ function täidaTabelSupabaseAndmetega(andmed) {
     arvuta();
 }
 
-// ✅ UUS ABIFUNKTSIOON: Leiab kuupäevapõhise hinna ajaloo massiivist
-function leiaHinnaAjaloost(tooteNimi, kuupaevStr) {
-    if (!window.hinnadAjalugu || window.hinnadAjalugu.length === 0) {
-        // Kui ajalugu pole mingil põhjusel laetud, võtame seadete vaikehinna
-        const vaikimisiVeerg = seaded.veerud.find(v => v.nimi === tooteNimi);
-        return vaikimisiVeerg ? Number(vaikimisiVeerg.hind) || 0 : 0;
-    }
 
-    // Teeme rea kuupäevast kellaaja (päeva algus millisekundites)
-    const targetTime = new Date(`${kuupaevStr}T00:00:00`).getTime();
-
-    const leitud = window.hinnadAjalugu.find(h => {
-        if (h.nimi !== tooteNimi) return false;
-        
-        const alates = new Date(h.kehtiv_alates).getTime();
-        const kuni = h.kehtiv_kuni ? new Date(h.kehtiv_kuni).getTime() : Infinity;
-        
-        return targetTime >= alates && targetTime <= kuni;
-    });
-
-    if (leitud) return Number(leitud.hind);
-    
-    // Kui ajaloost mingil põhjusel ei leitud, kasutame põhitabeli vaikehinda
-    const vaikimisiVeerg = seaded.veerud.find(v => v.nimi === tooteNimi);
-    return vaikimisiVeerg ? Number(vaikimisiVeerg.hind) || 0 : 0;
-}
 
 // --- DÜNAAMILISED ARVUTUSED (AJALOO KONTROLLIGA) ---
 function arvuta() {
