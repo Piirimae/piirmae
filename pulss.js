@@ -1,3 +1,4 @@
+import 'https://cloudflare.com';
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi, logout } from "./auth.js";
