@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="et">
 <head>
@@ -6,12 +5,41 @@
     <title>Piirimäe Pulss</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .pulss-container { padding: 20px; font-family: sans-serif; max-width: 1200px; margin: 0 auto; }
+        /* Üldine konteiner ja lehe seaded */
+        .pulss-container { padding: 20px; font-family: sans-serif; max-width: 1400px; margin: 0 auto; overflow: hidden; }
+        
+        /* Filtrite paneel */
         .filter-panel { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
         .filter-group { display: flex; flex-direction: column; gap: 5px; }
         .filter-group label { font-weight: bold; font-size: 0.85em; color: #4a5568; }
         .filter-group select, .filter-group input { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white; }
-        .main-chart-wrapper { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); position: relative; }
+        
+        /* UUS: Paindlik kahe tiivaga tööala paigutus (75% / 25%) */
+        .pulss-tyoala { display: flex; gap: 20px; position: relative; width: 100%; align-items: flex-start; }
+        
+        /* Vasak tiiv (Suur graafik) - Algab kohe vasakust servast */
+        .graafiku-tiiv { width: 75%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); position: relative; z-index: 10; }
+        
+        /* Parem tiiv (Bestsellerid ja info) */
+        .bestselleri-tiiv { width: 25%; display: flex; flex-direction: column; gap: 15px; z-index: 5; }
+        
+        /* Sektorite ja infoakna kaardid - Peidavad end algul 80px graafiku alla */
+        .nihkes-kaart { background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), z-index 0s, opacity 0.3s; transform: translateX(-80px); position: relative; z-index: 1; opacity: 0.85; cursor: pointer; }
+        .nihkes-kaart h4 { margin-top: 0; margin-bottom: 10px; font-size: 0.95em; color: #2d3748; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid #edf2f7; padding-bottom: 5px; }
+        
+        /* EFEKT: Hiirega peale liikudes või klikates (klass .aktiivne) tõuseb graafiku peale */
+        .nihkes-kaart:hover, .nihkes-kaart.aktiivne { transform: translateX(0); z-index: 20; opacity: 1; box-shadow: -10px 10px 25px rgba(0,0,0,0.12); }
+        
+        /* Ootel oleva menüüvaate disain */
+        .ootel-teade { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 120px; color: #a0aec0; font-size: 0.85em; font-style: italic; border: 2px dashed #e2e8f0; border-radius: 6px; background: #f8f9fa; }
+        
+        /* Kolmanda akna (perioodi info) andmete tabel */
+        .info-rida { display: flex; justify-content: space-between; font-size: 0.85em; padding: 4px 0; border-bottom: 1px dashed #f1f5f9; }
+        .info-rida span:first-child { color: #718096; }
+        .info-rida span:last-child { font-weight: bold; color: #1a202c; }
+        .info-märkus { font-size: 0.75em; color: #dd6b20; background: #fffaf0; padding: 5px; border-radius: 4px; margin-top: 8px; border-left: 3px solid #dd6b20; }
+        
+        /* Lohistatav hüpikaken (Vana element säilitatud igaks juhuks) */
         .draggable-popup { position: absolute; width: 350px; background: white; border: 1px solid #cbd5e1; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 100; cursor: move; padding: 15px; }
         .popup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; cursor: move; }
         .popup-title { font-weight: bold; font-size: 0.9em; color: #2d3748; }
@@ -35,11 +63,13 @@
         <p class="subtitle">Visuaalne kassa, artiklite ja bestsellerite reaalajas rütmianalüüs.</p>
     </div>
 
+    <!-- Filtrite paneel (Lisatud valikusse ka Nädalate vaade) -->
     <div class="filter-panel">
         <div class="filter-group">
             <label>Ajavahemiku tüüp:</label>
             <select id="ajaTyyp">
                 <option value="kuu">Kuu vaade</option>
+                <option value="nadal">Nädalate vaade (Aasta lõikes)</option>
                 <option value="vahemik">Vaba kuupäeva vahemik</option>
             </select>
         </div>
@@ -57,30 +87,66 @@
             </div>
         </div>
 
-        <button id="eelmineKuuBtn" class="btn-small">⬅ Eelmine kuu</button>
+        <button id="eelmineKuuBtn" class="btn-small">⬅ Eelmine periood</button>
         <button id="uuendaPulssBtn" class="btn-primary" style="height: 38px;">Uuenda vaadet</button>
     </div>
 
-    <div class="main-chart-wrapper" id="graafikuAla">
-        <canvas id="pohiGraafik" height="400"></canvas>
+    <!-- UUS: Tööala jaotus vasakuks ja paremaks tiivaks -->
+    <div class="pulss-tyoala">
+        
+        <!-- Vasak pool: Suur graafik (Käive + joon munadega) -->
+        <div class="graafiku-tiiv" id="graafikuAla">
+            <canvas id="pohiGraafik" height="400"></canvas>
+        </div>
+
+        <!-- Parem pool: Kolm iseseisvalt nihkuvat kaarti -->
+        <div class="bestselleri-tiiv">
+            
+            <!-- SEKTOR 1: Tootegrupid (supp, praad1, praad2 jne) -->
+            <div class="nihkes-kaart" id="kaartTootegrupid">
+                <h4>🍲 Tootegruppide jaotus</h4>
+                <div style="max-height: 180px; position: relative;">
+                    <canvas id="grupiSektorGraafik"></canvas>
+                </div>
+            </div>
+
+            <!-- SEKTOR 2: Menüübaasil vaade (Ootel) -->
+            <div class="nihkes-kaart" id="kaartMenuuBaas">
+                <h4>📋 Menüü ja hinnajaotis</h4>
+                <div class="ootel-teade">
+                    <span>Ootab Menüü lehte</span>
+                    <span style="font-size: 0.8em; opacity: 0.7; margin-top: 5px;">(Hinnastatistika integreerimine)</span>
+                </div>
+            </div>
+
+            <!-- SEKTOR 3: Perioodi dünaamiline infoaken -->
+            <div class="nihkes-kaart" id="kaartPerioodiInfo">
+                <h4>📊 Vaadeldav ajavahemik</h4>
+                <div id="infoAkenSisu">
+                    <div class="info-rida"><span>Perioodi päevi:</span><span id="infoKoikPaevad">-</span></div>
+                    <div class="info-rida"><span>Müügipäevi:</span><span id="infoMyugiPaevad">-</span></div>
+                    <div class="info-rida"><span>Müüdud tooteid:</span><span id="infoTootedKogus">- tk</span></div>
+                    <div class="info-rida"><span>Kassa kokku:</span><span id="infoKassaSumma">- €</span></div>
+                    <div class="info-rida"><span>Võrdlusbaas:</span><span id="infoVordlusTüüp">-</span></div>
+                    <div class="info-märkus" id="infoHinnaMuutused" style="display: none;">
+                        ⚠️ Perioodil esines tootehindade muudatusi.
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 
-<!-- 1. See toob andmed andmebaasist (Sinu parandatud rida) -->
+<!-- Teegid ja skriptid -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-<!-- 2. See joonistab andmete põhjal graafikud -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- 3. Sinu kohalik seadistuste fail -->
 <script src="chart.js"></script>
-
-<!-- 4. Sinu peamine analüüsi loogika -->
 <script type="module" src="pulss.js"></script>
-
 
 </body>
 </html>
+
 
 
 
