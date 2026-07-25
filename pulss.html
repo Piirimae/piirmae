@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="et">
 <head>
@@ -65,12 +66,14 @@
     </div>
 </div>
 
-<!-- 🚀 SEADISTATUD LAADIMISJÄRJEKORD: -->
-<!-- 1. Supabase globaalne teek -->
+<!-- 🚀 TURVALINE JA KÄSITSI KONTROLLITUD LAADIMINE LEHE LÕPUS: -->
+<!-- 1. Supabase ametlik CDN (See töötab, kuna lõppeb @2 raamatukoguga) -->
 <script src="https://jsdelivr.net"></script>
 
-<!-- 2. Sinu kohalik moodul-loogika, mis tõmbab taustal käima ka chart.js ja loob suure joonise -->
-<script type="module" src="chart.js"></script>
+<!-- 2. Sinu enda lokaalne chart.js skript, mis ei sõltu ühestki veebilingist! -->
+<script src="chart.js"></script>
+
+<!-- 3. Sinu peamine analüüsi loogika moodulina -->
 <script type="module" src="pulss.js"></script>
 
 </body>
