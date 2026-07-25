@@ -53,16 +53,23 @@ function täidaKuuValik() {
 }
 
 
+
+   // Globaalne muutuja hindade ajaloo hoidmiseks logic.js ülaosas
+let hinnadAjalugu = [];
+
 async function init() {
     täidaKuuValik();
     praeguneKuu = document.getElementById("kuuValik").value;
     
-    // ✅ Ootame ära auth.js kontrolli ja võtame sealt õige rolli mällu
     await kuvaKasutajaNimi();
     roll = window.userRole; 
-    console.log("LOGIC: Kasutaja roll tuvastatud:", roll);
 
     seaded = await laeSeaded();
+    
+    // ✅ LISATUD: Küsime andmebaasist kogu hindade ajaloo nimekirja
+    const { data: hist } = await sb.from("hinnad").select("*");
+    hinnadAjalugu = hist || [];
+
     await genereeriKuuTabel();
 
     const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
@@ -70,9 +77,31 @@ async function init() {
 
     await kuvaArhiiv();
     uuendaVaateReziim();
-    rakendaRolliLukustus(); // Nüüd teab see funktsioon, et oled superadmin
+    rakendaRolliLukustus();
 }
 
+// Lisa see abifunktsioon näiteks genereeriKuuTabel() lähedale
+function leiaHinnaAjaloost(tooteNimi, kuupaevStr) {
+    // Teeme rea kuupäevast võrdluseks kellaaja (päeva algus)
+    const targetTime = new Date(`${kuupaevStr}T00:00:00`).getTime();
+
+    // Otsime ajaloo massiivist rida, mis klapib nimega ja jääb õigesse ajavahemikku
+    const leitud = hinnadAjalugu.find(h => {
+        if (h.nimi !== tooteNimi) return false;
+        
+        const alates = new Date(h.kehtiv_alates).getTime();
+        const kuni = h.kehtiv_kuni ? new Date(h.kehtiv_kuni).getTime() : Infinity;
+        
+        return targetTime >= alates && targetTime <= kuni;
+    });
+
+    // Kui andmebaasi ajaloost leiti vaste, tagastame selle hinna. 
+    // Kui ei leitud (nt vana rida), kasutame vaikimisi seadete lehe hetke hinda.
+    if (leitud) return Number(leitud.hind);
+    
+    const vaikimisiVeerg = seaded.veerud.find(v => v.nimi === tooteNimi);
+    return vaikimisiVeerg ? Number(vaikimisiVeerg.hind) || 0 : 0;
+}
 
 
 async function laeKuuAndmedSupabasest(kuuId) {
@@ -462,8 +491,34 @@ function täidaTabelSupabaseAndmetega(andmed) {
     arvuta();
 }
 
+// ✅ UUS ABIFUNKTSIOON: Leiab kuupäevapõhise hinna ajaloo massiivist
+function leiaHinnaAjaloost(tooteNimi, kuupaevStr) {
+    if (!window.hinnadAjalugu || window.hinnadAjalugu.length === 0) {
+        // Kui ajalugu pole mingil põhjusel laetud, võtame seadete vaikehinna
+        const vaikimisiVeerg = seaded.veerud.find(v => v.nimi === tooteNimi);
+        return vaikimisiVeerg ? Number(vaikimisiVeerg.hind) || 0 : 0;
+    }
 
-// --- DÜNAAMILISED ARVUTUSED ---
+    // Teeme rea kuupäevast kellaaja (päeva algus millisekundites)
+    const targetTime = new Date(`${kuupaevStr}T00:00:00`).getTime();
+
+    const leitud = window.hinnadAjalugu.find(h => {
+        if (h.nimi !== tooteNimi) return false;
+        
+        const alates = new Date(h.kehtiv_alates).getTime();
+        const kuni = h.kehtiv_kuni ? new Date(h.kehtiv_kuni).getTime() : Infinity;
+        
+        return targetTime >= alates && targetTime <= kuni;
+    });
+
+    if (leitud) return Number(leitud.hind);
+    
+    // Kui ajaloost mingil põhjusel ei leitud, kasutame põhitabeli vaikehinda
+    const vaikimisiVeerg = seaded.veerud.find(v => v.nimi === tooteNimi);
+    return vaikimisiVeerg ? Number(vaikimisiVeerg.hind) || 0 : 0;
+}
+
+// --- DÜNAAMILISED ARVUTUSED (AJALOO KONTROLLIGA) ---
 function arvuta() {
     if (!seaded) return;
 
@@ -481,6 +536,9 @@ function arvuta() {
     });
 
     rows.forEach(row => {
+        // ✅ TUVASTAME REA KUUPÄEVA (nt "2026-07-25")
+        const kuupaev = row.dataset.date; 
+        
         const inputs = row.querySelectorAll("input");
         const kokkuCell = row.querySelector(".kokku-cell");
         let ridaSumma = 0;
@@ -497,7 +555,8 @@ function arvuta() {
             }
 
             if (veeruInfo.tüüp === "toit") {
-                const hind = Number(veeruInfo.hind) || 0;
+                // 🚀 PARANDATUD: Küsime hinna otse selle päeva ajaloo seest!
+                const hind = leiaHinnaAjaloost(veeruNimi, kuupaev);
                 const summa = kogus * hind;
 
                 hinnasummad[veeruNimi] += summa;
@@ -505,7 +564,7 @@ function arvuta() {
             }
         });
 
-        kokkuCell.textContent = ridaSumma.toFixed(2) + " €";
+        if (kokkuCell) kokkuCell.textContent = ridaSumma.toFixed(2) + " €";
         kuuSumma += ridaSumma;
     });
 
@@ -524,8 +583,10 @@ function arvuta() {
         }
     });
 
-    document.getElementById("kuuKokku").textContent = kuuSumma.toFixed(2) + " €";
+    const kuuKokkuEl = document.getElementById("kuuKokku");
+    if (kuuKokkuEl) kuuKokkuEl.textContent = kuuSumma.toFixed(2) + " €";
 }
+
 
 
 
