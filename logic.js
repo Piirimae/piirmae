@@ -157,6 +157,9 @@ async function arhiiviSupabasse(kuuId, stateJson) {
         näitaTeadet("Tekkis ootamatu viga arhiivi salvestamisel.");
         return false;
     }
+    // arhiiviSupabasse sisse:
+await logiTegevus("arhiiv", { kuu: kuuId, arhiiviId: arhiiviId });
+
 }
 
 
@@ -742,6 +745,9 @@ async function salvestaArhiivi() {
         console.error("Arhiivi salvestamise erind:", err);
         alert("Tekkis ootamatu viga arhiivi salvestamisel.");
     }
+    // arhiiviSupabasse sisse:
+await logiTegevus("arhiiv", { kuu: kuuId, arhiiviId: arhiiviId });
+
 }
 
 
