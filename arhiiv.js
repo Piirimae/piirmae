@@ -9,27 +9,30 @@ const arhiiviNupud = document.getElementById("arhiiviNupud");
 
 console.log("arhiiv.js laaditud");
 
+// --- Kohalik logimise funktsioon (sünkroniseeritud teiste lehtedega) ---
+async function logiTegevusSupabasse(tegevus, detailid = {}) {
+    const { data: userData } = await sb.auth.getUser();
+    const userEmail = userData?.user?.email || null;
+    await sb.from("logid").insert({ tegevus, detailid, user_email: userEmail });
+}
+
 // --- INIT ---
 window.addEventListener("DOMContentLoaded", async () => {
     try {
-        // Üritame laadida kasutaja andmed, aga ei lase veal lehte lõhkuda
         await kuvaKasutajaNimi();
     } catch (authError) {
         console.error("Kasutajanime kuvamise viga (auth.js):", authError);
     }
-
-    // Need peavad käivituma igal juhul, et arhiiv kuvataks
     await laeKuuValikud();
     await kuvaArhiiv();
 });
-
 
 // --- Lae kuude loetelu ---
 async function laeKuuValikud() {
     const { data, error } = await sb
         .from("arhiiv")
         .select("arhiiviId, kuu_id, created_at, salvestaja, versioon, paeritolu")
-        .order("created_at", { ascending: false }); // ✅ PARANDATUD: created_at järgi sorteerimine
+        .order("created_at", { ascending: false });
 
     if (error) {
         console.error("Kuu valikute laadimise viga:", error);
@@ -37,14 +40,7 @@ async function laeKuuValikud() {
     }
 
     kuuValik.innerHTML = data.map(r => {
-        // ✅ NUTIK VERSIOON: Näita versioon numbrit VÕI märgistust
-        let versiooniMärgistus = "";
-        if (r.paeritolu === "automaatne") {
-            versiooniMärgistus = "(automaatika)";
-        } else {
-            versiooniMärgistus = `(v${r.versioon})`;
-        }
-
+        let versiooniMärgistus = r.paeritolu === "automaatne" ? "(automaatika)" : `(v${r.versioon})`;
         const label = `${r.kuu_id} ${versiooniMärgistus}`;
 
         return `
@@ -64,10 +60,10 @@ async function laeKuuValikud() {
     kuuValik.addEventListener("change", kuvaArhiiv);
 }
 
-
 // --- Lae ja kuva arhiiv ---
 async function kuvaArhiiv() {
     const arhiiviId = kuuValik.value;
+    if (!arhiiviId) return;
 
     const { data, error } = await sb
         .from("arhiiv")
@@ -82,9 +78,7 @@ async function kuvaArhiiv() {
         return;
     }
 
-    const state = typeof data.state === "string" 
-        ? JSON.parse(data.state) 
-        : data.state;
+    const state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
 
     kuvaMeta(data);
     kuvaTabel(state);
@@ -97,21 +91,8 @@ function kuvaMeta(kirje) {
     const kuup = d.toLocaleDateString("et-EE");
     const aeg = d.toLocaleTimeString("et-EE");
 
-    // ✅ NUTIK "ARHIVEERIS" TEKST
-    let arhiveerijaTekst = "";
-    if (kirje.paeritolu === "automaatne") {
-        arhiveerijaTekst = "(automaatika)";
-    } else {
-        arhiveerijaTekst = kirje.salvestaja;
-    }
-
-    // ✅ NUTIK "VERSIOON" TEKST
-    let versiooniTekst = "";
-    if (kirje.paeritolu === "automaatne") {
-        versiooniTekst = "(automaatika)";
-    } else {
-        versiooniTekst = kirje.versioon;
-    }
+    let arhiveerijaTekst = kirje.paeritolu === "automaatne" ? "(automaatika)" : kirje.salvestaja;
+    let versiooniTekst = kirje.paeritolu === "automaatne" ? "(automaatika)" : kirje.versioon;
 
     arhiiviMeta.innerHTML = `
         <p><strong>Kuu:</strong> ${kirje.kuu_id}</p>
@@ -123,8 +104,6 @@ function kuvaMeta(kirje) {
 
 // --- Tabel ---
 function kuvaTabel(state) {
-
-    // --- AINULT UUS FORMAAT ---
     if (!state.paise || !state.rows) {
         arhiiviKuva.innerHTML = "<p>Arhiivi formaat tundmatu või vigane.</p>";
         return;
@@ -137,12 +116,7 @@ function kuvaTabel(state) {
         <thead>
             <tr>
                 <th>Kuupäev</th>
-                ${paise.map(v => {
-                    if (v.tüüp === "toit") {
-                        return `<th>${v.pealkiri}<br><small>${Number(v.hind).toFixed(2)} €</small></th>`;
-                    }
-                    return `<th>${v.pealkiri}</th>`;
-                }).join("")}
+                ${paise.map(v => v.tüüp === "toit" ? `<th>${v.pealkiri}<br><small>${Number(v.hind).toFixed(2)} €</small></th>` : `<th>${v.pealkiri}</th>`).join("")}
                 <th>Kokku</th>
             </tr>
         </thead>
@@ -175,24 +149,13 @@ function kuvaTabel(state) {
         </tfoot>
     `;
 
-    arhiiviKuva.innerHTML = `
-        <table class="arhiivi-tabel">
-            ${thead}
-            ${tbody}
-            ${tfoot}
-        </table>
-    `;
+    arhiiviKuva.innerHTML = `<table class="arhiivi-tabel">${thead}${tbody}${tfoot}</table>`;
 }
-
-
-    // --- Kui ei vasta kummalegi ---
-
-
 
 // --- Nupud ---
 function kuvaNupud() {
     const roll = window.userRole || "vaataja";
-    const arhiiviId = kuuValik.value; // Võtame praeguse arhiivi ID
+    const arhiiviId = kuuValik.value;
 
     let html = `
         <button onclick="window.print()">Prindi</button>
@@ -200,68 +163,88 @@ function kuvaNupud() {
         <button onclick="window.location='fuajee.html'">Tagasi</button>
     `;
 
+    if (roll === "superadmin" || roll === "admin") {
+        html += `
+            <button class="admin" id="parandaArhiiviBtn">Paranda arhiivi</button>
+            <button class="admin taasta-btn" id="taastaArhiivBtn">Taasta aktiivseks kuuks</button>
+        `;
+    }
+    
+    // ✅ TOPELTKINNITUSEGA KUSTUTAMINE: Ainult superadminile
     if (roll === "superadmin") {
         html += `
-            <button class="admin">Paranda arhiivi</button>
-            <button class="admin taasta-btn" onclick="taastaArhiiv('${arhiiviId}')">Taasta aktiivseks kuuks</button>
-            <button class="admin">Kustuta arhiiv</button>
+            <button class="admin" id="kustutaArhiivBtn" style="background:#e74c3c; color:white;">Kustuta arhiiv</button>
         `;
     }
 
     arhiiviNupud.innerHTML = html;
+    seoNupudJaModalid();
 }
 
-async function kustutaValitudArhiiv(arhiiviId, kuuId) {
-    if (!confirm("Kas oled täiesti kindel, et soovid selle arhiveeringu kustutada?")) return;
-    if (!confirm("HOIATUS: See tegevus on pöördumatu! Kas jätkata?")) return;
+// ==========================================
+//  MODALID JA FUNKTSIOONID
+// ==========================================
+function seoNupudJaModalid() {
+    const opt = kuuValik.selectedOptions[0];
+    if (!opt) return;
 
-    const { error } = await sb.from("arhiiv").delete().eq("arhiiviId", arhiiviId);
-    if (!error) {
-        await logiTegevus("kustuta_arhiiv", { arhiiviId: arhiiviId, kuu: kuuId });
-        alert("Arhiiv kustutatud.");
-        window.location.reload();
+    const kuu = opt.dataset.kuu;
+    const arhiiviId = opt.value;
+
+    // --- PARANDAMINE ---
+    const parandaBtn = document.getElementById("parandaArhiiviBtn");
+    const parandusModal = document.getElementById("parandusModal");
+    const parandusKinnita = document.getElementById("parandusKinnita");
+    const parandusLoobu = document.getElementById("parandusLoobu");
+
+    if (parandaBtn && parandusModal) {
+        parandaBtn.onclick = () => parandusModal.style.display = "flex";
+        parandusLoobu.onclick = () => parandusModal.style.display = "none";
+        parandusKinnita.onclick = async () => {
+            // ✅ Logime tegevuse enne suunamist
+            await logiTegevusSupabasse("paranda_arhiiv", { kuu: kuu, arhiiviId: arhiiviId });
+            window.location = `kassatabel.html?paranda=${kuu}&arhiiviId=${arhiiviId}`;
+        };
+    }
+
+    // --- TAASTAMINE ---
+    const taastaBtn = document.getElementById("taastaArhiivBtn");
+    const taastaModal = document.getElementById("taastaModal");
+    const taastaKinnita = document.getElementById("taastaKinnita");
+    const taastaLoobu = document.getElementById("taastaLoobu");
+    const taastaInfo = document.getElementById("taastaInfo");
+
+    if (taastaBtn && taastaModal) {
+        if (taastaInfo) taastaInfo.textContent = `Kuu: ${kuu} (${arhiiviId})`;
+        taastaBtn.onclick = () => taastaModal.style.display = "flex";
+        taastaLoobu.onclick = () => taastaModal.style.display = "none";
+        taastaKinnita.onclick = async () => {
+            await taastaArhiivLoogika(arhiiviId, kuu);
+        };
+    }
+
+    // --- KUSTUTAMINE (TOPELTKINNITUS) ---
+    const kustutaBtn = document.getElementById("kustutaArhiivBtn");
+    if (kustutaBtn) {
+        kustutaBtn.onclick = async () => {
+            if (!confirm(`Kas oled täiesti kindel, et soovid arhiivi ${arhiiviId} kustutada?`)) return;
+            if (!confirm("⚠️ HOIATUS: See kustutab arhiivi andmebaasist jäädavalt! Kas jätkata?")) return;
+
+            const { error } = await sb.from("arhiiv").delete().eq("arhiiviId", arhiiviId);
+            if (!error) {
+                // ✅ Logime kustutamise tegevuse
+                await logiTegevusSupabasse("kustuta_arhiiv", { arhiiviId: arhiiviId, kuu: kuu });
+                alert("Arhiiv edukalt kustutatud.");
+                window.location.reload();
+            } else {
+                alert("Kustutamine ebaõnnestus: " + error.message);
+            }
+        };
     }
 }
 
-// --- MODAL ---
-let parandusModal, parandusKinnita, parandusLoobu;
-
-window.addEventListener("DOMContentLoaded", () => {
-    parandusModal = document.getElementById("parandusModal");
-    parandusKinnita = document.getElementById("parandusKinnita");
-    parandusLoobu = document.getElementById("parandusLoobu");
-
-    // Ava modal
-    document.addEventListener("click", (e) => {
-        if (e.target.classList.contains("admin") && e.target.textContent.includes("Paranda arhiivi")) {
-            parandusModal.style.display = "flex";
-        }
-    });
-
-    // Sulge modal
-    parandusLoobu.addEventListener("click", () => {
-        parandusModal.style.display = "none";
-    });
-
-    // Kinnita parandus
-    // salvestaParandatudArhiiv sisse:
-await logiTegevus("paranda_arhiiv", { kuu: parandaKuu, arhiiviId: parandaArhiiviId });
-
-    parandusKinnita.addEventListener("click", () => {
-        const opt = kuuValik.selectedOptions[0];
-        const kuu = opt.dataset.kuu;
-        const arhiiviId = opt.value;
-
-        window.location = `kassatabel.html?paranda=${kuu}&arhiiviId=${arhiiviId}`;
-    });
-});
-
-
-// --- Taasta arhiiv ---
-// taastaArhiiv sisse:
-await logiTegevus("taasta_aktiivne-kuu", { kuu: data.kuu_id, arhiiviId: arhiiviId });
-
-async function taastaArhiiv(arhiiviId) {
+// --- TAASTAMISE AKTIVNE PROTSESS ---
+async function taastaArhiivLoogika(arhiiviId, kuuId) {
     const { data, error } = await sb
         .from("arhiiv")
         .select("*")
@@ -273,18 +256,16 @@ async function taastaArhiiv(arhiiviId) {
         return;
     }
 
-    const state = typeof data.state === "string" 
-        ? JSON.parse(data.state) 
-        : data.state;
+    const state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
 
-    await sb
-        .from("arhiiv")
-        .update({ taastatud: true })
-        .eq("arhiiviId", arhiiviId);
+    // Märgime andmebaasis staatuse taastatuks
+    await sb.from("arhiiv").update({ taastatud: true }).eq("arhiiviId", arhiiviId);
+
+    // ✅ Logime tegevuse
+    await logiTegevusSupabasse("taasta_aktiivne-kuu", { kuu: kuuId, arhiiviId: arhiiviId });
 
     localStorage.setItem("taastatudState", JSON.stringify(state));
     localStorage.setItem("taastatudKuu", data.kuu_id);
-
     window.location = `kassatabel.html?taastatud=${data.kuu_id}`;
 }
 
@@ -295,7 +276,10 @@ if (logoutBtn) {
 }
 
 window.addEventListener("beforeprint", () => {
-    const kuu = document.getElementById("kuuValik")?.selectedOptions[0]?.dataset?.kuu || "";
+    const opt = kuuValik.selectedOptions[0];
+    const kuu = opt ? opt.dataset.kuu : "";
     const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
-    document.getElementById("printTitle").textContent = `${kuu} – ${leht}`;
+    const printTitle = document.getElementById("printTitle");
+    if (printTitle) printTitle.textContent = `${kuu} – ${leht}`;
 });
+
