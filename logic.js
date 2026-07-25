@@ -1,6 +1,9 @@
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi } from "./auth.js";
+import { logiTegevus } from "./auth.js";
+
+
 
 let tabelLukus = true;
 let seaded = null;
