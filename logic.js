@@ -409,10 +409,15 @@ async function genereeriKuuTabel() {
     rakendaLukustusOlek();
     arvuta();
 }
-// ✅ PARANDATUD JA PUHAS PÄIS ILMA FIKSEERITUD HINNATA:
+// ✅ PARANDATUD JA TURVALINE PÄIS ILMA FIKSEERITUD HINNATA:
 function genereeriPaise(veerud) {
-    const head = document.getElementById("TabelHead");
-    if (!head) return;
+    // Kontrollime nii suure kui väikese algustähega ID-d, et vältida trükivigu HTML-is
+    const head = document.getElementById("tabelHead") || document.getElementById("TabelHead");
+    
+    if (!head) {
+        console.error("VIGA: Kood ei leidnud tabeli päise elementi (tabelHead/TabelHead)!");
+        return;
+    }
 
     let html = "<tr>";
     html += "<th>Kuupäev</th>";
@@ -426,7 +431,9 @@ function genereeriPaise(veerud) {
     html += "</tr>";
 
     head.innerHTML = html;
+    console.log("PÄIS: Veergude pealkirjad edukalt genereeritud.");
 }
+
 
 
 function genereeriJalus(veerud) {
