@@ -66,15 +66,18 @@
     </div>
 </div>
 
-<!-- 🚀 TURVALINE JA KÄSITSI KONTROLLITUD LAADIMINE LEHE LÕPUS: -->
-<!-- 1. Supabase ametlik CDN (See töötab, kuna lõppeb @2 raamatukoguga) -->
+<!-- 1. See toob andmed andmebaasist (Sinu parandatud rida) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<!-- 2. See joonistab andmete põhjal graafikud -->
 <script src="https://jsdelivr.net"></script>
 
-<!-- 2. Sinu enda lokaalne chart.js skript, mis ei sõltu ühestki veebilingist! -->
+<!-- 3. Sinu kohalik seadistuste fail -->
 <script src="chart.js"></script>
 
-<!-- 3. Sinu peamine analüüsi loogika moodulina -->
+<!-- 4. Sinu peamine analüüsi loogika -->
 <script type="module" src="pulss.js"></script>
+
 
 </body>
 </html>
