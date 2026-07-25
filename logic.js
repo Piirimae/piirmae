@@ -186,8 +186,7 @@ async function arhiiviSupabasse(kuuId, stateJson) {
         näitaTeadet("Tekkis ootamatu viga arhiivi salvestamisel.");
         return false;
     }
-    // arhiiviSupabasse sisse:
-await logiTegevus("arhiiv", { kuu: kuuId, arhiiviId: arhiiviId });
+ 
 
 }
 
@@ -236,7 +235,7 @@ async function salvestaVanaKuuArhiivi(kuuId) {
         }
 
         
-        await logiTegevusSupabasse("automaatne_arhiiv", { kuu: kuuId, arhiiviId: arhiiviId });
+       
 
         console.log(`✓ Kuu ${kuuId} lõppseis automaatselt salvestatud arhiivi (${arhiiviId} v${versioon})`);
         return true;
@@ -410,18 +409,17 @@ async function genereeriKuuTabel() {
     rakendaLukustusOlek();
     arvuta();
 }
+// ✅ PARANDATUD JA PUHAS PÄIS ILMA FIKSEERITUD HINNATA:
 function genereeriPaise(veerud) {
-    const head = document.getElementById("tabelHead");
+    const head = document.getElementById("TabelHead");
+    if (!head) return;
 
     let html = "<tr>";
     html += "<th>Kuupäev</th>";
 
     veerud.forEach(v => {
-        if (v.tüüp === "toit") {
-            html += `<th>${v.pealkiri}<br>${Number(v.hind).toFixed(2)} €</th>`;
-        } else {
-            html += `<th>${v.pealkiri}</th>`;
-        }
+        // Kuvame ainult pealkirja, kuna hind on dünaamiline ja muutub ajas
+        html += `<th>${v.pealkiri}</th>`;
     });
 
     html += "<th>KOKKU</th>";
@@ -429,6 +427,7 @@ function genereeriPaise(veerud) {
 
     head.innerHTML = html;
 }
+
 
 function genereeriJalus(veerud) {
     const foot = document.getElementById("tabelFoot");
