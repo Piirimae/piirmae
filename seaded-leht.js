@@ -1,27 +1,46 @@
+// seaded-leht.js (MOODUL)
 import { laeSeaded, lisaVeerg, kustutaVeerg, uuendaVeerg, lisaEripaev, kustutaEripaev } from "./seaded.js";
+import { logiTegevus } from "./auth.js"; // ✅ LISATUD: Impordime logimise funktsiooni
 
-// ✅ Ekspordime funktsioonid globaalselt, et HTML inline onclick/onchange saaksid neile pihta
+// ==========================================
+//  VEERGUDE JA ERIPÄEVADE MUUTMINE JA LOGID
+// ==========================================
+
 window.uuendaVeergVali = async (id, muudatused) => {
     await uuendaVeerg(id, muudatused);
-    console.log(`Veerg ID ${id} uuendatud:`, muudatused);
+    
+    // ✅ Tuvastame, mis väljaga oli tegu (pealkiri, nimi, hind või tüüp) ja logime täpselt selle tüübi
+    const võti = Object.keys(muudatused)[0]; 
+    await logiTegevus(`seaded_${võti}`, { veeruId: id, uusVäärtus: muudatused[võti] });
+    
+    console.log(`Logitud tegevus: seaded_${võti}`, muudatused);
 };
 
 window.kustutaVeergVali = async (id) => {
     if (confirm("Kas kindlasti kustutada see veerg?")) {
         await kustutaVeerg(id);
-        await laeLeht();
+        
+        // ✅ LISATUD: Logime veeru kustutamise
         await logiTegevus("-veerg", { veeruId: id });
+        
+        await laeLeht();
     }
 };
 
 window.kustutaEripaevVali = async (kuupaev) => {
     if (confirm(`Kas kustutada eripäev ${kuupaev}?`)) {
         await kustutaEripaev(kuupaev);
-        await laeLeht();
+        
+        // ✅ LISATUD: Logime eripäeva kustutamise
         await logiTegevus("-eripäev", { kuupaev: kuupaev });
+        
+        await laeLeht();
     }
 };
 
+// ==========================================
+//  LEHE LAADIMINE JA GENEREERIMINE
+// ==========================================
 async function laeLeht() {
     const seaded = await laeSeaded();
 
@@ -57,9 +76,15 @@ async function laeLeht() {
     }
 }
 
+// ==========================================
+//  LISAMISE NUPUD JA LOGID
+// ==========================================
 window.lisaVeeruRida = () => {
-    lisaVeerg("uus", "Uus veerg", null, "tekst").then(laeLeht);
-    await logiTegevus("+veerg", { nimi: nimi, pealkiri: pealkiri });
+    lisaVeerg("uus", "Uus veerg", null, "tekst").then(async () => {
+        // ✅ LISATUD: Logime uue veeru lisamise
+        await logiTegevus("+veerg", { nimi: "uus", pealkiri: "Uus veerg" });
+        await laeLeht();
+    });
 };
 
 window.lisaEripaevRida = () => {
@@ -67,9 +92,14 @@ window.lisaEripaevRida = () => {
     if (!kuup) return;
     const nimi = prompt("Nimi");
     const värv = prompt("Värv (#rrggbb)");
-    lisaEripaev(kuup, nimi, värv).then(laeLeht);
-    await logiTegevus("+eripäev", { kuupaev: kuupaev, nimi: nimi });
+    
+    lisaEripaev(kuup, nimi, värv).then(async () => {
+        // ✅ LISATUD: Logime uue eripäeva lisamise
+        await logiTegevus("+eripäev", { kuupaev: kuup, nimi: nimi });
+        await laeLeht();
+    });
 };
 
-// Käivitame lehe laadimise
+// Käivitame lehe alglaadimise
 laeLeht();
+
