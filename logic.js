@@ -409,29 +409,24 @@ async function genereeriKuuTabel() {
     rakendaLukustusOlek();
     arvuta();
 }
-// ✅ PARANDATUD JA TURVALINE PÄIS ILMA FIKSEERITUD HINNATA:
 function genereeriPaise(veerud) {
-    // Kontrollime nii suure kui väikese algustähega ID-d, et vältida trükivigu HTML-is
-    const head = document.getElementById("tabelHead") || document.getElementById("TabelHead");
-    
-    if (!head) {
-        console.error("VIGA: Kood ei leidnud tabeli päise elementi (tabelHead/TabelHead)!");
-        return;
-    }
+    const head = document.getElementById("tabelHead");
 
     let html = "<tr>";
     html += "<th>Kuupäev</th>";
 
     veerud.forEach(v => {
-        // Kuvame ainult pealkirja, kuna hind on dünaamiline ja muutub ajas
-        html += `<th>${v.pealkiri}</th>`;
+        if (v.tüüp === "toit") {
+            html += `<th>${v.pealkiri}<br>${Number(v.hind).toFixed(2)} €</th>`;
+        } else {
+            html += `<th>${v.pealkiri}</th>`;
+        }
     });
 
     html += "<th>KOKKU</th>";
     html += "</tr>";
 
     head.innerHTML = html;
-    console.log("PÄIS: Veergude pealkirjad edukalt genereeritud.");
 }
 
 
