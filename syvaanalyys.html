@@ -128,21 +128,33 @@
     </div>
 
     <!-- Tööala -->
-    <div class="graafiku-tiiv" id="graafikuAla">
-    <div class="graafiku-konteiner-scroll">
-        <div class="graafiku-sisu-lai" id="graafikSisuKast">
-            <canvas id="uuringuGraafik"></canvas>
+        <!-- TÖÖALA: Vasak pool on keritav graafik (75%), parem pool on nihkega kaardid (25%) -->
+    <div class="pulss-tyoala">
+        
+        <!-- Vasak pool: Suur uuringugraafik horisontaalse kerimisega -->
+        <div class="graafiku-tiiv" style="width: 75%; overflow: hidden;">
+            
+            <!-- UUS: Suumimise/Skaala liugur otse graafiku kohal -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #f8f9fa; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <span style="font-size: 0.85em; font-weight: bold; color: #4a5568;">🔍 Graafiku laius / Suum:</span>
+                <input type="range" id="graafikuSuum" min="1000" max="5000" value="1500" style="flex-grow: 1; cursor: pointer;">
+                <span id="suumIndikaator" style="font-size: 0.8em; font-family: monospace; color: #718096;">1500px</span>
+            </div>
+
+            <!-- Horisontaalselt keritav ala -->
+            <div style="width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 5px;">
+                <div id="graafikSisuKast" style="width: 1500px; height: 420px; transition: width 0.1s ease;">
+                    <canvas id="uuringuGraafik"></canvas>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-
-        <!-- Parem pool: Kolm kaarti (Sektorid ei reageeri mummude klikkimisele, vaid on globaalsed) -->
-        <div class="bestselleri-tiiv">
+        <!-- Parem pool: Kolm kaarti (Z-index ja Hover efekt) -->
+        <div class="bestselleri-tiiv" style="width: 25%; display: flex; flex-direction: column; gap: 15px;">
             <!-- Kaart 1: Perioodi koondtootegrupid -->
-            <div class="nihkes-kaart" id="kaartTootegrupid">
+            <div class="nihkes-kaart aktiivne" id="kaartTootegrupid">
                 <h4>🍲 Perioodi tootegrupid</h4>
-                <div style="max-height: 180px; position: relative;">
+                <div style="height: 180px; position: relative;">
                     <canvas id="uuringuSektorGraafik"></canvas>
                 </div>
             </div>
@@ -167,8 +179,8 @@
                 </div>
             </div>
         </div>
+
     </div>
-</div>
 
 <!-- Teegid -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
