@@ -279,7 +279,9 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
     const sisuKast = document.getElementById("graafikSisuKast");
     if (sisuKast) {
         const uueLaius = Math.max(1200, sildid.length * 60);
-        sisuKast.style.width = `${uueLaius}px`;
+        
+       sisuKast.style.width = `${uueLaius}px`;
+
     }
 
     if (uuringuGraafik) uuringuGraafik.destroy();
