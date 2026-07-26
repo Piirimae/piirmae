@@ -36,22 +36,33 @@ function SeadistaFiltriKuulajad() {
 
 function GenerreeriDunaamilisedLinnukesed() {
     const sets = { aastad: new Set(), kuud: new Set(), nadalad: new Set(), tooted: new Set() };
+    
     baasKassaAndmed.forEach(r => {
+        if (!r.kuupaev) return;
         const d = new Date(r.kuupaev);
         sets.aastad.add(d.getFullYear());
         sets.kuud.add(d.getMonth() + 1);
         sets.nadalad.add(TuvastaNadalaNumber(d));
         seaded.veerud.forEach(v => {
-            if (v.tüüp === "toit" && Number(r[v.nimi]) > 0) sets.tooted.add(v.nimi);
+            if (v.tüüp === "toit" && Number(r[v.nimi]) > 0) {
+                sets.tooted.add(v.nimi);
+            }
         });
     });
     
-    // Ehitab dünaamiliselt checkbokside HTML-i (tuvastab olemasolevad andmed)
-    EhitaLinnukesteHtml("gruppAastad", Array.from(sets.aastad).sort(), "chk-aasta", (val) => `${val}. aasta`);
-    EhitaLinnukesteHtml("gruppKuud", Array.from(sets.kuud).sort((a,b)=>a-b), "chk-kuu", (val) => ["Jaan","Veebr","Märts","Apr","Mai","Juuni","Juuli","Aug","Sept","Okt","Nov","Dets"][val-1]);
-    EhitaLinnukesteHtml("gruppNadalad", Array.from(sets.nadalad).sort((a,b)=>a-b), "chk-nadal", (val) => `Näd ${val}`);
-    EhitaLinnukesteHtmlObjektidega("gruppTooted", Array.from(sets.tooted).map(n => seaded.veerud.find(v=>v.nimi===n)), "chk-toode");
+    // Sorteerime massiivid enne HTML-i saatmist puhtalt eraldi ära, et vältida sulgude segadust
+    const sünkroonAastad = Array.from(sets.aastad).sort((a, b) => a - b);
+    const sünkroonKuud = Array.from(sets.kuud).sort((a, b) => a - b);
+    const sünkroonNadalad = Array.from(sets.nadalad).sort((a, b) => a - b);
+    const sünkroonTooted = Array.from(sets.tooted).map(n => seaded.veerud.find(v => v.nimi === n)).filter(Boolean);
+
+    // Genereerime puhta HTML-i
+    EhitaLinnukesteHtml("gruppAastad", sünkroonAastad, "chk-aasta", (val) => `${val}. aasta`);
+    EhitaLinnukesteHtml("gruppKuud", sünkroonKuud, "chk-kuu", (val) => ["Jaan", "Veebr", "Märts", "Apr", "Mai", "Juuni", "Juuli", "Aug", "Sept", "Okt", "Nov", "Dets"][val - 1]);
+    EhitaLinnukesteHtml("gruppNadalad", sünkroonNadalad, "chk-nadal", (val) => `Näd ${val}`);
+    EhitaLinnukesteHtmlObjektidega("gruppTooted", sünkroonTooted, "chk-toode");
 }
+
 
 // Abifunktsioonid HTMLi loomiseks ja "Vali kõik" loogikaks
 function EhitaLinnukesteHtml(id, arr, kl, fmt) { /* ...dünaamiline chkbox list... */ }
