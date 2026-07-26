@@ -262,37 +262,66 @@ function K2ivitaRistanalyys() {
 }
 
 function EhitajaJaJoonistaHierarhia(andmebaas) {
-    // Sorteerime kuupäeva järgi
-    andmebaas.sort((a,b) => new Date(a.kuupaev) - new Date(b.kuupaev));
+    // 1. Sorteerime andmed kalendrilise kuupäeva järgi
+    andmebaas.sort((a, b) => new Date(a.kuupaev) - new Date(b.kuupaev));
 
-    const sildid = [];
-    const kassaAndmed = [];
-    
-    // Grupeerime andmed nii, et kui nädal 27 on kahes kuus, tekitatakse talle kaks iseseisvat tulpa kuude sisse
-    const grupid = {};
+    // Tuvastame unikaalsed ristnädalate rühmad (tulbad X-teljel)
+    const ristNadalad Set = new Set();
     andmebaas.forEach(p => {
-        // Võti koosneb aastast, kuust ja nädalast -> tagab ristnädala puhtuse!
-        const voti = `${p.aasta}-Kuu ${p.kuu}-Näd ${p.nadal}`;
-        if (!grupid[voti]) grupid[voti] = 0;
-        grupid[voti] += p.kassa;
+        ristNadaladSet.add(`${p.aasta}-Kuu ${p.kuu}-Näd ${p.nadal}`);
     });
+    const unikaalsedTulbad = Array.from(ristNadaladSet);
 
-    Object.keys(grupid).forEach(voti => {
-        // Teeme sildiks ilusa puhta kirje, nt "Kuu 6 (Näd 27)"
+    // Loome X-telje sildid kasutajale (nt "Kuu 6 [Näd 27]")
+    const sildid = unikaalsedTulbad.map(voti => {
         const osad = voti.split("-");
-        sildid.push(`${osad[1]} [${osad[2]}]`);
-        kassaAndmed.push(grupid[voti]);
+        return `${osad[1]} [${osad[2]}]`;
     });
 
-    // Reguleerime graafiku kasti laiust dünaamiliselt! Kui tulpasid on palju, teeme graafiku laiemaks, et saaks mugavalt kerida
+    // Nädalapäevade nimed ja fikseeritud värvid triipude jaoks
+    const paevadeNimed = ["Pühapäev", "Esmaspäev", "Teisipäev", "Kolmapäev", "Neljapäev", "Reede", "Laupäev"];
+    const paevadeVarvid = [
+        "rgba(231, 76, 60, 0.85)",   // Pühapäev - Punane
+        "rgba(52, 152, 219, 0.85)",  // Esmaspäev - Sinine
+        "rgba(46, 204, 113, 0.85)",  // Teisipäev - Roheline
+        "rgba(155, 89, 182, 0.85)",  // Kolmapäev - Lilla
+        "rgba(230, 126, 34, 0.85)",  // Neljapäev - Oranž
+        "rgba(26, 188, 156, 0.85)",  // Reede - Türkiis
+        "rgba(52, 73, 94, 0.85)"     // Laupäev - Tumehall
+    ];
+
+    // 2. Valmistame ette 7 iseseisvat andmeseeriat (üks iga nädalapäeva jaoks)
+    const datasets = paevadeNimed.map((nimi, idx) => {
+        return {
+            label: nimi,
+            data: new Array(unikaalsedTulbad.length).fill(0), // Massiiv täidetud nullidega
+            backgroundColor: paevadeVarvid[idx],
+            borderColor: paevadeVarvid[idx].replace("0.85", "1"),
+            borderWidth: 1
+        };
+    });
+
+    // 3. Täidame triibud reaalsete rahasummadega
+    andmebaas.forEach(p => {
+        const voti = `${p.aasta}-Kuu ${p.kuu}-Näd ${p.nadal}`;
+        const tulbaIndeks = unikaalsedTulbad.indexOf(voti);
+        
+        if (tulbaIndeks !== -1) {
+            // p.paev on andmebaasist 0=P, 1=E, 2=T jne. Suuname raha täpselt õige päeva seeriale
+            datasets[p.paev].data[tulbaIndeks] += p.kassa;
+        }
+    });
+
+    // 4. Reguleerime graafiku kasti algset laiust
     const sisuKast = document.getElementById("graafikSisuKast");
     if (sisuKast) {
-        const uueLaius = Math.max(1200, sildid.length * 60);
-        
-       sisuKast.style.width = `${uueLaius}px`;
-
+        // Võtame aluseks liuguri praeguse väärtuse või arvutame dünaamiliselt
+        const suumRiba = document.getElementById("graafikuSuum");
+        const baasLaius = suumRiba ? Number(suumRiba.value) : Math.max(1500, sildid.length * 70);
+        sisuKast.style.width = `${baasLaius}px`;
     }
 
+    // 5. Joonistame Stacked Bar graafiku Chart.js abil
     if (uuringuGraafik) uuringuGraafik.destroy();
 
     const ctx = document.getElementById("uuringuGraafik").getContext("2d");
@@ -300,21 +329,33 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
         type: "bar",
         data: {
             labels: sildid,
-            datasets: [{
-                label: "Kassa tulu ristnädalate lõikes (€)",
-                data: kassaAndmed,
-                backgroundColor: "rgba(241, 196, 15, 0.7)",
-                borderColor: "rgba(241, 196, 15, 1)",
-                borderWidth: 1,
-                barPercentage: 0.8 // Teeb tulbad mõnusalt paksuks ja loetavaks
-            }]
+            datasets: datasets // Siia lähevad meie 7 värvilist nädalapäeva seariat
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+                title: { display: true, text: "Kassa rütmianalüüs: Nädalad jaotatud päevade lõikes" },
+                legend: { position: "top", labels: { boxWidth: 12, font: { size: 11 } } },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            if (context.raw === 0) return null; // Ära näita tooltipis päevi, mil müüki polnud
+                            return `${context.dataset.label}: ${context.raw.toFixed(2)} €`;
+                        }
+                    }
+                }
+            },
             scales: {
-                y: { beginAtZero: true, title: { display: true, text: "Summa eurodes (€)" } },
-                x: { ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } }
+                x: {
+                    stacked: true, // ✅ LUUSTIKU LUKUSTUS: Paneb tulbad üksteise otsa triipudeks!
+                    ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 }
+                },
+                y: {
+                    stacked: true, // ✅ LUUSTIKU LUKUSTUS: Summeerib triibud tulba kogukõrguseks
+                    beginAtZero: true,
+                    title: { display: true, text: "Summa eurodes (€)" }
+                }
             }
         }
     });
