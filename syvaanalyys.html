@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Piirimäe Süvaanalüüs</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .pulss-container { padding: 20px; font-family: sans-serif; max-width: 1500px; margin: 0 auto; }
+        
+        /* Süvaanalüüsi laiendatud filtripaneel */
+        .analyys-filter-panel { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .filter-rida { display: flex; flex-wrap: wrap; gap: 25px; margin-bottom: 15px; align-items: flex-start; }
+        .filter-lahter { display: flex; flex-direction: column; gap: 8px; min-width: 200px; }
+        .filter-lahter h5 { margin: 0; font-size: 0.9em; color: #2d3748; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+        
+        /* Linnukeste rühmad rullitavas aknas */
+        .linnukeste-grupp { background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; font-size: 0.85em; }
+        .linnukeste-grupp label { display: flex; align-items: center; gap: 6px; cursor: pointer; color: #4a5568; }
+        
+        /* Tööala jaotus (75% / 25%) */
+        .pulss-tyoala { display: flex; gap: 20px; position: relative; width: 100%; align-items: flex-start; }
+        .graafiku-tiiv { width: 75%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); position: relative; z-index: 10; }
+        .bestselleri-tiiv { width: 25%; display: flex; flex-direction: column; gap: 15px; z-index: 5; }
+        
+        /* Nihkega kaardid paremal */
+        .nihkes-kaart { background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), z-index 0s, opacity 0.3s; transform: translateX(-80px); position: relative; z-index: 1; opacity: 0.85; }
+        .nihkes-kaart:hover, .nihkes-kaart.aktiivne { transform: translateX(0); z-index: 20; opacity: 1; box-shadow: -10px 10px 25px rgba(0,0,0,0.12); }
+        .nihkes-kaart h4 { margin-top: 0; margin-bottom: 10px; font-size: 0.95em; color: #2d3748; border-bottom: 1px solid #edf2f7; padding-bottom: 5px; }
+        
+        .info-rida { display: flex; justify-content: space-between; font-size: 0.85em; padding: 4px 0; border-bottom: 1px dashed #f1f5f9; }
+        .info-rida span:first-child { color: #718096; }
+        .info-rida span:last-child { font-weight: bold; color: #1a202c; }
+    </style>
+</head>
+<body class="page-pulss">
+
+<header class="header">
+    <div id="kasutajaNimi"></div>
+    <div class="header-actions">
+        <button onclick="window.location='pulss.html'" class="btn-small">⬅ Tagasi Pulssi</button>
+        <button id="logoutBtn" class="btn-small">Logi välja</button>
+    </div>
+</header>
+
+<div class="pulss-container">
+    <div class="intro">
+        <h2>📊 Piirimäe Süvaanalüüs</h2>
+        <p class="subtitle">Ristfiltreerimine läbi aastate, nädalate ja dünaamiliste tootevalikute.</p>
+    </div>
+
+    <!-- Laiendatud filtripaneel -->
+    <div class="analyys-filter-panel">
+        <div class="filter-rida">
+            <!-- 1. Kuupäeva vahemik -->
+            <div class="filter-lahter">
+                <h5>1. Vaadeldav ajavahemik</h5>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <input type="date" id="analyysAlates">
+                    <input type="date" id="analyysKuni">
+                </div>
+                <button id="laeBaasAndmedBtn" class="btn-small" style="margin-top: 5px; background: #e2e8f0;">Uuenda perioodi baasi</button>
+            </div>
+
+            <!-- 2. Aastate ja kuude linnukesed -->
+            <div class="filter-lahter">
+                <h5>2. Filtreeri aastaid</h5>
+                <div class="linnukeste-grupp" id="gruppAastad">
+                    <!-- Javascript täidab dünaamiliselt leitud aastatega -->
+                </div>
+            </div>
+
+            <div class="filter-lahter">
+                <h5>3. Filtreeri kuusid</h5>
+                <div class="linnukeste-grupp" id="gruppKuud">
+                    <!-- Javascript täidab kuudega -->
+                </div>
+            </div>
+
+            <!-- 3. Nädalate ja nädalapäevade linnukesed -->
+            <div class="filter-lahter">
+                <h5>4. Filtreeri nädalaid (1-53)</h5>
+                <div class="linnukeste-grupp" id="gruppNadalad">
+                    <!-- Javascript täidab perioodi nädalatega -->
+                </div>
+            </div>
+
+            <div class="filter-lahter">
+                <h5>5. Filtreeri nädalapäevi</h5>
+                <div class="linnukeste-grupp" id="gruppPaevad">
+                    <label><input type="checkbox" class="chk-paev" value="1" checked> Esmaspäev</label>
+                    <label><input type="checkbox" class="chk-paev" value="2" checked> Teisipäev</label>
+                    <label><input type="checkbox" class="chk-paev" value="3" checked> Kolmapäev</label>
+                    <label><input type="checkbox" class="chk-paev" value="4" checked> Neljapäev</label>
+                    <label><input type="checkbox" class="chk-paev" value="5" checked> Reede</label>
+                    <label><input type="checkbox" class="chk-paev" value="6" checked> Laupäev</label>
+                    <label><input type="checkbox" class="chk-paev" value="0" checked> Pühapäev</label>
+                </div>
+            </div>
+
+            <!-- 4. Toodete dünaamiline valik -->
+            <div class="filter-lahter" style="min-width: 250px;">
+                <h5>6. Tooted ajajärgu baasil</h5>
+                <label style="font-size: 0.85em; margin-bottom: 4px;">
+                    <input type="checkbox" id="chkKoikTooted" checked> Kõik tooted
+                </label>
+                <div class="linnukeste-grupp" id="gruppTooted" style="display: none;">
+                    <!-- Täitub ainult nende toodetega, mis valitud vahemikus reaalselt eksisteerisid -->
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <button id="uuendaUuringBtn" class="btn-primary" style="height: 40px; padding: 0 25px; background: #f1c40f; color: #000; font-weight: bold; border-radius: 6px; cursor: pointer;">
+                🚀 Käivita süvaanalüüs
+            </button>
+        </div>
+    </div>
+
+    <!-- Tööala -->
+    <div class="pulss-tyoala">
+        <!-- Vasak pool: Suur uuringugraafik -->
+        <div class="graafiku-tiiv" id="graafikuAla">
+            <canvas id="uuringuGraafik" height="420"></canvas>
+        </div>
+
+        <!-- Parem pool: Kolm kaarti (Sektorid ei reageeri mummude klikkimisele, vaid on globaalsed) -->
+        <div class="bestselleri-tiiv">
+            <!-- Kaart 1: Perioodi koondtootegrupid -->
+            <div class="nihkes-kaart" id="kaartTootegrupid">
+                <h4>🍲 Perioodi tootegrupid</h4>
+                <div style="max-height: 180px; position: relative;">
+                    <canvas id="uuringuSektorGraafik"></canvas>
+                </div>
+            </div>
+
+            <!-- Kaart 2: Menüü ja jaotised (Ootel) -->
+            <div class="nihkes-kaart" id="kaartMenuuBaas">
+                <h4>📋 Menüü baasanalüüs</h4>
+                <div style="font-size: 0.85em; color: #718096; text-align: center; padding: 20px 0;">
+                    Ootab menüü andmete sidumist...
+                </div>
+            </div>
+
+            <!-- Kaart 3: Perioodi detailne info koos hinnakirjadega -->
+            <div class="nihkes-kaart" id="kaartPerioodiInfo">
+                <h4>📊 Uuringu koondinfo</h4>
+                <div id="uuringuInfoSisu">
+                    <div class="info-rida"><span>Valitud päevi kokku:</span><span id="uuringKoikPaevad">-</span></div>
+                    <div class="info-rida"><span>Müügiga päevi:</span><span id="uuringMyugiPaevad">-</span></div>
+                    <div class="info-rida"><span>Toodete kogus:</span><span id="uuringTootedKogus">- tk</span></div>
+                    <div class="info-rida"><span>Uuritud kassa:</span><span id="uuringKassaSumma">- €</span></div>
+                    <div class="info-rida"><span>Aktiivseid tootenimesid:</span><span id="uuringAktiivsedTooted">-</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Teegid -->
+<script src="https://jsdelivr.net"></script>
+<script src="https://jsdelivr.net"></script>
+<script type="module" src="syvaanalyys.js"></script>
+
+</body>
+</html>
