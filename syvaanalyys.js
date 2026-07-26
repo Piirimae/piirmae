@@ -27,11 +27,53 @@ window.addEventListener("DOMContentLoaded", async () => {
 });
 
 // --- 2. Filtri ja dünaamilise UI haldus ---
+// --- Uuendatud Filtrikuulajad ahelfiltri jaoks ---
 function SeadistaFiltriKuulajad() {
     document.getElementById("uuendaUuringBtn").onclick = K2ivitaRistanalyys;
     document.getElementById("chkKoikTooted").onchange = (e) => {
         document.getElementById("gruppTooted").style.display = e.target.checked ? "none" : "flex";
     };
+
+    // Kuupäeva vahemiku muutmisel laeme andmed uuesti
+    document.getElementById("laeBaasAndmedBtn").onclick = LaeBaasAndmedSupabasest;
+}
+
+// See funktsioon käivitub ALATI, kui keegi klikib aastat või kuud, et uuendada nädalate valikuid!
+function UuendaAhelFiltreid() {
+    const aktiivsedAastad = Array.from(document.querySelectorAll(".chk-aasta:checked")).map(c => Number(c.value));
+    const aktiivsedKuud = Array.from(document.querySelectorAll(".chk-kuu:checked")).map(c => Number(c.value));
+
+    const lubatudNadalad = new Set();
+    const lubatudTooted = new Set();
+
+    baasKassaAndmed.forEach(r => {
+        if (!r.kuupaev) return;
+        const d = new Date(r.kuupaev);
+        const rAasta = d.getFullYear();
+        const rKuu = d.getMonth() + 1;
+
+        // Kontrollime, kas see rida sobib hetkel valitud aastate ja kuudega
+        if (aktiivsedAastad.includes(rAasta) && aktiivsedKuud.includes(rKuu)) {
+            lubatudNadalad.add(TuvastaNadalaNumber(d));
+            seaded.veerud.forEach(v => {
+                if (v.tüüp === "toit" && Number(r[v.nimi]) > 0) lubatudTooted.add(v.nimi);
+            });
+        }
+    });
+
+    // Uuendame nädalate checkbokse ekraanil - peidame need, mis valikusse ei kuulu!
+    document.querySelectorAll(".chk-nadal").forEach(chk => {
+        const nadalaNr = Number(chk.value);
+        const lapsevanemLabel = chk.parentNode;
+        if (lubatudNadalad.has(nadalaNr)) {
+            lapsevanemLabel.style.opacity = "1";
+            chk.disabled = false;
+        } else {
+            lapsevanemLabel.style.opacity = "0.3"; // Teeme halliks
+            chk.disabled = true;
+            chk.checked = false; // Võtame linnukese ära, kuna pole aktiivses kuus
+        }
+    });
 }
 
 function GenerreeriDunaamilisedLinnukesed() {
@@ -44,24 +86,32 @@ function GenerreeriDunaamilisedLinnukesed() {
         sets.kuud.add(d.getMonth() + 1);
         sets.nadalad.add(TuvastaNadalaNumber(d));
         seaded.veerud.forEach(v => {
-            if (v.tüüp === "toit" && Number(r[v.nimi]) > 0) {
-                sets.tooted.add(v.nimi);
-            }
+            if (v.tüüp === "toit" && Number(r[v.nimi]) > 0) sets.tooted.add(v.nimi);
         });
     });
     
-    // Sorteerime massiivid enne HTML-i saatmist puhtalt eraldi ära, et vältida sulgude segadust
     const sünkroonAastad = Array.from(sets.aastad).sort((a, b) => a - b);
     const sünkroonKuud = Array.from(sets.kuud).sort((a, b) => a - b);
     const sünkroonNadalad = Array.from(sets.nadalad).sort((a, b) => a - b);
     const sünkroonTooted = Array.from(sets.tooted).map(n => seaded.veerud.find(v => v.nimi === n)).filter(Boolean);
 
-    // Genereerime puhta HTML-i
     EhitaLinnukesteHtml("gruppAastad", sünkroonAastad, "chk-aasta", (val) => `${val}. aasta`);
     EhitaLinnukesteHtml("gruppKuud", sünkroonKuud, "chk-kuu", (val) => ["Jaan", "Veebr", "Märts", "Apr", "Mai", "Juuni", "Juuli", "Aug", "Sept", "Okt", "Nov", "Dets"][val - 1]);
     EhitaLinnukesteHtml("gruppNadalad", sünkroonNadalad, "chk-nadal", (val) => `Näd ${val}`);
     EhitaLinnukesteHtmlObjektidega("gruppTooted", sünkroonTooted, "chk-toode");
+
+    // Sleme sisse dünaamilise ahelfiltri kuulamise!
+    document.querySelectorAll(".chk-aasta, .chk-kuu").forEach(el => {
+        el.addEventListener("change", UuendaAhelFiltreid);
+    });
+    
+    // Kui vajutatakse "Vali kõik" aastate või kuude juures
+    const aastadAll = document.getElementById("gruppAastad-all");
+    const kuudAll = document.getElementById("gruppKuud-all");
+    if(aastadAll) aastadAll.addEventListener("change", () => setTimeout(UuendaAhelFiltreid, 10));
+    if(kuudAll) kuudAll.addEventListener("change", () => setTimeout(UuendaAhelFiltreid, 10));
 }
+
 // --- 3. Ristanalüüsi mootor ja Chart.js ---
 async function LaeBaasAndmedSupabasest() {
     const alates = document.getElementById("analyysAlates").value;
@@ -134,7 +184,7 @@ function EhitaLinnukesteHtmlObjektidega(konteinerId, tootedArr, klassiNimi) {
 function K2ivitaRistanalyys() {
     const valitudAastad = Array.from(document.querySelectorAll(".chk-aasta:checked")).map(c => Number(c.value));
     const valitudKuud = Array.from(document.querySelectorAll(".chk-kuu:checked")).map(c => Number(c.value));
-    const valitudNadalad = Array.from(document.querySelectorAll(".chk-nadal:checked")).map(c => Number(c.value));
+    const valitudNadalad = Array.from(document.querySelectorAll(".chk-nadal:not(:disabled):checked")).map(c => Number(c.value));
     const valitudPaevad = Array.from(document.querySelectorAll(".chk-paev:checked")).map(c => Number(c.value));
     
     const koikTootedLinnuke = document.getElementById("chkKoikTooted").checked;
@@ -142,45 +192,34 @@ function K2ivitaRistanalyys() {
         ? seaded.veerud.filter(v => v.tüüp === "toit").map(v => v.nimi)
         : Array.from(document.querySelectorAll(".chk-toode:checked")).map(c => c.value);
 
-    let uuritavadPaevad = 0;
-    let myugigaPaevad = 0;
-    let uuringuKogusummaKassa = 0;
-    let uuringuKogusummaTooted = 0;
-
+    let uuritavadPaevad = 0, myugigaPaevad = 0, uuringuKogusummaKassa = 0, uuringuKogusummaTooted = 0;
     const sektorAndmed = {};
-    const aastateKuuKaupaTulud = {};
+    
+    // Koostame hierarhilise andmestruktuuri graafiku jaoks
+    const graafikuAndmebaas = [];
 
     baasKassaAndmed.forEach(r => {
         if (!r.kuupaev) return;
         const d = new Date(r.kuupaev);
-        
         const rAasta = d.getFullYear();
         const rKuu = d.getMonth() + 1;
         const rNadal = TuvastaNadalaNumber(d);
         const rPaev = d.getDay();
 
-        if (!valitudAastad.includes(rAasta)) return;
-        if (!valitudKuud.includes(rKuu)) return;
-        if (!valitudNadalad.includes(rNadal)) return;
-        if (!valitudPaevad.includes(rPaev)) return;
+        if (!valitudAastad.includes(rAasta) || !valitudKuud.includes(rKuu) || !valitudNadalad.includes(rNadal) || !valitudPaevad.includes(rPaev)) return;
 
         uuritavadPaevad++;
-        let paevalOliMyyki = false;
-        let paevaKassaSumma = 0;
+        let paevalOliMyyki = false, paevaKassaSumma = 0, paevaArtiklid = 0;
 
         seaded.veerud.forEach(v => {
             const kogus = Number(r[v.nimi]) || 0;
             if (kogus > 0) paevalOliMyyki = true;
 
-            if (v.tüüp === "toit") {
-                if (valitudTooted.includes(v.nimi)) {
-                    const tooteHind = leiaHindAjaloost(v.nimi, r.kuupaev);
-                    const kassaOsa = kogus * tooteHind;
-                    paevaKassaSumma += kassaOsa;
-                    uuringuKogusummaTooted += kogus;
-
-                    sektorAndmed[v.pealkiri] = (sektorAndmed[v.pealkiri] || 0) + kogus;
-                }
+            if (v.tüüp === "toit" && valitudTooted.includes(v.nimi)) {
+                const tooteHind = leiaHindAjaloost(v.nimi, r.kuupaev);
+                paevaKassaSumma += kogus * tooteHind;
+                paevaArtiklid += kogus;
+                sektorAndmed[v.pealkiri] = (sektorAndmed[v.pealkiri] || 0) + kogus;
             } else if (v.tüüp === "number") {
                 paevaKassaSumma += kogus;
             }
@@ -188,85 +227,88 @@ function K2ivitaRistanalyys() {
 
         if (paevalOliMyyki) myugigaPaevad++;
         uuringuKogusummaKassa += paevaKassaSumma;
+        uuringuKogusummaTooted += paevaArtiklid;
 
-        if (!aastateKuuKaupaTulud[rAasta]) {
-            aastateKuuKaupaTulud[rAasta] = new Array(12).fill(0);
-        }
-        aastateKuuKaupaTulud[rAasta][rKuu - 1] += paevaKassaSumma;
+        // Salvestame iga päeva täpse kirje hierarhiliseks tükeldamiseks
+        graafikuAndmebaas.push({
+            aasta: rAasta,
+            kuu: rKuu,
+            nadal: rNadal,
+            paev: rPaev,
+            kuupaev: r.kuupaev,
+            kassa: paevaKassaSumma
+        });
     });
 
+    // Uuendame parema tiiva infoakna tekstid
     document.getElementById("uuringKoikPaevad").innerText = uuritavadPaevad;
     document.getElementById("uuringMyugiPaevad").innerText = myugigaPaevad;
     document.getElementById("uuringTootedKogus").innerText = `${uuringuKogusummaTooted} tk`;
     document.getElementById("uuringKassaSumma").innerText = `${uuringuKogusummaKassa.toFixed(2)} €`;
     document.getElementById("uuringAktiivsedTooted").innerText = valitudTooted.length;
 
-    JoonistaAastateVordlusGraafik(aastateKuuKaupaTulud);
+    // Ehitame Sinu kirjeldatud kuude ja nädalate tulbad
+    EhitajaJaJoonistaHierarhia(graafikuAndmebaas);
     JoonistaKoondSektorGraafik(Object.keys(sektorAndmed), Object.values(sektorAndmed));
 }
 
-// --- 6. Chart.js tulp- ja sektordiagrammide joonistamine ---
-function JoonistaAastateVordlusGraafik(aastateData) {
-    if (uuringuGraafik) uuringuGraafik.destroy();
+function EhitajaJaJoonistaHierarhia(andmebaas) {
+    // Sorteerime kuupäeva järgi
+    andmebaas.sort((a,b) => new Date(a.kuupaev) - new Date(b.kuupaev));
 
-    const kuudeSildid = ["Jaan", "Veebr", "Märts", "Apr", "Mai", "Juuni", "Juuli", "Aug", "Sept", "Okt", "Nov", "Dets"];
-    const varvid = [
-        { bg: "rgba(241, 196, 15, 0.6)", border: "rgba(241, 196, 15, 1)" }, // Kollane/Kuldne
-        { bg: "rgba(52, 152, 219, 0.6)", border: "rgba(52, 152, 219, 1)" }, // Sinine
-        { bg: "rgba(46, 204, 113, 0.6)", border: "rgba(46, 204, 113, 1)" }  // Roheline
-    ];
-
-    const datasets = Object.keys(aastateData).map((aasta, idx) => {
-        const v = varvid[idx % varvid.length];
-        return {
-            label: `${aasta}. aasta käive (€)`,
-            data: aastateData[aasta],
-            backgroundColor: v.bg,
-            borderColor: v.border,
-            borderWidth: 1
-        };
+    const sildid = [];
+    const kassaAndmed = [];
+    
+    // Grupeerime andmed nii, et kui nädal 27 on kahes kuus, tekitatakse talle kaks iseseisvat tulpa kuude sisse
+    const grupid = {};
+    andmebaas.forEach(p => {
+        // Võti koosneb aastast, kuust ja nädalast -> tagab ristnädala puhtuse!
+        const voti = `${p.aasta}-Kuu ${p.kuu}-Näd ${p.nadal}`;
+        if (!grupid[voti]) grupid[voti] = 0;
+        grupid[voti] += p.kassa;
     });
+
+    Object.keys(grupid).forEach(voti => {
+        // Teeme sildiks ilusa puhta kirje, nt "Kuu 6 (Näd 27)"
+        const osad = voti.split("-");
+        sildid.push(`${osad[1]} [${osad[2]}]`);
+        kassaAndmed.push(grupid[voti]);
+    });
+
+    // Reguleerime graafiku kasti laiust dünaamiliselt! Kui tulpasid on palju, teeme graafiku laiemaks, et saaks mugavalt kerida
+    const sisuKast = document.getElementById("graafikSisuKast");
+    if (sisuKast) {
+        const uueLaius = Math.max(1200, sildid.length * 60);
+        sisuKast.style.width = `${uueLaius}px`;
+    }
+
+    if (uuringuGraafik) uuringuGraafik.destroy();
 
     const ctx = document.getElementById("uuringuGraafik").getContext("2d");
     uuringuGraafik = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: kuudeSildid,
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { type: "linear", beginAtZero: true, title: { display: true, text: "Käive eurodes (€)" } }
-            }
-        }
-    });
-}
-
-function JoonistaKoondSektorGraafik(labels, data) {
-    if (uuringuSektorGraafik) uuringuSektorGraafik.destroy();
-
-    const ctx = document.getElementById("uuringuSektorGraafik").getContext("2d");
-    uuringuSektorGraafik = new Chart(ctx, {
-        type: "pie",
-        data: {
-            labels: labels,
+            labels: sildid,
             datasets: [{
-                data: data,
-                backgroundColor: ["#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#1abc9c", "#e67e22"]
+                label: "Kassa tulu ristnädalate lõikes (€)",
+                data: kassaAndmed,
+                backgroundColor: "rgba(241, 196, 15, 0.7)",
+                borderColor: "rgba(241, 196, 15, 1)",
+                borderWidth: 1,
+                barPercentage: 0.8 // Teeb tulbad mõnusalt paksuks ja loetavaks
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                title: { display: true, text: "Valitud perioodi koondjaotus", font: { size: 11 } }
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: "Summa eurodes (€)" } },
+                x: { ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } }
             }
         }
     });
 }
+
 
 // --- 7. ISO Nädalapäeva tuvastamise standard ---
 function TuvastaNadalaNumber(d) {
