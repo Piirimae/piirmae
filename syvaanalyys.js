@@ -57,6 +57,7 @@ function UuendaAhelFiltreid() {
             lubatudNadalad.add(TuvastaNadalaNumber(d));
             seaded.veerud.forEach(v => {
                 if (v.tüüp === "toit" && Number(r[v.nimi]) > 0) lubatudTooted.add(v.nimi);
+    });
              // UUS: Suumimisriba (Range slider) reaalajas kuulamine
     const suumRiba = document.getElementById("graafikuSuum");
     const suumTekst = document.getElementById("suumIndikaator");
@@ -266,7 +267,7 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
     andmebaas.sort((a, b) => new Date(a.kuupaev) - new Date(b.kuupaev));
 
     // Tuvastame unikaalsed ristnädalate rühmad (tulbad X-teljel)
-    const ristNadalad Set = new Set();
+    const ristNadaladSet = new Set();
     andmebaas.forEach(p => {
         ristNadaladSet.add(`${p.aasta}-Kuu ${p.kuu}-Näd ${p.nadal}`);
     });
