@@ -21,6 +21,17 @@
         .pulss-tyoala { display: flex; gap: 20px; position: relative; width: 100%; align-items: flex-start; }
         .graafiku-tiiv { width: 75%; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); position: relative; z-index: 10; }
         .bestselleri-tiiv { width: 25%; display: flex; flex-direction: column; gap: 15px; z-index: 5; }
+        /* Lubab graafikul laiendada end ja tekitab puhta horisontaalse kerimisriba */
+.graafiku-konteiner-scroll {
+    width: 100%;
+    overflow-x: auto;
+    position: relative;
+}
+.graafiku-sisu-lai {
+    min-width: 1200px; /* JavaScript hakkab seda dünaamiliselt kasvatama vastavalt tulpade arvule! */
+    height: 450px;
+}
+
         
         /* Nihkega kaardid paremal */
         .nihkes-kaart { background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), z-index 0s, opacity 0.3s; transform: translateX(-80px); position: relative; z-index: 1; opacity: 0.85; }
@@ -117,11 +128,14 @@
     </div>
 
     <!-- Tööala -->
-    <div class="pulss-tyoala">
-        <!-- Vasak pool: Suur uuringugraafik -->
-        <div class="graafiku-tiiv" id="graafikuAla">
-            <canvas id="uuringuGraafik" height="420"></canvas>
+    <div class="graafiku-tiiv" id="graafikuAla">
+    <div class="graafiku-konteiner-scroll">
+        <div class="graafiku-sisu-lai" id="graafikSisuKast">
+            <canvas id="uuringuGraafik"></canvas>
         </div>
+    </div>
+</div>
+
 
         <!-- Parem pool: Kolm kaarti (Sektorid ei reageeri mummude klikkimisele, vaid on globaalsed) -->
         <div class="bestselleri-tiiv">
