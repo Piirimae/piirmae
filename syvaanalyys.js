@@ -62,6 +62,21 @@ function GenerreeriDunaamilisedLinnukesed() {
     EhitaLinnukesteHtml("gruppNadalad", sünkroonNadalad, "chk-nadal", (val) => `Näd ${val}`);
     EhitaLinnukesteHtmlObjektidega("gruppTooted", sünkroonTooted, "chk-toode");
 }
+// --- 3. Ristanalüüsi mootor ja Chart.js ---
+async function LaeBaasAndmedSupabasest() {
+    const alates = document.getElementById("analyysAlates").value;
+    const kuni = document.getElementById("analyysKuni").value;
+    const { data } = await sb.from("kassatabel").select("*").gte("kuupaev", alates).lte("kuupaev", kuni);
+    baasKassaAndmed = data || [];
+    GenerreeriDunaamilisedLinnukesed();
+    K2ivitaRistanalyys();
+}
+
+function leiaHindAjaloost(tooteNimi, kuupaevStr) {
+    const target = new Date(kuupaevStr).getTime();
+    const leitud = hinnadAjalugu.find(h => h.nimi === tooteNimi && target >= new Date(h.kehtiv_alates).getTime() && (!h.kehtiv_kuni || target <= new Date(h.kehtiv_kuni).getTime()));
+    return leitud ? Number(leitud.hind) : (seaded.veerud.find(v => v.nimi === tooteNimi)?.hind || 0);
+}
 
 
 // --- 4. Linnukeste HTML-i ehitamine ja "Vali kaikki" loogika ---
