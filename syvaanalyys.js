@@ -57,9 +57,18 @@ function UuendaAhelFiltreid() {
             lubatudNadalad.add(TuvastaNadalaNumber(d));
             seaded.veerud.forEach(v => {
                 if (v.tüüp === "toit" && Number(r[v.nimi]) > 0) lubatudTooted.add(v.nimi);
-            });
-        }
-    });
+             // UUS: Suumimisriba (Range slider) reaalajas kuulamine
+    const suumRiba = document.getElementById("graafikuSuum");
+    const suumTekst = document.getElementById("suumIndikaator");
+    if (suumRiba) {
+        suumRiba.oninput = (e) => {
+            const laius = e.target.value;
+            suumTekst.innerText = `${laius}px`;
+            document.getElementById("graafikSisuKast").style.width = `${laius}px`;
+            if (typeof uuringuGraafik !== 'undefined') uuringuGraafik.resize();
+        };
+    }
+}
 
     // Uuendame nädalate checkbokse ekraanil - peidame need, mis valikusse ei kuulu!
     document.querySelectorAll(".chk-nadal").forEach(chk => {
