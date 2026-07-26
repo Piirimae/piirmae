@@ -365,6 +365,65 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
         }
     });
 }
+// --- 6. Perioodi tootegruppide koondsektordiagramm ---
+function JoonistaKoondSektorGraafik(labels, data) {
+    // Kui eelnev sektorgraafiku objekt on olemas, hävitame selle enne uue joonistamist
+    if (uuringuSektorGraafik) {
+        uuringuSektorGraafik.destroy();
+    }
+
+    const ctx = document.getElementById("uuringuSektorGraafik");
+    if (!ctx) {
+        console.error("VIGA: Lehelt ei leitud elementi ID-ga 'uuringuSektorGraafik'!");
+        return;
+    }
+
+    const paevadeVarvid = [
+        "#e74c3c", // Punane
+        "#3498db", // Sinine
+        "#2ecc71", // Roheline
+        "#f1c40f", // Kollane
+        "#9b59b6", // Lilla
+        "#e67e22", // Oranž
+        "#1abc9c", // Türkiis
+        "#34495e"  // Tumehall
+    ];
+
+    uuringuSektorGraafik = new Chart(ctx.getContext("2d"), {
+        type: "pie",
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: paevadeVarvid.slice(0, labels.length),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    display: false // Peidame nimekirja, et mahuks ära paremasse nihkega tiiba
+                },
+                title: { 
+                    display: true, 
+                    text: "Valitud koondperioodi tootejaotus", 
+                    font: { size: 11 } 
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            return ` ${context.label}: ${context.raw} tk`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    console.log("SEKTOR: Perioodi tootegruppide graafik edukalt joonistatud.");
+}
+
 
 
 // --- 7. ISO Nädalapäeva tuvastamise standard ---
