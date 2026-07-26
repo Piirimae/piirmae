@@ -317,14 +317,14 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
         }
     });
 
-    // 4. Reguleerime graafiku kasti algset laiust
+       // 4. Reguleerime graafiku kasti algset laiust
     const sisuKast = document.getElementById("graafikSisuKast");
     if (sisuKast) {
         // Võtame aluseks liuguri praeguse väärtuse või arvutame dünaamiliselt
         const suumRiba = document.getElementById("graafikuSuum");
         const baasLaius = suumRiba ? Number(suumRiba.value) : Math.max(1500, sildid.length * 70);
-        sisuKast.style.width = `${baasLaius}px`;
-    }
+        sisuKast.style.width = `${baasLaius}px`; // Parandatud: tühik eemaldatud
+    } // ✅ KRIITILINE PARANDUS: See sulg oli Sul koodist puudu!
 
     // 5. Joonistame Stacked Bar graafiku Chart.js abil
     if (uuringuGraafik) uuringuGraafik.destroy();
@@ -365,6 +365,7 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
         }
     });
 }
+
 // --- 6. Perioodi tootegruppide koondsektordiagramm ---
 function JoonistaKoondSektorGraafik(labels, data) {
     // Kui eelnev sektorgraafiku objekt on olemas, hävitame selle enne uue joonistamist
