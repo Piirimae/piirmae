@@ -146,12 +146,16 @@ async function salvestaParandatudArhiiv() {
 // ✅ PAIGALDATUD JA VEATU PRINTIMISE KÄSITLEMINE (Kassatabel)
 // =========================================================================
 window.addEventListener("beforeprint", () => {
-    const selector = document.getElementById("kuuValik");
     let valitudTekst = "";
     
-    // 🔧 LAHENDUS: Standardne ja lollikindel viis dropdowni valitud teksti kättesaamiseks
-    if (selector && selector.selectedIndex !== -1) {
-        valitudTekst = selector.options[selector.selectedIndex].text; // See võtab puhtalt nt "Kuu juuli 2026"
+    // 🔧 LAHENDUS: Kasutame otse lehe alguses deklareeritud globaalset muutujat 'kuuValik'
+    if (kuuValik && kuuValik.selectedIndex !== -1) {
+        valitudTekst = kuuValik.options[kuuValik.selectedIndex].text; 
+    }
+    
+    // Kui ikka on tühi (igaks juhuks turvavõrk), võtame tehnilise kuu koodi (nt "2026-04")
+    if (!valitudTekst && praeguneKuu) {
+        valitudTekst = `Kuu ${praeguneKuu}`;
     }
     
     const printTitle = document.getElementById("printTitle");
@@ -193,6 +197,7 @@ window.addEventListener("afterprint", () => {
         }
     });
 });
+
 
 
 
