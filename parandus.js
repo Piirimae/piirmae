@@ -241,16 +241,25 @@ async function SalvestaKoguTabel() {
         sihtArhiiviId = `${praeguneKuuId}-kasitsi-${Date.now()}`;
     }
 
-    // SAMM B: Kirjutame uue versiooni rea otse arhiivi tabelisse
+       // ==========================================
+    // SAMM B: Kirjutame uue versiooni rea otse arhiivi tabelisse (VEATU)
+    // ==========================================
     const { error: arhiivErr } = await sb.from("arhiiv").insert({
         arhiiviId: sihtArhiiviId,
         kuu_id: praeguneKuuId,
         versioon: uusVersiooniNumber,
-        state: andmepakettState, // Saadab puhta ja detailse objekti
-        sisestus_tyyp: sisestusTyyp,
+        state: andmepakettState, // Meie poolt sünkroniseeritud detailne JSONb pakk
         salvestaja: "piirimaeinge@gmail.com",
-        paeritolu: praeguneArhiiviId ? "muudetud" : "kasitsi"
+        paeritolu: praeguneArhiiviId ? "muudetud" : "kasitsi", // Kasutame Sinu tabeli reaalset veergu!
+        taastatud: false,
+        created_at: new Date().toISOString()
     });
+
+    if (arhiivErr) {
+        console.error("Supabase arhiivi viga:", arhiivErr);
+        return alert("Viga arhiivi salvestamisel: " + arhiivErr.message);
+    }
+
 
     if (arhiivErr) return alert("Viga arhiivi loomisel: " + arhiivErr.message);
 
