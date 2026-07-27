@@ -143,24 +143,24 @@ async function salvestaParandatudArhiiv() {
 }
 
 // =========================================================================
-// ✅ PAIGALDATUD JA VEATU PRINTIMISE KÄSITLEMINE (Kassatabel)
+// ✅ SÜNKRONISEERITUD PRINTIMISE KÄSITLEMINE (Ühildatud logic.js-i täitmisega)
 // =========================================================================
 window.addEventListener("beforeprint", () => {
     let valitudTekst = "";
     
-    // 🔧 LAHENDUS: Kasutame otse lehe alguses deklareeritud globaalset muutujat 'kuuValik'
-    if (kuuValik && kuuValik.selectedIndex !== -1) {
-        valitudTekst = kuuValik.options[kuuValik.selectedIndex].text; 
+    // 🔧 LAHENDUS: Kuna logic.js loob lennult üheainsa option elemendi, loeme teksti otse sealt seest!
+    if (kuuValik && kuuValik.firstElementChild) {
+        valitudTekst = kuuValik.firstElementChild.textContent; // See saab kätte puhtalt nt "juuli 2026"
     }
     
-    // Kui ikka on tühi (igaks juhuks turvavõrk), võtame tehnilise kuu koodi (nt "2026-04")
+    // Kui option on mingil põhjusel veel tühi, teeme ilusa varuvariandi globaalsest muutujast
     if (!valitudTekst && praeguneKuu) {
         valitudTekst = `Kuu ${praeguneKuu}`;
     }
     
     const printTitle = document.getElementById("printTitle");
     if (printTitle && valitudTekst) {
-        // Tulemus paberil suurelt ja uhkelt: Kuu juuli 2026 – Kassatabel
+        // Tagab pealkirja täpselt Sinu soovitud formaadis: juuli 2026 – Kassatabel
         printTitle.textContent = `${valitudTekst} – Kassatabel`;
     }
 
@@ -197,6 +197,7 @@ window.addEventListener("afterprint", () => {
         }
     });
 });
+
 
 
 
