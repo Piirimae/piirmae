@@ -152,7 +152,7 @@ window.addEventListener("beforeprint", () => {
     const printTitle = document.getElementById("printTitle");
     if (printTitle) {
         // Tulemus paberil: Kuu juuli 2026 – Kassatabel – kuu vaade
-        printTitle.textContent = `${valitudTekst} – Kassatabel – kuu vaade`;
+        printTitle.textContent = `${valitudTekst} – Kassatabel`;
     }
 
     // Peidame ekraaniteated ja vaaterežiimi, et nad paberil ruumi ei raiskaks
