@@ -156,75 +156,115 @@ function UuendaKoguTabeliKokkuvõte() {
     // Siin saab teha soovi korral jaluse veergude kokkuvõtteid
 }
 
-// --- 3. TÄIELIK SALVESTAMISE KLOONIMISMOOTOR (VERSIDONIMINE + KASSATABELI UPSERT) [1.1] ---
+// --- TÄIELIK SALVESTAMISE MOOTOR (VERSIDONIMINE + KASSATABELI UPSERT) ---
 async function SalvestaKoguTabel() {
     if (!praeguneKuuId) return alert("Andmeid pole genereeritud!");
-
     if (!confirm("Kas soovid andmed salvestada? See teeb muudatused aktiivseks ja loob arhiivi uue seisu.")) return;
 
     const rows = document.querySelectorAll(".parandus-rida");
+    
+    // Valmistame ette massiivid struktuuri ja jaluse arvutusteks
     const arhiivRowsMassiiv = [];
     const kassaTabeliRead = [];
+    
+    const veergudeKogusedKokku = seaded.veerud.map(() => 0);
+    const veergudeRahadKokku = seaded.veerud.map(() => 0);
+    let terveKuuKogusumma = 0;
 
     rows.forEach(tr => {
         const kuupaev = tr.dataset.date;
-        const veergudeVäärtused = [];
-        const kassaObjekt = { kuupaev: kuupaev, kuu_id: praeguneKuuId };
+        const veergudeVäärtusedStr = [];
+        const kassaObjekt = { kuupaev: kuupaev }; // 🔧 PARANDATUD: Eemaldatud kuu_id, kuna seda pole kassatabelis!
+
+        let paevaKogusummaRahalises = 0;
 
         tr.querySelectorAll("input").forEach(inp => {
-            const val = inp.value === "" ? null : Number(inp.value);
-            veergudeVäärtused.push(val);
-            kassaObjekt[inp.dataset.veerg] = val;
+            const valStr = inp.value === "" ? "0" : inp.value;
+            const valNum = Number(valStr) || 0;
+            const veeruNimi = inp.dataset.veerg;
+            const vIdx = Number(inp.dataset.idx);
+
+            veergudeVäärtusedStr.push(valStr);
+            kassaObjekt[veeruNimi] = valNum; // Toiduartikli kogus veergu (supp, praad1 jne)
+
+            const vSeade = seaded.veerud[vIdx];
+            if (vSeade) {
+                veergudeKogusedKokku[vIdx] += valNum;
+                if (vSeade.tüüp === "toit") {
+                    const ajaloolineHind = leiaHindAjaloost(veeruNimi, kuupaev);
+                    const paevaToiduOsa = valNum * ajaloolineHind;
+                    paevaKogusummaRahalises += paevaToiduOsa;
+                    veergudeRahadKokku[vIdx] += paevaToiduOsa;
+                } else if (vSeade.tüüp === "number") {
+                    paevaKogusummaRahalises += valNum;
+                    veergudeRahadKokku[vIdx] += valNum;
+                }
+            }
         });
+
+        terveKuuKogusumma += paevaKogusummaRahalises;
+        kassaObjekt["kokku"] = paevaKogusummaRahalises; // 🔧 LISATUD: Päeva kokku summa läheb kassatabeli veeru "kokku" sisse
 
         arhiivRowsMassiiv.push({
             kuupäev: kuupaev,
-            veerud: veergudeVäärtused
+            veerud: veergudeVäärtusedStr,
+            kokku: `${paevaKogusummaRahalises.toFixed(2)} €`
         });
 
         kassaTabeliRead.push(kassaObjekt);
     });
 
-    const andmepakettState = { rows: arhiivRowsMassiiv };
+    // 🌟 SÜNKROONIS: Ehitame täpse Sinu näidatud JSONb 'state' paki arhiivi jaoks
+    const andmepakettState = {
+        paise: seaded.veerud.map(v => ({
+            nimi: v.nimi,
+            pealkiri: v.pealkiri,
+            hind: Number(v.hind) || 0,
+            tüüp: v.tüüp
+        })),
+        rows: arhiivRowsMassiiv,
+        sumKogus: veergudeKogusedKokku.map(k => String(k)),
+        sumHind: veergudeRahadKokku.map(r => `${r.toFixed(2)} €`),
+        kuuKokku: `${terveKuuKogusumma.toFixed(2)} €`
+    };
 
-    // SAMM A: Tuvastame versiooni arhiivis [1.1]
+    // SAMM A: Tuvastame versiooni arhiivis
     let uusVersiooniNumber = 1;
     let sihtArhiiviId = praeguneArhiiviId;
 
     if (praeguneArhiiviId) {
-        // Küsime mis oli selle ID eelmine suurim versioon
         const { data: vanaArhiiv } = await sb.from("arhiiv").select("versioon").eq("arhiiviId", praeguneArhiiviId).order("versioon", { ascending: false }).limit(1);
         if (vanaArhiiv && vanaArhiiv.length > 0) {
             uusVersiooniNumber = Number(vanaArhiiv[0].versioon || 1) + 1;
         }
     } else {
-        // Luuakse uus kuu käsitsi -> genereerime talle uue unikaalse arhiiviId
         sihtArhiiviId = `${praeguneKuuId}-kasitsi-${Date.now()}`;
     }
 
-    // SAMM B: Kirjutame uue versiooni rea otse arhiivi tabelisse [1.1]
+    // SAMM B: Kirjutame uue versiooni rea otse arhiivi tabelisse
     const { error: arhiivErr } = await sb.from("arhiiv").insert({
         arhiiviId: sihtArhiiviId,
         kuu_id: praeguneKuuId,
         versioon: uusVersiooniNumber,
-        state: andmepakettState,
+        state: andmepakettState, // Saadab puhta ja detailse objekti
         sisestus_tyyp: sisestusTyyp,
-        loodud_by: "piirimaeinge@gmail.com"
+        salvestaja: "piirimaeinge@gmail.com",
+        paeritolu: praeguneArhiiviId ? "muudetud" : "kasitsi"
     });
 
     if (arhiivErr) return alert("Viga arhiivi loomisel: " + arhiivErr.message);
 
-    // SAMM C: Teeme UPSERT-i põhitabelisse (kassatabel), et kõik lehed näeksid andmeid [1.1]
+    // SAMM C: Teeme UPSERT-i põhitabelisse (kassatabel) ilma konfliktsuse tõrketa
     const { error: kassaErr } = await sb.from("kassatabel").upsert(kassaTabeliRead, { onConflict: "kuupaev" });
     if (kassaErr) return alert("Viga kassatabeli uuendamisel: " + kassaErr.message);
 
-    // SAMM D: Logime tegevuse ametlikult logide tabelisse [1.1]
+    // SAMM D: Logime tegevuse ametlikult logide tabelisse
     await sb.from("logid").insert({
         tegevus: praeguneArhiiviId ? "arhiiv_parandus_versioon" : "kasitsi_kuu_loomine",
-        andmed: { kuu: praeguneKuuId, arhiiviId: sihtArhiiviId, versioon: uusVersiooniNumber },
-        kasutaja: "piirimaeinge@gmail.com"
+        detailid: { kuu: praeguneKuuId, arhiiviId: sihtArhiiviId, versioon: uusVersiooniNumber },
+        user_email: "piirimaeinge@gmail.com"
     });
 
     alert(`Andmed edukalt salvestatud! Loodi arhiivi versioon v_${uusVersiooniNumber} ja uuendati põhitabelit.`);
-    window.location.href = "arhiiv.html"; // Viime kasutaja tagasi arhiivi lehele
+    window.location.href = "arhiiv.html"; 
 }
