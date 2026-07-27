@@ -184,48 +184,7 @@ function kuvaNupud() {
 // ==========================================
 //  MODALID JA FUNKTSIOONID
 // ==========================================
-function seoNupudJaModalid() {
-    const opt = kuuValik.selectedOptions[0];
-    if (!opt) return;
 
-    const kuu = opt.dataset.kuu;
-    const arhiiviId = opt.value;
-// arhiiv.js muudatus parandusnupu jaoks:
-function handleParandaArhiivKlikk(arhiiviId) {
-    window.location.href = `parandus.html?arhiiviId=${arhiiviId}`;
-}
-
-    // --- PARANDAMINE ---
-    const parandaBtn = document.getElementById("parandaArhiiviBtn");
-    const parandusModal = document.getElementById("parandusModal");
-    const parandusKinnita = document.getElementById("parandusKinnita");
-    const parandusLoobu = document.getElementById("parandusLoobu");
-
-    if (parandaBtn && parandusModal) {
-        parandaBtn.onclick = () => parandusModal.style.display = "flex";
-        parandusLoobu.onclick = () => parandusModal.style.display = "none";
-        parandusKinnita.onclick = async () => {
-            // ✅ Logime tegevuse enne suunamist
-            await logiTegevusSupabasse("paranda_arhiiv", { kuu: kuu, arhiiviId: arhiiviId });
-            window.location = `kassatabel.html?paranda=${kuu}&arhiiviId=${arhiiviId}`;
-        };
-    }
-
-    // --- TAASTAMINE ---
-    const taastaBtn = document.getElementById("taastaArhiivBtn");
-    const taastaModal = document.getElementById("taastaModal");
-    const taastaKinnita = document.getElementById("taastaKinnita");
-    const taastaLoobu = document.getElementById("taastaLoobu");
-    const taastaInfo = document.getElementById("taastaInfo");
-
-    if (taastaBtn && taastaModal) {
-        if (taastaInfo) taastaInfo.textContent = `Kuu: ${kuu} (${arhiiviId})`;
-        taastaBtn.onclick = () => taastaModal.style.display = "flex";
-        taastaLoobu.onclick = () => taastaModal.style.display = "none";
-        taastaKinnita.onclick = async () => {
-            await taastaArhiivLoogika(arhiiviId, kuu);
-        };
-    }
 
     // --- KUSTUTAMINE (TOPELTKINNITUS) ---
     const kustutaBtn = document.getElementById("kustutaArhiivBtn");
