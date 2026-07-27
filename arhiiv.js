@@ -165,7 +165,7 @@ function kuvaNupud() {
 
     if (roll === "superadmin" || roll === "admin") {
         html += `
-            <button class="admin" id="parandaArhiiviBtn">Paranda arhiivi</button>
+            <button onclick="window.location.href='parandus.html?arhiiviId=${r.arhiiviId}'" class="btn-small">🔧 Paranda</button>
             <button class="admin taasta-btn" id="taastaArhiivBtn">Taasta aktiivseks kuuks</button>
         `;
     }
@@ -173,6 +173,7 @@ function kuvaNupud() {
     // ✅ TOPELTKINNITUSEGA KUSTUTAMINE: Ainult superadminile
     if (roll === "superadmin") {
         html += `
+            <button onclick="window.location.href='parandus.html?arhiiviId=${r.arhiiviId}'" class="btn-small">🔧 Paranda</button>
             <button class="admin" id="kustutaArhiivBtn" style="background:#e74c3c; color:white;">Kustuta arhiiv</button>
         `;
     }
