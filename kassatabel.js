@@ -148,7 +148,7 @@ window.addEventListener("beforeprint", () => {
     const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     const printTitle = document.getElementById("printTitle");
     if (printTitle) 
-        printTitle.textContent = `${kuu} – Kassaleht`;
+        printTitle.textContent = `${kuu} – Kassatabel – kuu vaade`;
      
 
     document.querySelectorAll("td input").forEach(inp => {
