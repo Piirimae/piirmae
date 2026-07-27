@@ -190,6 +190,10 @@ function seoNupudJaModalid() {
 
     const kuu = opt.dataset.kuu;
     const arhiiviId = opt.value;
+// arhiiv.js muudatus parandusnupu jaoks:
+function handleParandaArhiivKlikk(arhiiviId) {
+    window.location.href = `parandus.html?arhiiviId=${arhiiviId}`;
+}
 
     // --- PARANDAMINE ---
     const parandaBtn = document.getElementById("parandaArhiiviBtn");
