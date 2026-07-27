@@ -155,48 +155,51 @@ function kuvaTabel(state) {
 // --- Nupud ---
 function kuvaNupud(kirje) {
     const roll = window.userRole || "vaataja";
-    let html = `<button onclick="window.print()">Prindi</button>`;
+    
+    // Baasnupud kõigile rollidele
+    let html = `
+        <button onclick="window.print()" class="btn-small">Prindi vaade</button>
+        <button disabled class="btn-small">Lae alla PDF (tulekul)</button>
+        <button onclick="window.location='fuajee.html'" class="btn-small">⬅ Fuajee</button>
+    `;
 
-    // Admini õigused parandatud
+    // Admini ja superadmini ühised nupud
     if (["admin", "superadmin"].includes(roll)) {
-        html += `<button id="taastaArhiivBtn">Taasta</button>`;
+        html += `<button id="taastaArhiivBtn" class="btn-small" style="background:#2ecc71; color:white; font-weight:bold;">Taasta aktiivseks kuuks</button>`;
     }
-    arhiiviNupud.innerHTML = html;
     
-    // Nuppude loogika
-    document.getElementById("taastaArhiivBtn")?.addEventListener("click", () => {
-        localStorage.setItem("taastatudState", JSON.stringify(kirje.state));
-        window.location.href = "kassatabel.html";
-    });
-}
-
-    
-    // ✅ TOPELTKINNITUSEGA KUSTUTAMINE: Ainult superadminile
+    // Ainult superadmini laiendatud nupud (Parandatud trükiviga r -> kirje)
     if (roll === "superadmin") {
         html += `
-            <button onclick="window.location.href='parandus.html?arhiiviId=${r.arhiiviId}'" class="btn-small">🔧 Paranda</button>
-            <button class="admin" id="kustutaArhiivBtn" style="background:#e74c3c; color:white;">Kustuta arhiiv</button>
+            <button onclick="window.location.href='parandus.html?arhiiviId=${kirje.arhiiviId}'" class="btn-small" style="background:#3498db; color:white;">🔧 Paranda arhiivi</button>
+            <button class="admin" id="kustutaArhiivBtn" style="background:#e74c3c; color:white;">🗑 Kustuta arhiiv</button>
         `;
     }
+    
+    arhiiviNupud.innerHTML = html;
+    
+    // Käivitame nuppude klikikuulajad alles pärast seda, kui nad on ekraanile joonistatud
+    SeostaNuppudeKlikid(kirje);
+}
 
- 
+// UUS ABIFUNKTSIOON: Seob klikid turvaliselt külge, kontrollides enne, kas nupp on ekraanil olemas
+function SeostaNuppudeKlikid(kirje) {
+    const taastaBtn = document.getElementById("taastaArhiivBtn");
+    if (taastaBtn) {
+        taastaBtn.onclick = () => {
+            taastaArhiivLoogika(kirje.arhiiviId, kirje.kuu_id);
+        };
+    }
 
-// ==========================================
-//  MODALID JA FUNKTSIOONID
-// ==========================================
-
-
-    // --- KUSTUTAMINE (TOPELTKINNITUS) ---
     const kustutaBtn = document.getElementById("kustutaArhiivBtn");
     if (kustutaBtn) {
         kustutaBtn.onclick = async () => {
-            if (!confirm(`Kas oled täiesti kindel, et soovid arhiivi ${arhiiviId} kustutada?`)) return;
+            if (!confirm(`Kas oled täiesti kindel, et soovid arhiivi ${kirje.arhiiviId} kustutada?`)) return;
             if (!confirm("⚠️ HOIATUS: See kustutab arhiivi andmebaasist jäädavalt! Kas jätkata?")) return;
 
-            const { error } = await sb.from("arhiiv").delete().eq("arhiiviId", arhiiviId);
+            const { error } = await sb.from("arhiiv").delete().eq("arhiiviId", kirje.arhiiviId);
             if (!error) {
-                // ✅ Logime kustutamise tegevuse
-                await logiTegevusSupabasse("kustuta_arhiiv", { arhiiviId: arhiiviId, kuu: kuu });
+                await logiTegevusSupabasse("kustuta_arhiiv", { arhiiviId: kirje.arhiiviId, kuu: kirje.kuu_id });
                 alert("Arhiiv edukalt kustutatud.");
                 window.location.reload();
             } else {
@@ -204,11 +207,18 @@ function kuvaNupud(kirje) {
             }
         };
     }
+}
 
 
-// --- TAASTAMISE AKTIVNE PROTSESS ---
+
+// ==========================================
+//  TAASTAMINE, LOGOUT JA TEGEVUSED
+// ==========================================
+
 // --- TAASTAMISE AKTIIVNE PROTSESS (PARANDATUD JA TAIBUKAS) ---
 async function taastaArhiivLoogika(arhiiviId, kuuId) {
+    if (!confirm("Kas oled kindel, et soovid selle arhiiviseisu laadida käesoleva kuu aktiivseks tabeliks? See kirjutab praegused sisestused üle.")) return;
+
     const { data, error } = await sb
         .from("arhiiv")
         .select("*")
@@ -220,67 +230,44 @@ async function taastaArhiivLoogika(arhiiviId, kuuId) {
         return;
     }
 
-    // Pakime arhiivi andmepaki (state) lahti
     const state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
 
-    // Tuvastame TÄNASE jooksva kalendrikuu (kujul YYYY-MM)
+    // Tuvastame jooksva kalendrikuu (kujul YYYY-MM)
     const jooksevKuup = new Date();
     const jooksevKuuStr = `${jooksevKuup.getFullYear()}-${String(jooksevKuup.getMonth() + 1).padStart(2, '0')}`;
 
-    // Märgime andmebaasis vana kirje staatuse taastatuks (puhtalt statistika jaoks)
     await sb.from("arhiiv").update({ taastatud: true }).eq("arhiiviId", arhiiviId);
 
-    // ✅ Logime tegevuse ametlikult logide tabelisse
+    // Logime tegevuse ametlikult logide tabelisse
     await logiTegevusSupabasse("taasta_aktiivne-kuu", { 
         algne_kuu: kuuId, 
         arhiiviId: arhiiviId, 
         siht_kuu: jooksevKuuStr 
     });
 
-    // 🌟 KRIITILINE SAMM: Salvestame andmed kotti, kuid määrame kuuks JOOKSVA KUU!
+    // Salvestame andmed kotti jooksvaks kuuks
     localStorage.setItem("taastatudState", JSON.stringify(state));
     localStorage.setItem("taastatudKuu", jooksevKuuStr);
 
-    // Sulgeme modali visuaalselt
-    const taastaModal = document.getElementById("taastaModal");
-    if (taastaModal) taastaModal.style.display = "none";
-
     alert(`Andmed ette valmistatud! Suunan Sind Kassatabeli lehele, kus see seis laetakse jooksva kuu (${jooksevKuuStr}) tabelisse.`);
-
-    // Suuname kasutaja Kassatabeli lehele, kus logic.js võtab andmed vastu ja avab need täitmiseks
     window.location.href = "kassatabel.html";
 }
 
-
-// --- Logout ---
+// --- Väljalogimise kuulaja ---
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
     logoutBtn.addEventListener("click", logout);
 }
-   // Printimine
+
+// --- Dünaamiline pealkiri printimisel ---
 window.addEventListener("beforeprint", () => {
     const valitudVariant = kuuValik?.selectedOptions;
     const kuu = valitudVariant && valitudVariant.length > 0 ? valitudVariant[0].dataset.kuu : "";
-    
-    const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     const printTitle = document.getElementById("printTitle");
     
     if (printTitle) {
-        printTitle.textContent = `${kuu} – ${leht}`;
+        printTitle.textContent = `${kuu} – Arhiiv`;
     }
 });
-// Näide koodist, mis käivitub arhiivi lehel nupule vajutades:
-async function handleTaastaAktiivseksKuuks(valitudArhiivRida) {
-    if (!confirm("Kas oled kindel, et soovid selle arhiiviseisu laadida käesoleva kuu aktiivseks tabeliks? See kirjutab praegused sisestused üle.")) return;
 
-    const jooksevKuup = new Date();
-    const jooksevKuuStr = `${jooksevKuup.getFullYear()}-${String(jooksevKuup.getMonth() + 1).padStart(2, '0')}`;
-
-    // Paneme arhiivi andmepaki valmis
-    localStorage.setItem("taastatudState", JSON.stringify(valitudArhiivRida.state));
-    localStorage.setItem("taastatudKuu", jooksevKuuStr);
-
-    // Suuname kasutaja otse peamisele kassalehele, kus meie uus kontroll andmed vastu võtab!
-    window.location.href = "kassatabel.html"; 
-}
 
