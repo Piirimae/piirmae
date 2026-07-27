@@ -143,21 +143,25 @@ async function salvestaParandatudArhiiv() {
 }
 
 // ✅ PRINTIMISE KÄSITLEMINE – KASSATABEL (Parandatud pealkiri ja teadete peitmine)
+// ✅ PRINTIMISE KÄSITLEMINE – KASSATABEL (Võtab dropdowni reaalse nähtava teksti)
 window.addEventListener("beforeprint", () => {
-    const kuu = document.getElementById("kuuValik")?.selectedOptions[0]?.value || "";
+    const selector = document.getElementById("kuuValik");
+    // Võtame dropdownist reaalselt selekteeritud rea nähtava teksti (nt "Kuu juuli 2026")
+    const valitudTekst = selector && selector.selectedOptions.length > 0 ? selector.selectedOptions[0].text : "";
+    
     const printTitle = document.getElementById("printTitle");
     if (printTitle) {
-        // Tekitab pealkirja kujul: 2026-04 – Kassatabel – Kuu vaade
-        printTitle.textContent = `Kassatabel - ${valitudTekst}`;
+        // Tulemus paberil: Kuu juuli 2026 – Kassatabel – kuu vaade
+        printTitle.textContent = `${valitudTekst} – Kassatabel – kuu vaade`;
     }
 
-    // Peidame ekraaniteate ja vaaterežiimi kasti, et nad paberil ruumi ei raiskaks [1.1]
+    // Peidame ekraaniteated ja vaaterežiimi, et nad paberil ruumi ei raiskaks
     const vReziim = document.getElementById("vaateReziim");
     const rTeade = document.getElementById("reziimiTeade");
     if (vReziim) vReziim.style.display = "none";
     if (rTeade) rTeade.style.display = "none";
 
-    // Muudame sisendkastid puhtaks tekstiks [1.1]
+    // Muudame sisendkastid puhtaks tekstiks prindi ajaks
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
         span.textContent = inp.value;
@@ -167,6 +171,7 @@ window.addEventListener("beforeprint", () => {
         inp.parentNode.appendChild(span);
     });
 });
+
 
 window.addEventListener("afterprint", () => {
     // Toome ekraaniteated pärast printimist tagasi tagasi [1.1]
