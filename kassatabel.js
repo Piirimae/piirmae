@@ -148,7 +148,7 @@ window.addEventListener("beforeprint", () => {
     const printTitle = document.getElementById("printTitle");
     if (printTitle) {
         // Tekitab pealkirja kujul: 2026-04 – Kassatabel – Kuu vaade
-        printTitle.textContent = `${kuu} – Kassatabel – Kuu vaade`;
+        printTitle.textContent = `Kassatabel - ${valitudTekst}`;
     }
 
     // Peidame ekraaniteate ja vaaterežiimi kasti, et nad paberil ruumi ei raiskaks [1.1]
