@@ -166,7 +166,7 @@ function kuvaNupud(kirje) {
     }
     arhiiviNupud.innerHTML = html;
     SeostaNuppudeTegevused(kirje.arhiiviId, kirje.kuu_id);
-}
+
     
     // ✅ TOPELTKINNITUSEGA KUSTUTAMINE: Ainult superadminile
     if (roll === "superadmin") {
