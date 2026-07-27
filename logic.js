@@ -971,17 +971,30 @@ function uuendaVaateReziim() {
     const box = document.getElementById("vaateReziim");
     if (!box) return;
 
-    if (praeguneKuu !== reaalneKuu) {
+    // 1. Kontrollime, kas andmed tulid just praegu arhiivist taastamise kaudu
+    const taastatudState = localStorage.getItem("taastatudState");
+    if (taastatudState) {
         box.style.display = "block";
-        box.textContent = `Arhiivivaade: ${praeguneKuu} (lukus)`;
-        box.classList.add("lukus");
+        box.style.background = "#fff9db"; // Kollane/Hoiatav toon
+        box.style.color = "#b07d00";
+        box.innerHTML = `🌟 <strong>Taastatud seis:</strong> Kuvatakse arhiivist laetud andmeid. Salvestamiseks vajuta 'Salvesta'.`;
         return;
     }
 
+    // 2. Kui vaadatakse tavalist jooksva kuu tabelit
     box.style.display = "block";
-    box.textContent = `Aktiivne kuu: ${praeguneKuu}`;
-    box.classList.remove("lukus");
+    box.style.background = "#e6fffa"; // Roheline/Puhas toon
+    box.style.color = "#006d5b";
+    
+    if (tabelLukus) {
+        box.innerHTML = `👁️ <strong>Vaatlusrežiim:</strong> Kuu ${praeguneKuu} tabel on lukus (ainult lugemiseks).`;
+        box.style.background = "#f1f3f5";
+        box.style.color = "#495057";
+    } else {
+        box.innerHTML = `✍️ <strong>Sisestusrežiim:</strong> Kuu ${praeguneKuu} tabel on avatud andmete täitmiseks.`;
+    }
 }
+
 
 
 // --- INIT ---
