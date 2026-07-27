@@ -286,4 +286,18 @@ window.addEventListener("beforeprint", () => {
         printTitle.textContent = `${kuu} – ${leht}`;
     }
 });
+// Näide koodist, mis käivitub arhiivi lehel nupule vajutades:
+async function handleTaastaAktiivseksKuuks(valitudArhiivRida) {
+    if (!confirm("Kas oled kindel, et soovid selle arhiiviseisu laadida käesoleva kuu aktiivseks tabeliks? See kirjutab praegused sisestused üle.")) return;
+
+    const jooksevKuup = new Date();
+    const jooksevKuuStr = `${jooksevKuup.getFullYear()}-${String(jooksevKuup.getMonth() + 1).padStart(2, '0')}`;
+
+    // Paneme arhiivi andmepaki valmis
+    localStorage.setItem("taastatudState", JSON.stringify(valitudArhiivRida.state));
+    localStorage.setItem("taastatudKuu", jooksevKuuStr);
+
+    // Suuname kasutaja otse peamisele kassalehele, kus meie uus kontroll andmed vastu võtab!
+    window.location.href = "kassatabel.html"; 
+}
 
