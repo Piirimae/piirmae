@@ -23,18 +23,56 @@ const prindiNupp = document.getElementById("prindiNupp");
 const laeAllaNupp = document.getElementById("laeAllaNupp");
 const teadeEl = document.getElementById("teade");
 const arhiiviKuva = document.getElementById("arhiiviKuva");
+// --- 1. Alglaadimine ja taastamise kontroll ---
+// Kontrollime, kas leht avati arhiivist taastamise või parandamise käsuga
 const taastatudState = localStorage.getItem("taastatudState");
 const taastatudKuu = localStorage.getItem("taastatudKuu");
 
-if (taastatudState && taastatudKuu) {
-    const state = JSON.parse(taastatudState);
-    taastaTabelState(state);
-    praeguneKuu = taastatudKuu;
-
-    // puhasta, et uuesti ei laeks
-    localStorage.removeItem("taastatudState");
-    localStorage.removeItem("taastatudKuu");
+// Kontroll, et kood käivituks alles siis, kui seaded ja tabel on valmis
+async function kontrolliJaTaasta() {
+    if (taastatudState && taastatudKuu) {
+        try {
+            const state = JSON.parse(taastatudState);
+            praeguneKuu = taastatudKuu;
+            if (kuuValik) kuuValik.value = taastatudKuu;
+            
+            // Ootame hetke, et DOM ja tabeli read jõuaksid genereeruda
+            setTimeout(() => {
+                taastaTabelState(state);
+                localStorage.removeItem("taastatudState");
+                localStorage.removeItem("taastatudKuu");
+            }, 100);
+        } catch (err) {
+            console.error("Viga andmete lahtipakkimisel taastamisel:", err);
+        }
+    }
 }
+
+// ✅ LISATUD PUUDUV FUNKTSIOON: Pakib arhiivi JSON-i lahti ja paneb väärtused inputitesse
+function taastaTabelState(state) {
+    if (!state || !state.rows) return;
+    
+    console.log("LOGIC: Taastan tabeli andmeid arhiivifailist...");
+    
+    state.rows.forEach(ridaState => {
+        // Otsime tabelist õiget rida kuupäeva järgi
+        const tr = tbody.querySelector(`tr[data-date="${ridaState.kuupäev}"]`);
+        if (!tr) return;
+        
+        const inputs = tr.querySelectorAll("input");
+        inputs.forEach((inp, idx) => {
+            if (ridaState.veerud && ridaState.veerud[idx] !== undefined) {
+                inp.value = ridaState.veerud[idx];
+            }
+        });
+    });
+    
+    tabelLukus = false; // Teeme tabeli muudetavaks ja aktiivseks!
+    rakendaLukustusOlek();
+    arvuta(); // Sunnime summad uuesti käima
+    näitaTeadet("Andmed arhiivist edukalt tabelisse laetud ja muutmiseks avatud.");
+}
+
 
 
 console.log("LOGIC STARTED");
@@ -74,6 +112,7 @@ async function init() {
 
     const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
     täidaTabelSupabaseAndmetega(andmed);
+    await kontrolliJaTaasta();
 
     await kuvaArhiiv();
     uuendaVaateReziim();
