@@ -60,30 +60,34 @@ async function laeKuuValikud() {
     kuuValik.addEventListener("change", kuvaArhiiv);
 }
 
-// --- Lae ja kuva arhiiv ---
+// 🔧 PARANDATUD JA TURVALINE PÄRING (failis arhiiv.js)
 async function kuvaArhiiv() {
     const arhiiviId = kuuValik.value;
     if (!arhiiviId) return;
 
-    const { data, error } = await sb
+    // Küsime andmed massiivina, sorteerime versiooni järgi ja võtame ainult 1 kõige uuema [1.1]
+    const { data: arhiivList, error } = await sb
         .from("arhiiv")
         .select("*")
         .eq("arhiiviId", arhiiviId)
-        .single();
+        .order("versioon", { ascending: false }) // Toob kõige uuema versiooni esimesena [1.1]
+        .limit(1); // Kaotab ära 406 vea, kuna ei nõua rangelt ühte rida [1.1]
 
-    if (error || !data) {
+    if (error || !arhiivList || arhiivList.length === 0) {
         arhiiviMeta.innerHTML = "<p>Arhiivi ei leitud.</p>";
         arhiiviKuva.innerHTML = "";
         arhiiviNupud.innerHTML = "";
         return;
     }
 
+    const data = arhiivList[0]; // Võtame massiivist selle esimese (kõige uuema) rea [1.1]
     const state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
 
     kuvaMeta(data);
     kuvaTabel(state);
-    kuvaNupud(data);
+    kuvaNupud(data); // Anname andmed edasi nuppudele [1.1]
 }
+
 
 // --- Metaandmed ---
 function kuvaMeta(kirje) {
