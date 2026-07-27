@@ -143,34 +143,26 @@ async function salvestaParandatudArhiiv() {
 }
 
 // =========================================================================
-// ✅ SÜNKRONISEERITUD PRINTIMISE KÄSITLEMINE (Ühildatud logic.js-i täitmisega)
+// ✅ POMMIKINDEL PRINTIMISE KÄSITLEMINE (Kassatabel)
 // =========================================================================
 window.addEventListener("beforeprint", () => {
-    let valitudTekst = "";
-    
-    // 🔧 LAHENDUS: Kuna logic.js loob lennult üheainsa option elemendi, loeme teksti otse sealt seest!
-    if (kuuValik && kuuValik.firstElementChild) {
-        valitudTekst = kuuValik.firstElementChild.textContent; // See saab kätte puhtalt nt "juuli 2026"
-    }
-    
-    // Kui option on mingil põhjusel veel tühi, teeme ilusa varuvariandi globaalsest muutujast
-    if (!valitudTekst && praeguneKuu) {
-        valitudTekst = `Kuu ${praeguneKuu}`;
-    }
-    
     const printTitle = document.getElementById("printTitle");
-    if (printTitle && valitudTekst) {
-        // Tagab pealkirja täpselt Sinu soovitud formaadis: juuli 2026 – Kassatabel
-        printTitle.textContent = `${valitudTekst} – Kassatabel`;
+    const selector = document.getElementById("kuuValik");
+    
+    if (printTitle) {
+        // Võtame dropdowni seest tekstilise väärtuse (nt "juuli 2026")
+        let kuuTekst = selector ? selector.options[selector.selectedIndex]?.text : "";
+        
+        // Turvavõrk: Kui tekst on tühi, teeme selle käsitsi muutujast 'praeguneKuu'
+        if (!kuuTekst && typeof praeguneKuu !== "undefined" && praeguneKuu) {
+            kuuTekst = `Kuu ${praeguneKuu}`;
+        }
+        
+        // Kirjutame pealkirja elemendi sisse puhta teksti
+        printTitle.textContent = `${kuuTekst || "Kassatabel"} – Kuu vaade`;
     }
 
-    // Peidame ekraaniteated ja vaaterežiimi kasti, et nad paberil ruumi ei raiskaks
-    const vReziim = document.getElementById("vaateReziim");
-    const rTeade = document.getElementById("reziimiTeade");
-    if (vReziim) vReziim.style.display = "none";
-    if (rTeade) rTeade.style.display = "none";
-
-    // Muudame kõik sisendkastid prindi ajaks puhtaks tekstiks
+    // Peidame sisendkastid prindi ajaks ja asendame puhta tekstiga
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
         span.textContent = inp.value;
@@ -182,12 +174,6 @@ window.addEventListener("beforeprint", () => {
 });
 
 window.addEventListener("afterprint", () => {
-    // Toome ekraaniteated ja vaaterežiimid pärast printimist ekraanile tagasi
-    const vReziim = document.getElementById("vaateReziim");
-    const rTeade = document.getElementById("reziimiTeade");
-    if (vReziim) vReziim.style.display = "block";
-    if (rTeade) rTeade.style.display = "block";
-
     // Taastame algsed muudetavad sisendkastid täpselt samasse kohta
     document.querySelectorAll(".print-value").forEach(span => span.remove());
     document.querySelectorAll("td input").forEach(inp => {
@@ -197,6 +183,7 @@ window.addEventListener("afterprint", () => {
         }
     });
 });
+
 
 
 
