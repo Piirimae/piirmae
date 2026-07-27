@@ -153,22 +153,20 @@ function kuvaTabel(state) {
 }
 
 // --- Nupud ---
-function kuvaNupud() {
+function kuvaNupud(kirje) {
     const roll = window.userRole || "vaataja";
-    const arhiiviId = kuuValik.value;
-
-    let html = `
-        <button onclick="window.print()">Prindi</button>
-        <button disabled>Lae alla PDF (tulekul)</button>
-        <button onclick="window.location='fuajee.html'">Tagasi</button>
-    `;
+    let html = `<button onclick="window.print()" class="btn-small">Prindi vaade</button>`;
 
     if (roll === "superadmin" || roll === "admin") {
-        html += `
-            <button onclick="window.location.href='parandus.html?arhiiviId=${r.arhiiviId}'" class="btn-small">🔧 Paranda</button>
-            <button class="admin taasta-btn" id="taastaArhiivBtn">Taasta aktiivseks kuuks</button>
-        `;
+        html += `<button id="taastaArhiivBtn" class="btn-small">✨ Taasta</button>
+                 <button onclick="window.location='parandus.html?arhiiviId=${kirje.arhiiviId}'" class="btn-small">🔧 Paranda</button>`;
     }
+    if (roll === "superadmin") {
+        html += `<button id="kustutaArhiivBtn" class="btn-small">🗑 Kustuta</button>`;
+    }
+    arhiiviNupud.innerHTML = html;
+    SeostaNuppudeTegevused(kirje.arhiiviId, kirje.kuu_id);
+}
     
     // ✅ TOPELTKINNITUSEGA KUSTUTAMINE: Ainult superadminile
     if (roll === "superadmin") {
