@@ -244,6 +244,7 @@ function seoNupudJaModalid() {
 }
 
 // --- TAASTAMISE AKTIVNE PROTSESS ---
+// --- TAASTAMISE AKTIIVNE PROTSESS (PARANDATUD JA TAIBUKAS) ---
 async function taastaArhiivLoogika(arhiiviId, kuuId) {
     const { data, error } = await sb
         .from("arhiiv")
@@ -256,18 +257,37 @@ async function taastaArhiivLoogika(arhiiviId, kuuId) {
         return;
     }
 
+    // Pakime arhiivi andmepaki (state) lahti
     const state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
 
-    // Märgime andmebaasis staatuse taastatuks
+    // Tuvastame TÄNASE jooksva kalendrikuu (kujul YYYY-MM)
+    const jooksevKuup = new Date();
+    const jooksevKuuStr = `${jooksevKuup.getFullYear()}-${String(jooksevKuup.getMonth() + 1).padStart(2, '0')}`;
+
+    // Märgime andmebaasis vana kirje staatuse taastatuks (puhtalt statistika jaoks)
     await sb.from("arhiiv").update({ taastatud: true }).eq("arhiiviId", arhiiviId);
 
-    // ✅ Logime tegevuse
-    await logiTegevusSupabasse("taasta_aktiivne-kuu", { kuu: kuuId, arhiiviId: arhiiviId });
+    // ✅ Logime tegevuse ametlikult logide tabelisse
+    await logiTegevusSupabasse("taasta_aktiivne-kuu", { 
+        algne_kuu: kuuId, 
+        arhiiviId: arhiiviId, 
+        siht_kuu: jooksevKuuStr 
+    });
 
+    // 🌟 KRIITILINE SAMM: Salvestame andmed kotti, kuid määrame kuuks JOOKSVA KUU!
     localStorage.setItem("taastatudState", JSON.stringify(state));
-    localStorage.setItem("taastatudKuu", data.kuu_id);
-    window.location = `kassatabel.html?taastatud=${data.kuu_id}`;
+    localStorage.setItem("taastatudKuu", jooksevKuuStr);
+
+    // Sulgeme modali visuaalselt
+    const taastaModal = document.getElementById("taastaModal");
+    if (taastaModal) taastaModal.style.display = "none";
+
+    alert(`Andmed ette valmistatud! Suunan Sind Kassatabeli lehele, kus see seis laetakse jooksva kuu (${jooksevKuuStr}) tabelisse.`);
+
+    // Suuname kasutaja Kassatabeli lehele, kus logic.js võtab andmed vastu ja avab need täitmiseks
+    window.location.href = "kassatabel.html";
 }
+
 
 // --- Logout ---
 const logoutBtn = document.getElementById("logoutBtn");
