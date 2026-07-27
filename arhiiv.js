@@ -82,7 +82,7 @@ async function kuvaArhiiv() {
 
     kuvaMeta(data);
     kuvaTabel(state);
-    kuvaNupud();
+    kuvaNupud(data);
 }
 
 // --- Metaandmed ---
