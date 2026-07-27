@@ -244,7 +244,9 @@ async function SalvestaKoguTabel() {
         kuuKokku: `${terveKuuKogusumma.toFixed(2)} €`
     };
 
-    // 3. SALVESTAMINE SAMM A: Arhiivi rea loomine versiooniga
+       // ==========================================
+    // 4. SALVESTAMINE SAMM A: Arhiivi rea loomine versiooniga
+    // ==========================================
     let uusVersiooniNumber = 1;
     let sihtArhiiviId = praeguneArhiiviId;
 
@@ -270,20 +272,42 @@ async function SalvestaKoguTabel() {
 
     if (arhiivErr) return alert("Viga arhiivi salvestamisel: " + arhiivErr.message);
 
-    // 4. SALVESTAMINE SAMM B: Kirjutame andmed põhitabelisse (kassatabel) unikaalse kuupäeva alusel
-    console.log("PARANDUS: Saadan kirjed kassatabelisse kuupaeva konflikti loogikaga...", kassaTabeliRead);
+    // ==========================================
+    // 5. SALVESTAMINE SAMM B: PÕHITABELI (KASSATABEL) PUHASTAMINE JA SISESTAMINE
+    // ==========================================
+    console.log("PARANDUS: Puhastan duplikaatide vältimiseks selle kuu vanad read kassatabelist...");
     
-    // ✅ LAHENDUS: Määrame sihtmärgiks 'kuupaev'. See teeb ülekirjutuse ilma 'id' veergu puutumata!
+    // Võtame kuu esimene ja viimane kuupäev massiivist
+    const kuupaevadMassiiv = kassaTabeliRead.map(r => r.kuupaev).sort();
+    const kuuEsimenePaev = kuupaevadMassiiv[0];
+    const kuuViimanePaev = kuupaevadMassiiv[kuupaevadMassiiv.length - 1];
+
+    // Samm B1: Kustutame selle vahemiku read kassatabelist jäädavalt ära [1.1]
+    const { error: deleteErr } = await sb
+        .from("kassatabel")
+        .delete()
+        .gte("kuupaev", kuuEsimenePaev)
+        .lte("kuupaev", kuuViimanePaev);
+
+    if (deleteErr) {
+        console.error("Viga kassatabeli eelneval puhastamisel:", deleteErr);
+        return alert("Kassatabeli puhastamine ebaõnnestus: " + deleteErr.message);
+    }
+
+    // Samm B2: Kuna plats on puhas, teeme .insert() käsu ilma "id" veergu puutumata [1.1]
+    console.log("PARANDUS: Sisestan uued ja värsked kirjed kassatabelisse...");
     const { error: kassaErr } = await sb
         .from("kassatabel")
-        .upsert(kassaTabeliRead, { onConflict: "kuupaev" });
+        .insert(kassaTabeliRead); // 🔧 LAHENDUS: .insert() on vaba 'id' konflikti probleemidest! [1.1]
 
     if (kassaErr) {
         console.error("Viga kassatabeli kirjutamisel:", kassaErr);
         return alert("Viga kassatabeli uuendamisel: " + kassaErr.message);
     }
 
-    // 5. SALVESTAMINE SAMM C: Logime tegevuse logide tabelisse
+    // ==========================================
+    // 6. SALVESTAMINE SAMM C: Logime tegevuse logide tabelisse
+    // ==========================================
     await sb.from("logid").insert({
         tegevus: praeguneArhiiviId ? "arhiiv_parandus_versioon" : "kasitsi_kuu_loomine",
         detailid: { kuu: praeguneKuuId, arhiiviId: sihtArhiiviId, versioon: uusVersiooniNumber },
@@ -293,6 +317,3 @@ async function SalvestaKoguTabel() {
     alert(`Andmed edukalt salvestatud! Loodi arhiivi versioon v_${uusVersiooniNumber} ja uuendati põhitabelit.`);
     window.location.href = "arhiiv.html"; 
 }
-
-
-
