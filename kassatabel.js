@@ -142,15 +142,22 @@ async function salvestaParandatudArhiiv() {
     // Teie olemasolev salvestamise loogika...
 }
 
-// Printimise käsitlemine
+// ✅ PRINTIMISE KÄSITLEMINE – KASSATABEL (Parandatud pealkiri ja teadete peitmine)
 window.addEventListener("beforeprint", () => {
     const kuu = document.getElementById("kuuValik")?.selectedOptions[0]?.value || "";
-    const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     const printTitle = document.getElementById("printTitle");
-    if (printTitle) 
-        printTitle.textContent = `${kuu} – Kassatabel – kuu vaade`;
-     
+    if (printTitle) {
+        // Tekitab pealkirja kujul: 2026-04 – Kassatabel – Kuu vaade
+        printTitle.textContent = `${kuu} – Kassatabel – Kuu vaade`;
+    }
 
+    // Peidame ekraaniteate ja vaaterežiimi kasti, et nad paberil ruumi ei raiskaks [1.1]
+    const vReziim = document.getElementById("vaateReziim");
+    const rTeade = document.getElementById("reziimiTeade");
+    if (vReziim) vReziim.style.display = "none";
+    if (rTeade) rTeade.style.display = "none";
+
+    // Muudame sisendkastid puhtaks tekstiks [1.1]
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
         span.textContent = inp.value;
@@ -162,13 +169,22 @@ window.addEventListener("beforeprint", () => {
 });
 
 window.addEventListener("afterprint", () => {
+    // Toome ekraaniteated pärast printimist tagasi tagasi [1.1]
+    const vReziim = document.getElementById("vaateReziim");
+    const rTeade = document.getElementById("reziimiTeade");
+    if (vReziim) vReziim.style.display = "block";
+    if (rTeade) rTeade.style.display = "block";
+
+    // Taastame input-lahtrid ekraanile [1.1]
     document.querySelectorAll(".print-value").forEach(span => span.remove());
     document.querySelectorAll("td input").forEach(inp => {
         if (inp.dataset.wasVisible === "true") {
             inp.style.display = "";
+            inp.removeAttribute("data-was-visible");
         }
     });
 });
+
 
 
 
