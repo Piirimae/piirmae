@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Piirimäe – Parandused ja Ajalooline Sisestus</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .parandus-container { padding: 20px; max-width: 1600px; margin: 0 auto; font-family: sans-serif; }
+        .tööriistad-paneel { background: #f8f9fa; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-bottom: 20px; display: flex; gap: 20px; align-items: flex-end; }
+        .sisestus-tabel { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+        .sisestus-tabel th, .sisestus-tabel td { border: 1px solid #cbd5e1; padding: 6px; text-align: center; }
+        .sisestus-tabel th { background: #2c3e50; color: white; }
+        .sisestus-tabel input { width: 60px; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; }
+        .märgistus-teade { background: #fff9db; border: 1px solid #fcc419; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: none; font-size: 0.9em; }
+    </style>
+</head>
+<body class="page-kassatabel">
+
+<header class="header">
+    <div id="kasutajaNimi"></div>
+    <div class="header-actions">
+        <button onclick="window.location='arhiiv.html'" class="btn-small">⬅ Tagasi Arhiivi</button>
+        <button id="logoutBtn" class="btn-small">Logi välja</button>
+    </div>
+</header>
+
+<div class="parandus-container">
+    <h2 id="lehePealkiri">📋 Parandused ja Ajalooline Sisestus</h2>
+    
+    <!-- Märgistuse teate aken -->
+    <div id="reziimiTeade" class="märgistus-teade"></div>
+
+    <!-- Tööriistade paneel -->
+    <div class="tööriistad-paneel">
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label style="font-weight: bold; font-size: 0.85em;">Loo puuduv kuu käsitsi (YYYY-MM):</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="month" id="uusKuuSisend" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                <button id="btnLooKuu" class="btn-small" style="background: #2ecc71; color: white;">✨ Loo kuu tabel</button>
+            </div>
+        </div>
+        
+        <div style="margin-left: auto;">
+            <button id="btnSalvestaParandus" class="btn-primary" style="background: #f1c40f; color: black; font-weight: bold; height: 38px;">💾 Salvesta andmed ja loo versioon</button>
+        </div>
+    </div>
+
+    <!-- Dünaamiline tabelikoht -->
+    <div style="overflow-x: auto; background: white; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <table class="sisestus-tabel">
+            <thead id="parandusHead"></thead>
+            <tbody id="parandusBody"></tbody>
+            <tfoot id="parandusFoot"></caption>
+        </table>
+    </div>
+</div>
+
+<script src="https://jsdelivr.net"></script>
+<script type="module" src="parandus.js"></script>
+</body>
+</html>
