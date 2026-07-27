@@ -181,64 +181,43 @@ async function SalvestaKoguTabel() {
     const veergudeRahadKokku = seaded.veerud.map(() => 0);
     let terveKuuKogusumma = 0;
 
-    // 1. Tuvastame enne salvestamist, kas selle kuu kohta on andmebaasis kassatabelis juba ridu olemas
-    const esimenePaev = `${praeguneKuuId}-01`;
-    const [aasta, kuu] = praeguneKuuId.split("-");
-    const paevadeArv = new Date(aasta, kuu, 0).getDate();
-    const viimanePaev = `${praeguneKuuId}-${String(paevadeArv).padStart(2, "0")}`;
-
-    const { data: olemasolevadKassaRead } = await sb
-        .from("kassatabel")
-        .select("id, kuupaev")
-        .gte("kuupaev", esimenePaev)
-        .lte("kuupaev", viimanePaev);
-
-    // Teeme kuupäevapõhise otsinguindeksi olemasolevate ID-de jaoks (kuupaev -> id)
-    const kassaIdKaart = {};
-    olemasolevadKassaRead?.forEach(r => {
-        kassaIdKaart[r.kuupaev] = r.id;
-    });
-
     // Tuvastame aktiivse kasutaja ID, et täita user_id väli
     const { data: userData } = await sb.auth.getUser();
     const sisselogitudUserId = userData?.user?.id || null;
 
-    // 2. Käime läbi tabeli read ja kogume andmed kokku
+    // 1. Käime läbi tabeli read ja kogume andmed kokku ilma "id" veeruta!
     rows.forEach(tr => {
         const kuupaev = tr.dataset.date;
         const veergudeVäärtusedStr = [];
         
-        // Ehitame kassaobjekti täpselt nii, nagu Sinu kassatabel ootab
+        // Ehitame kassaobjekti (MÄRKUS: "id" on siit täielikult välja jäetud, et andmebaas ei protestiks!)
         const kassaObjekt = { 
             kuu_id: praeguneKuuId,
             kuupaev: kuupaev,
-            kokku: "0.00", // Sinu soovitud vaikimisi string väärtus andmebaasi
-            user_id: sisselogitudUserId
+            kokku: "0.00", 
+            user_id: sisselogitudUserId,
+            updated_at: new Date().toISOString()
         };
-
-        // 🌟 KRIITILINE: Kui rida on andmebaasis juba olemas (parandusrežiim), paneme ID kaasa!
-        if (kassaIdKaart[kuupaev]) {
-            kassaObjekt["id"] = kassaIdKaart[kuupaev];
-        }
 
         let paevaKogusummaRahalises = 0;
 
         tr.querySelectorAll("input").forEach(inp => {
             const valStr = inp.value === "" ? "" : inp.value;
-            const valNum = inp.value === "" ? 0 : Number(inp.value); // Täisarv int4 jaoks (nt 30)
+            const valNum = inp.value === "" ? 0 : Number(inp.value); // Puhta int4 numbri tagamine
             const veeruNimi = inp.dataset.veerg;
             const vIdx = Number(inp.dataset.idx);
 
             veergudeVäärtusedStr.push(valStr);
-            kassaObjekt[veeruNimi] = valNum; // Paneme kirja puhta täisarvu (nt supp: 0)
+            kassaObjekt[veeruNimi] = valNum; 
 
             const vSeade = seaded.veerud[vIdx];
             if (vSeade) {
                 veergudeKogusedKokku[vIdx] += valNum;
                 if (vSeade.tüüp === "toit") {
                     const ajaloolineHind = leiaHindAjaloost(veeruNimi, kuupaev);
-                    paevaKogusummaRahalises += valNum * ajaloolineHind;
-                    veergudeRahadKokku[vIdx] += valNum * ajaloolineHind;
+                    const reaToiduOsa = valNum * ajaloolineHind;
+                    paevaKogusummaRahalises += reaToiduOsa;
+                    veergudeRahadKokku[vIdx] += reaToiduOsa;
                 } else if (vSeade.tüüp === "number") {
                     paevaKogusummaRahalises += valNum;
                     veergudeRahadKokku[vIdx] += valNum;
@@ -256,7 +235,7 @@ async function SalvestaKoguTabel() {
         kassaTabeliRead.push(kassaObjekt);
     });
 
-    // 3. Ehitame JSONb state paki arhiivi jaoks
+    // 2. Ehitame JSONb state paki arhiivi jaoks
     const andmepakettState = {
         paise: seaded.veerud.map(v => ({ nimi: v.nimi, pealkiri: v.pealkiri, hind: Number(v.hind) || 0, tüüp: v.tüüp })),
         rows: arhiivRowsMassiiv,
@@ -265,7 +244,7 @@ async function SalvestaKoguTabel() {
         kuuKokku: `${terveKuuKogusumma.toFixed(2)} €`
     };
 
-    // 4. SALVESTAMINE SAMM A: Arhiivi rea loomine versiooniga
+    // 3. SALVESTAMINE SAMM A: Arhiivi rea loomine versiooniga
     let uusVersiooniNumber = 1;
     let sihtArhiiviId = praeguneArhiiviId;
 
@@ -291,20 +270,20 @@ async function SalvestaKoguTabel() {
 
     if (arhiivErr) return alert("Viga arhiivi salvestamisel: " + arhiivErr.message);
 
-    // 5. SALVESTAMINE SAMM B: Kirjutame andmed põhitabelisse (kassatabel)
-    console.log("PARANDUS: Saadan kirjed kassatabelisse...", kassaTabeliRead);
+    // 4. SALVESTAMINE SAMM B: Kirjutame andmed põhitabelisse (kassatabel) unikaalse kuupäeva alusel
+    console.log("PARANDUS: Saadan kirjed kassatabelisse kuupaeva konflikti loogikaga...", kassaTabeliRead);
     
-    // 🌟 LAHENDUS: Teeme kindla upsert päringu, mis oskab id puudumisel luua uue rea ja olemasolul uuendada!
+    // ✅ LAHENDUS: Määrame sihtmärgiks 'kuupaev'. See teeb ülekirjutuse ilma 'id' veergu puutumata!
     const { error: kassaErr } = await sb
         .from("kassatabel")
-        .upsert(kassaTabeliRead);
+        .upsert(kassaTabeliRead, { onConflict: "kuupaev" });
 
     if (kassaErr) {
         console.error("Viga kassatabeli kirjutamisel:", kassaErr);
         return alert("Viga kassatabeli uuendamisel: " + kassaErr.message);
     }
 
-    // 6. SALVESTAMINE SAMM C: Logime tegevuse logide tabelisse
+    // 5. SALVESTAMINE SAMM C: Logime tegevuse logide tabelisse
     await sb.from("logid").insert({
         tegevus: praeguneArhiiviId ? "arhiiv_parandus_versioon" : "kasitsi_kuu_loomine",
         detailid: { kuu: praeguneKuuId, arhiiviId: sihtArhiiviId, versioon: uusVersiooniNumber },
@@ -314,5 +293,6 @@ async function SalvestaKoguTabel() {
     alert(`Andmed edukalt salvestatud! Loodi arhiivi versioon v_${uusVersiooniNumber} ja uuendati põhitabelit.`);
     window.location.href = "arhiiv.html"; 
 }
+
 
 
