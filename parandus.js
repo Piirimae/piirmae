@@ -65,21 +65,28 @@ function AlgataUusKuuKasitsi() {
 }
 
 // --- REŽIIM 1: Arhiivi laadimine parandamiseks ---
+// 🔧 PARANDATUD JA TURVALINE PÄRING (asenda .single() -> .limit(1))
 async function LaeAndmedArhiivist(arhiiviId) {
-    const { data, error } = await sb.from("arhiiv").select("*").eq("arhiiviId", arhiiviId).order("versioon", { ascending: false }).limit(1).single();
-    if (error || !data) return alert("Arhiivi andmete laadimine ebaõnnestus.");
+    const { data: arhiivList, error } = await sb
+        .from("arhiiv")
+        .select("*")
+        .eq("arhiiviId", arhiiviId)
+        .order("versioon", { ascending: false })
+        .limit(1); // Mõistlik piirang, mis ei tekita 406 viga
 
+    if (error || !arhiivList || arhiivList.length === 0) {
+        return alert("Seda arhiivi ei leitud andmebaasist või on andmed veel salvestamata.");
+    }
+
+    const data = arhiivList[0]; // Võtame massiivist esimese rea
     praeguneKuuId = data.kuu_id;
     sisestusTyyp = data.sisestus_tyyp || "veeb_kassa";
 
-    document.getElementById("lehePealkiri").innerText = `🔧 Paranda arhiivi: ${praeguneKuuId} (Id: ${arhiiviId})`;
-    document.getElementById("reziimiTeade").style.display = "block";
-    document.getElementById("reziimiTeade").innerHTML = `🔧 <strong>PARANDUSREŽIIM:</strong> Muudad arhiivi viimast seisu. Salvestamisel luuakse sellest uus versioon (v_${Number(data.versioon || 1) + 1}).`;
-
+    document.getElementById("lehePealkiri").innerText = `🔧 Paranda arhiivi: ${praeguneKuuId}`;
+    
     // Pakime andmepaki lahti
     const state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
     
-    // Teeme kuupäevapõhise otsinguindeksi
     const andmeIndex = {};
     state.rows?.forEach(r => {
         andmeIndex[r.kuupäev] = r.veerud;
@@ -88,6 +95,7 @@ async function LaeAndmedArhiivist(arhiiviId) {
     EhitaTabeliStruktuur();
     GenereeriKuuPaevadTabelisse(praeguneKuuId, andmeIndex);
 }
+
 
 // --- TABELI EHITAMISE VISUAALNE MOOTOR ---
 function EhitaTabeliStruktuur() {
