@@ -155,17 +155,20 @@ function kuvaTabel(state) {
 // --- Nupud ---
 function kuvaNupud(kirje) {
     const roll = window.userRole || "vaataja";
-    let html = `<button onclick="window.print()" class="btn-small">Prindi vaade</button>`;
+    let html = `<button onclick="window.print()">Prindi</button>`;
 
-    if (roll === "superadmin" || roll === "admin") {
-        html += `<button id="taastaArhiivBtn" class="btn-small">✨ Taasta</button>
-                 <button onclick="window.location='parandus.html?arhiiviId=${kirje.arhiiviId}'" class="btn-small">🔧 Paranda</button>`;
-    }
-    if (roll === "superadmin") {
-        html += `<button id="kustutaArhiivBtn" class="btn-small">🗑 Kustuta</button>`;
+    // Admini õigused parandatud
+    if (["admin", "superadmin"].includes(roll)) {
+        html += `<button id="taastaArhiivBtn">Taasta</button>`;
     }
     arhiiviNupud.innerHTML = html;
-    SeostaNuppudeTegevused(kirje.arhiiviId, kirje.kuu_id);
+    
+    // Nuppude loogika
+    document.getElementById("taastaArhiivBtn")?.addEventListener("click", () => {
+        localStorage.setItem("taastatudState", JSON.stringify(kirje.state));
+        window.location.href = "kassatabel.html";
+    });
+}
 
     
     // ✅ TOPELTKINNITUSEGA KUSTUTAMINE: Ainult superadminile
@@ -176,9 +179,7 @@ function kuvaNupud(kirje) {
         `;
     }
 
-    arhiiviNupud.innerHTML = html;
-    seoNupudJaModalid();
-}
+ 
 
 // ==========================================
 //  MODALID JA FUNKTSIOONID
