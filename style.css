@@ -525,6 +525,18 @@ button.delete-btn:hover {
         display: none !important;
     }
 }
+/* 🌟 PRINTIMISE REEGLID */
+@media print {
+    /* Toome suure prindipealkirja paberil nähtavale */
+    #printTitle {
+        display: block !important;
+    }
+    
+    /* Peidame paberilt ära nupud, päise ja ekraanihoiatused */
+    .header, .tööriistad-paneel, #vaateReziim, #reziimiTeade, button, input[type="month"] {
+        display: none !important;
+    }
+}
 
 
 
