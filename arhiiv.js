@@ -205,7 +205,7 @@ function kuvaNupud() {
             }
         };
     }
-}
+
 
 // --- TAASTAMISE AKTIVNE PROTSESS ---
 // --- TAASTAMISE AKTIIVNE PROTSESS (PARANDATUD JA TAIBUKAS) ---
