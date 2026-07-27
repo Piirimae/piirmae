@@ -147,7 +147,9 @@ window.addEventListener("beforeprint", () => {
     const kuu = document.getElementById("kuuValik")?.selectedOptions[0]?.value || "";
     const leht = window.location.href.includes("arhiiv") ? "Arhiiv" : "Kassatabel";
     const printTitle = document.getElementById("printTitle");
-    if (printTitle) printTitle.textContent = `${kuu} – ${leht}`;
+    if (printTitle) 
+        printTitle.textContent = `${kuu} – Kassaleht`;
+     
 
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
