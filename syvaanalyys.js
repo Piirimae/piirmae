@@ -364,44 +364,54 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
         const baasLaius = suumRiba ? Number(suumRiba.value) : Math.max(1500, sildid.length * 70);
         sisuKast.style.width = `${baasLaius}px`;
     }
-
     if (uuringuGraafik) uuringuGraafik.destroy();
-
     const ctx = document.getElementById("uuringuGraafik").getContext("2d");
-    // ✅ MUUDETUD: Suure rütmigraafiku seaded klikiga lukustamiseks
-uuringuGraafik = new Chart(ctx, {
-    type: "bar",
-    data: {
-        labels: sildid,
-        datasets: datasets
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        // 🌟 KRIITILINE UUENDUS: Graafik reageerib ainult klikkidele (mobiilis näpuvajutus)
-        // See jätab musta kasti ekraanile püsima, kuni klikid mujale!
-        events: ['click', 'mouseout'], 
-        plugins: {
-            title: { display: true, text: "Kassa rütmianalüüs: Nädalad jaotatud päevade lõikes" },
-            legend: { position: "top", labels: { boxWidth: 12, font: { size: 11 } } },
-            tooltip: {
-                enabled: true,
-                trigger: 'item', // Kuvab teabe täpselt selle triibu kohta, kuhu vajutad
-                position: 'nearest',
-                callbacks: {
-                    label: (context) => {
-                        if (context.raw === 0) return null;
-                        return `${context.dataset.label}: ${context.raw.toFixed(2)} €`;
-                    }
+    document.querySelectorAll(".lukustatud-notatsioon").forEach(el => el.remove());
+
+    uuringuGraafik = new Chart(ctx, {
+        type: "bar",
+        data: { labels: sildid, datasets: datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: { enabled: false } // 👈 Chart.js vaike-tooltip välja
+            },
+            onClick: (event, elements, chart) => {
+                if (!elements || elements.length === 0) return;
+                const element = elements[0];
+                const notatsiooniId = `note-${element.datasetIndex}-${element.index}`;
+                const olemasolevNote = document.getElementById(notatsiooniId);
+                
+                // 🔄 Eemalda, kui juba avatud
+                if (olemasolevNote) {
+                    olemasolevNote.remove();
+                    return;
                 }
+
+                // 🌟 Loo püsiv HTML-märkme kast
+                const canvasPosition = chart.canvas.getBoundingClientRect();
+                const vigaTop = window.scrollY + canvasPosition.top + element.element.y - 45;
+                const vigaLeft = window.scrollX + canvasPosition.left + element.element.x - 60;
+                const noot = document.createElement("div");
+                noot.id = notatsiooniId;
+                noot.className = "lukustatud-notatsioon";
+                const paevaNimi = chart.data.datasets[element.datasetIndex].label;
+                const summa = chart.data.datasets[element.datasetIndex].data[element.index];
+                noot.innerHTML = `<strong>${paevaNimi}</strong>: ${summa.toFixed(2)} €`;
+                
+                Object.assign(noot.style, {
+                    position: "absolute", top: `${vigaTop}px`, left: `${vigaLeft}px`,
+                    background: "rgba(0, 0, 0, 0.85)", color: "white", padding: "6px",
+                    borderRadius: "4px", fontSize: "11px", pointerEvents: "auto",
+                    zIndex: "1000", cursor: "pointer"
+                });
+                noot.onclick = () => noot.remove();
+                document.body.appendChild(noot);
             }
-        },
-        scales: {
-            x: { stacked: true, ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } },
-            y: { stacked: true, beginAtZero: true, title: { display: true, text: "Summa eurodes (€)" } }
         }
-    }
-});
+    });
+
 
 }
 
