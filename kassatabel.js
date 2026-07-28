@@ -143,22 +143,23 @@ async function salvestaParandatudArhiiv() {
 }
 
 // =========================================================================
-// ✅ KALENDRIPÕHINE JA SÕLTUMATU PRINTIMISE KÄSITLEMINE (#printArea)
+// ✅ SÜNKRONISEERITUD PRINTIMISE KÄSITLEMINE (Kasutab olemasolevat h2 pealkirja)
 // =========================================================================
 window.addEventListener("beforeprint", () => {
-    const printArea = document.getElementById("printArea");
+    // Otsime üles Sinu lehel oleva põhilise h2 pealkirja
+    const h2Pealkiri = document.querySelector("h2");
     const selector = document.getElementById("kuuValik");
     
-    if (printArea) {
-        // 1. Tuvastame kuu koodi otse väärtusest (nt "2026-04" või globaalsest muutujast)
+    if (h2Pealkiri) {
+        // Tuvastame kuu koodi otse väärtusest (nt "2026-04")
         let tehnilineKuu = selector ? selector.value : "";
         if (!tehnilineKuu && typeof praeguneKuu !== "undefined" && praeguneKuu) {
             tehnilineKuu = praeguneKuu;
         }
 
-        let kuvatavPealkiriTekst = "Kassatabel – Kuu vaade";
+        let kuuJaAastaTekst = "";
 
-        // 2. Kui meil on kuu kood olemas (formaadis YYYY-MM), tõlgime selle ise eesti keelde!
+        // Tõlgime tehnilise kuu koodi (YYYY-MM) ilusaks eesti keeleks
         if (tehnilineKuu && tehnilineKuu.includes("-")) {
             const osad = tehnilineKuu.split("-");
             const aastaNr = osad[0];
@@ -169,29 +170,21 @@ window.addEventListener("beforeprint", () => {
                 "Juuli", "August", "September", "Oktoober", "November", "Detsember"
             ];
             
-            const kuuNimi = kuudeNimed[kuuNr - 1] || "";
-            kuvatavPealkiriTekst = `${kuuNimi} ${aastaNr} – Kassatabel – Kuu vaade`;
+            kuuJaAastaTekst = `${kuudeNimed[kuuNr - 1]} ${aastaNr} – `;
         }
 
-        // 3. Loome pealkirja elemendi otse printArea sisse, et CSS visibility seda ei peidaks
-        const dünaamilinePealkiri = document.createElement("h1");
-        dünaamilinePealkiri.id = "dünaamilinePrintPealkiri";
-        dünaamilinePealkiri.textContent = kuvatavPealkiriTekst;
+        // 🌟 LUKUSTUS: Salvestame vana pealkirja mällu, et see pärast prindiraami sulgumist taastada
+        h2Pealkiri.dataset.algneTekst = h2Pealkiri.textContent;
         
-        // Kujundus paberile
-        dünaamilinePealkiri.style.textAlign = "center";
-        dünaamilinePealkiri.style.marginBottom = "20px";
-        dünaamilinePealkiri.style.fontSize = "22px";
-        dünaamilinePealkiri.style.fontFamily = "sans-serif";
-        dünaamilinePealkiri.style.color = "#000";
-        dünaamilinePealkiri.style.display = "block";
-        dünaamilinePealkiri.style.visibility = "visible";
-        
-        // Lisame selle printArea algusesse kõige esimeseks asjaks
-        printArea.insertBefore(dünaamilinePealkiri, printArea.firstChild);
+        // Kirjutame pealkirja kujul: Aprill 2026 – Kassatabel – kuu vaade
+        h2Pealkiri.textContent = `${kuuJaAastaTekst}Kassatabel – kuu vaade`;
     }
 
-    // Varjame input-kastid ja asendame puhta tekstiga prindi ajaks
+    // Peidame vaate-režiimi teate kasti prindi ajaks, et see ruumi ei raiskaks
+    const vReziim = document.getElementById("vaateReziim");
+    if (vReziim) vReziim.style.display = "none";
+
+    // Muudame sisendkastid prindi ajaks puhtaks tekstiks [1.1]
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
         span.textContent = inp.value;
@@ -203,10 +196,20 @@ window.addEventListener("beforeprint", () => {
 });
 
 window.addEventListener("afterprint", () => {
-    // Eemaldame dünaamilise pealkirja, et see ekraanile ette ei jääks
-    document.getElementById("dünaamilinePrintPealkiri")?.remove();
+    // Taastame algse h2 pealkirja ekraanile tagasi ("Kassatabel – kuu vaade")
+    const h2Pealkiri = document.querySelector("h2");
+    if (h2Pealkiri && h2Pealkiri.dataset.algneTekst) {
+        h2Pealkiri.textContent = h2Pealkiri.dataset.algneTekst;
+        h2Pealkiri.removeAttribute("data-algne-tekst");
+    }
 
-    // Taastame sisendkastid ekraanile muutmiseks
+    // Toome vaate-režiimi teate kasti ekraanile tagasi (kui tabel on lukus)
+    const vReziim = document.getElementById("vaateReziim");
+    if (vReziim && typeof tabelLukus !== "undefined") {
+        vReziim.style.display = tabelLukus ? "block" : "none";
+    }
+
+    // Taastame sisendkastid ekraanile muutmiseks [1.1]
     document.querySelectorAll(".print-value").forEach(span => span.remove());
     document.querySelectorAll("td input").forEach(inp => {
         if (inp.dataset.wasVisible === "true") {
@@ -215,6 +218,7 @@ window.addEventListener("afterprint", () => {
         }
     });
 });
+
 
 
 
