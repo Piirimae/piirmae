@@ -146,9 +146,10 @@ async function salvestaParandatudArhiiv() {
 // =========================================================================
 window.addEventListener("DOMContentLoaded", () => {
     // 1. Luuakse dünaamiliselt väike puhas ujuv nupp ekraani ülanurka [1.1]
-    const ujuvNupp = document.createElement("button");
-    ujuvNupp.id = "globaalneFullscreenBtn";
-    ujuvNupp.innerHTML = "📺 Täisekraan"; // Algsis tekst
+  const ujuvNupp = document.createElement("button");
+ujuvNupp.id = "globaalneFullscreenBtn";
+ujuvNupp.innerHTML = "📺 Täisekraan";
+ Algsis tekst
     
     // Stiilime nupu otse koodist, et ta ei sõltuks CSS faili segadustest
     Object.assign(ujuvNupp.style, {
