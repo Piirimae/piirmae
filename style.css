@@ -537,6 +537,81 @@ button.delete-btn:hover {
         display: none !important;
     }
 }
+/* ==========================================
+   🔍 PRINDIILURAVI: LOGO JA PEALKIRI ÜKSTEISE ALLA
+   ========================================== */
+@media print {
+    #printHeader {
+        display: flex !important;
+        flex-direction: column !important; /* Tõstab logo ja pealkirja üksteise alla! */
+        align-items: center !important;    /* Paneb mõlemad täpselt lehe keskele */
+        gap: 10px !important;              /* Jätab logo ja teksti vahele ilusa vahe */
+        margin-bottom: 25px !important;
+    }
+
+    #printHeader img {
+        max-height: 80px !important;       /* Hoiab logo kõrguse kontrolli all */
+        width: auto !important;            /* Keelab pildi laiuse venitamise (kaob lömmis efekt!) */
+        object-fit: contain !important;
+    }
+
+    #printTitle {
+        font-size: 24px !important;
+        margin: 0 !important;
+        text-align: center !important;
+    }
+}
+/* ==========================================
+   📱 MOBIILIVAADE: KASSATABEL TÄISEKRAANIL LENNULT
+   ========================================== */
+@media screen and (max-width: 768px) {
+    /* 1. Eemaldame lehe ümbert kogu tühja ruumi ja jura */
+    body, .parandus-container, .page-kassatabel {
+        padding: 5px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden; /* Hoiab ära lehe enda loksumise */
+    }
+
+    /* 2. Teeme päise ja tööriistariba (nupud) kompaktseks reaks */
+    .header, .toolbar, .tööriistad-paneel {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        padding: 8px !important;
+        margin-bottom: 10px !important;
+        width: 100% !important;
+    }
+
+    .toolbar button, .tööriistad-paneel button {
+        flex-grow: 1 !important; /* Nupud jagavad ruumi võrdselt */
+        font-size: 12px !important;
+        padding: 8px 4px !important;
+    }
+
+    /* 3. SAKSA TÄPSUS TABELILE: Tekitame tabelile puhta keritava kesta */
+    table, #kassatabel, .sisestus-tabel {
+        width: 100% !important;
+        display: block !important; /* Lubab konteineril tabelit kontrollida */
+        overflow-x: auto !important; /* Tekitab puhta näpuga kerimise ainult tabelile! */
+        white-space: nowrap !important; /* Keelab lahtrite tekstide koleda reavahetuse */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 4. Teeme lahtrid ja input-kastid mobiilis näpule mugavaks */
+    th, td {
+        padding: 8px 6px !important;
+        font-size: 12px !important;
+    }
+
+    td input {
+        width: 55px !important; /* Optimaalne laius mobiiliekraanile */
+        height: 30px !important;
+        font-size: 13px !important;
+        padding: 2px !important;
+    }
+}
 
 
 
