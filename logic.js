@@ -698,7 +698,83 @@ salvestaNupp.addEventListener("click", async () => {
     // =========================================================================
     // ✅ 🌟 ÕIGE KOHT: KÜLMVAATE SNAPSHOT SALVESTATAKSE SIIN 🌟
     // =========================================================================
-   
+   try {
+        console.log("LOGIC: Põhitabel salvestatud. Loon kuuvaatest külmutatud snapshoti...");
+        
+        // Sinu oma funktsioon koostaState() korjab siin kokku kõik summad ja read
+        const hetkeSeisJson = JSON.stringify(koostaState());
+        
+        // Tuvastame salvestaja e-maili
+        const { data: userD } = await sb.auth.getUser();
+        const logitudKasutaja = userD?.user?.email ?? "tundmatu";
+
+        // Saadame täieliku andmete paki ühe JSON-reana kuuvaated_snapshot tabelisse
+        await sb.from("kuuvaated_snapshot").upsert({
+            kuu_id: kuuId, // Kasutame Sinu nupu alguses defineeritud muutujat kuuId!
+            state: hetkeSeisJson,
+            uuendaja: logitudKasutaja,
+            uuendatud_at: new Date().toISOString()
+        });
+        
+        console.log("LOGIC: Külmvaade edukalt kuuvaated_snapshot tabelisse saadetud.");
+    } catch (sErr) {
+        console.error("Viga kuuvaate snapshoti uuendamisel salvestamise lõpus:", sErr);
+    }
+    // =========================================================================
+    // 🌟 KÜLMVAATE LOOGIKA LÕPP
+    // =========================================================================
+
+}); // ← ✅ PARANDATUD: Klikisündmuse ametlik ja korrektne lõpp asub siin!
+
+//--- KOOSTASTATE ---
+function koostaState() {
+    // --- Päevade read ---
+    const rows = Array.from(tbody.querySelectorAll("tr")).map(rida => {
+        const inputs = Array.from(rida.querySelectorAll("td input"));
+        const kokkuCell = rida.querySelector(".kokku-cell")?.textContent ?? "0.00 €";
+
+        return {
+            kuupäev: rida.dataset.date,
+            veerud: inputs.map(inp => inp.value),
+            kokku: kokkuCell
+        };
+    });
+
+    // --- Päise metaandmed ---
+    const paise = seaded.veerud.map(v => ({
+        nimi: v.nimi,
+        pealkiri: v.pealkiri,
+        hind: v.hind ?? null,
+        tüüp: v.tüüp
+    }));
+
+    // --- Jaluse summad ---
+    const sumKogus = [];
+    const sumHind = [];
+
+    const veergudeArv = rows[0]?.veerud?.length ?? 0;
+
+    for (let i = 0; i < veergudeArv; i++) {
+        const kogusEl = document.getElementById(`sumKogus${i}`);
+        const hindEl = document.getElementById(`sumHind${i}`);
+
+        sumKogus.push(kogusEl ? kogusEl.textContent : "0");
+        sumHind.push(hindEl ? hindEl.textContent : "0.00 €");
+    }
+
+    // --- Kuu kokku ---
+    const kuuKokkuEl = document.getElementById("kuuKokku");
+    const kuuKokku = kuuKokkuEl ? kuuKokkuEl.textContent : "0.00 €";
+
+    // --- Lõplik state ---
+    return {
+        paise,
+        rows,
+        sumKogus,
+        sumHind,
+        kuuKokku
+    };
+}  
 
 // --- ARHIIVI SALVESTAMINE ---
 arhiiviNupp.addEventListener("click", salvestaArhiivi);
@@ -1007,4 +1083,4 @@ window.addEventListener("afterprint", () => {
     });
 });
 
-}
+
