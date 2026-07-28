@@ -81,6 +81,32 @@ export async function logiTegevus(tegevus, detailid = {}) {
         console.error("Viga logiTegevus funktsioonis:", err);
     }
 }
+// =========================================================================
+// 📺 GLOBAALNE TÄISEKRAANI NUPUKE (Kõigile 9 lehele)
+// =========================================================================
+(function() {
+    const fsBtn = document.createElement("button");
+    fsBtn.id = "globaalneMobiilFullscreenBtn";
+    fsBtn.innerHTML = "📺"; 
+    
+    // Stiilid mittehäirivaks nupuks
+    Object.assign(fsBtn.style, {
+        position: "fixed", top: "8px", right: "8px", zIndex: "999999",
+        padding: "6px", background: "rgba(0,0,0,0.5)", color: "white", 
+        border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px"
+    });
+
+    document.body.appendChild(fsBtn);
+
+    // Täisekraani loogika
+    fsBtn.onclick = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    };
+})();
 
 
 
