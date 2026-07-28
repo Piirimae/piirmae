@@ -208,9 +208,16 @@ function K2ivitaRistanalyys() {
         : Array.from(document.querySelectorAll(".chk-toode:checked")).map(c => c.value);
 
     let uuritavadPaevad = 0, myugigaPaevad = 0, uuringuKogusummaKassa = 0, uuringuKogusummaTooted = 0;
-    const sektorAndmed = {};
     
-    // Koostame hierarhilise andmestruktuuri graafiku jaoks
+    // 🌟 UUS: Otsinguobjekt toodete detailse koondinfo loendi kogumiseks
+    const toodeteKoondStatistika = {};
+    seaded.veerud.forEach(v => {
+        if (v.tüüp === "toit") {
+            toodeteKoondStatistika[v.nimi] = { pealkiri: v.pealkiri, kogus: 0, tulu: 0 };
+        }
+    });
+
+    const sektorAndmed = {};
     const graafikuAndmebaas = [];
 
     baasKassaAndmed.forEach(r => {
@@ -232,9 +239,19 @@ function K2ivitaRistanalyys() {
 
             if (v.tüüp === "toit" && valitudTooted.includes(v.nimi)) {
                 const tooteHind = leiaHindAjaloost(v.nimi, r.kuupaev);
-                paevaKassaSumma += kogus * tooteHind;
+                const reaTulu = kogus * tooteHind;
+                
+                paevaKassaSumma += reaTulu;
                 paevaArtiklid += kogus;
+                
+                // Summeerime sektorgraafiku jaoks
                 sektorAndmed[v.pealkiri] = (sektorAndmed[v.pealkiri] || 0) + kogus;
+                
+                // 🌟 SÜNKROONIS: Summeerime tekstilise koondloendi jaoks
+                if (toodeteKoondStatistika[v.nimi]) {
+                    toodeteKoondStatistika[v.nimi].kogus += kogus;
+                    toodeteKoondStatistika[v.nimi].tulu += reaTulu;
+                }
             } else if (v.tüüp === "number") {
                 paevaKassaSumma += kogus;
             }
@@ -244,7 +261,6 @@ function K2ivitaRistanalyys() {
         uuringuKogusummaKassa += paevaKassaSumma;
         uuringuKogusummaTooted += paevaArtiklid;
 
-        // Salvestame iga päeva täpse kirje hierarhiliseks tükeldamiseks
         graafikuAndmebaas.push({
             aasta: rAasta,
             kuu: rKuu,
@@ -255,36 +271,58 @@ function K2ivitaRistanalyys() {
         });
     });
 
-    // Uuendame parema tiiva infoakna tekstid
+    // 🌟 UUS: Ehitame "Vaadeldava ajavahemiku" kaardile toodete tekstilise loendi (Supp 74 tk / 296.00 €)
+    const loendKonteiner = document.getElementById("toodeteTekstLoend");
+    let loendHtml = "";
+    let raportiTekstiridad = [];
+
+    Object.keys(toodeteKoondStatistika).forEach(nimi => {
+        const t = toodeteKoondStatistika[nimi];
+        if (t.kogus > 0) {
+            const rida = `${t.pealkiri} ${t.kogus} tk / ${t.tulu.toFixed(2)} €`;
+            loendHtml += `<div style="padding: 2px 0; border-bottom: 1px solid #edf2f7;">• ${rida}</div>`;
+            raportiTekstiridad.push(rida);
+        }
+    });
+
+    if (loendKonteiner) {
+        loendKonteiner.innerHTML = loendHtml || "<div style='color:#718096;'>Valitud perioodil müügiandmed puuduvad.</div>";
+    }
+
+    // Uuendame parema tiiva infoakna põhilised tekstid
     document.getElementById("uuringKoikPaevad").innerText = uuritavadPaevad;
     document.getElementById("uuringMyugiPaevad").innerText = myugigaPaevad;
     document.getElementById("uuringTootedKogus").innerText = `${uuringuKogusummaTooted} tk`;
     document.getElementById("uuringKassaSumma").innerText = `${uuringuKogusummaKassa.toFixed(2)} €`;
     document.getElementById("uuringAktiivsedTooted").innerText = valitudTooted.length;
 
-    // Ehitame Sinu kirjeldatud kuude ja nädalate tulbad
+    // 🌟 GLOBAALNE MUUTUJA: Paneme valmis raporti teksti koheseks kopeerimiseks
+    window.viimaneKoondraportTekst = `📊 PIIRIMÄE ANALÜÜTIKA KOONDINFO\n` +
+        `Vaadeldav periood: ${valitudKuud.length} kuud valikus\n` +
+        `Müügiga päevi kokku: ${myugigaPaevad} päeva\n` +
+        `Kogu vahemiku tulu: ${uuringuKogusummaKassa.toFixed(2)} €\n` +
+        `Müüdud tooteid kokku: ${uuringuKogusummaTooted} tk\n\n` +
+        `TOODETE DETAILNE JAOTUS:\n` + raportiTekstiridad.map(r => `- ${r}`).join("\n");
+
+    // Ehitame tulbad ja joonistame koondsektori samade andmete pealt
     EhitajaJaJoonistaHierarhia(graafikuAndmebaas);
     JoonistaKoondSektorGraafik(Object.keys(sektorAndmed), Object.values(sektorAndmed));
 }
 
 function EhitajaJaJoonistaHierarhia(andmebaas) {
-    // 1. Sorteerime andmed kalendrilise kuupäeva järgi
     andmebaas.sort((a, b) => new Date(a.kuupaev) - new Date(b.kuupaev));
 
-    // Tuvastame unikaalsed ristnädalate rühmad (tulbad X-teljel)
     const ristNadaladSet = new Set();
     andmebaas.forEach(p => {
         ristNadaladSet.add(`${p.aasta}-Kuu ${p.kuu}-Näd ${p.nadal}`);
     });
     const unikaalsedTulbad = Array.from(ristNadaladSet);
 
-    // Loome X-telje sildid kasutajale (nt "Kuu 6 [Näd 27]")
     const sildid = unikaalsedTulbad.map(voti => {
         const osad = voti.split("-");
         return `${osad[1]} [${osad[2]}]`;
     });
 
-    // Nädalapäevade nimed ja fikseeritud värvid triipude jaoks
     const paevadeNimed = ["Pühapäev", "Esmaspäev", "Teisipäev", "Kolmapäev", "Neljapäev", "Reede", "Laupäev"];
     const paevadeVarvid = [
         "rgba(231, 76, 60, 0.85)",   // Pühapäev - Punane
@@ -296,38 +334,31 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
         "rgba(52, 73, 94, 0.85)"     // Laupäev - Tumehall
     ];
 
-    // 2. Valmistame ette 7 iseseisvat andmeseeriat (üks iga nädalapäeva jaoks)
     const datasets = paevadeNimed.map((nimi, idx) => {
         return {
             label: nimi,
-            data: new Array(unikaalsedTulbad.length).fill(0), // Massiiv täidetud nullidega
+            data: new Array(unikaalsedTulbad.length).fill(0),
             backgroundColor: paevadeVarvid[idx],
             borderColor: paevadeVarvid[idx].replace("0.85", "1"),
             borderWidth: 1
         };
     });
 
-    // 3. Täidame triibud reaalsete rahasummadega
     andmebaas.forEach(p => {
         const voti = `${p.aasta}-Kuu ${p.kuu}-Näd ${p.nadal}`;
         const tulbaIndeks = unikaalsedTulbad.indexOf(voti);
-        
         if (tulbaIndeks !== -1) {
-            // p.paev on andmebaasist 0=P, 1=E, 2=T jne. Suuname raha täpselt õige päeva seeriale
             datasets[p.paev].data[tulbaIndeks] += p.kassa;
         }
     });
 
-       // 4. Reguleerime graafiku kasti algset laiust
     const sisuKast = document.getElementById("graafikSisuKast");
     if (sisuKast) {
-        // Võtame aluseks liuguri praeguse väärtuse või arvutame dünaamiliselt
         const suumRiba = document.getElementById("graafikuSuum");
         const baasLaius = suumRiba ? Number(suumRiba.value) : Math.max(1500, sildid.length * 70);
-        sisuKast.style.width = `${baasLaius}px`; // Parandatud: tühik eemaldatud
-    } // ✅ KRIITILINE PARANDUS: See sulg oli Sul koodist puudu!
+        sisuKast.style.width = `${baasLaius}px`;
+    }
 
-    // 5. Joonistame Stacked Bar graafiku Chart.js abil
     if (uuringuGraafik) uuringuGraafik.destroy();
 
     const ctx = document.getElementById("uuringuGraafik").getContext("2d");
@@ -335,7 +366,7 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
         type: "bar",
         data: {
             labels: sildid,
-            datasets: datasets // Siia lähevad meie 7 värvilist nädalapäeva seariat
+            datasets: datasets
         },
         options: {
             responsive: true,
@@ -346,7 +377,7 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
                 tooltip: {
                     callbacks: {
                         label: (context) => {
-                            if (context.raw === 0) return null; // Ära näita tooltipis päevi, mil müüki polnud
+                            if (context.raw === 0) return null;
                             return `${context.dataset.label}: ${context.raw.toFixed(2)} €`;
                         }
                     }
@@ -354,11 +385,11 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
             },
             scales: {
                 x: {
-                    stacked: true, // ✅ LUUSTIKU LUKUSTUS: Paneb tulbad üksteise otsa triipudeks!
+                    stacked: true,
                     ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 }
                 },
                 y: {
-                    stacked: true, // ✅ LUUSTIKU LUKUSTUS: Summeerib triibud tulba kogukõrguseks
+                    stacked: true,
                     beginAtZero: true,
                     title: { display: true, text: "Summa eurodes (€)" }
                 }
@@ -369,10 +400,7 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
 
 // --- 6. Perioodi tootegruppide koondsektordiagramm ---
 function JoonistaKoondSektorGraafik(labels, data) {
-    // Kui eelnev sektorgraafiku objekt on olemas, hävitame selle enne uue joonistamist
-    if (uuringuSektorGraafik) {
-        uuringuSektorGraafik.destroy();
-    }
+    if (uuringuSektorGraafik) uuringuSektorGraafik.destroy();
 
     const ctx = document.getElementById("uuringuSektorGraafik");
     if (!ctx) {
@@ -380,16 +408,7 @@ function JoonistaKoondSektorGraafik(labels, data) {
         return;
     }
 
-    const paevadeVarvid = [
-        "#e74c3c", // Punane
-        "#3498db", // Sinine
-        "#2ecc71", // Roheline
-        "#f1c40f", // Kollane
-        "#9b59b6", // Lilla
-        "#e67e22", // Oranž
-        "#1abc9c", // Türkiis
-        "#34495e"  // Tumehall
-    ];
+    const paevadeVarvid = ["#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#e67e22", "#1abc9c", "#34495e"];
 
     uuringuSektorGraafik = new Chart(ctx.getContext("2d"), {
         type: "pie",
@@ -405,28 +424,17 @@ function JoonistaKoondSektorGraafik(labels, data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { 
-                    display: false // Peidame nimekirja, et mahuks ära paremasse nihkega tiiba
-                },
-                title: { 
-                    display: true, 
-                    text: "Valitud koondperioodi tootejaotus", 
-                    font: { size: 11 } 
-                },
+                legend: { display: false },
+                title: { display: true, text: "Valitud koondperioodi tootejaotus", font: { size: 11 } },
                 tooltip: {
                     callbacks: {
-                        label: (context) => {
-                            return ` ${context.label}: ${context.raw} tk`;
-                        }
+                        label: (context) => { return ` ${context.label}: ${context.raw} tk`; }
                     }
                 }
             }
         }
     });
-    console.log("SEKTOR: Perioodi tootegruppide graafik edukalt joonistatud.");
 }
-
-
 
 // --- 7. ISO Nädalapäeva tuvastamise standard ---
 function TuvastaNadalaNumber(d) {
@@ -436,5 +444,57 @@ function TuvastaNadalaNumber(d) {
     const aastaAlgus = new Date(Date.UTC(tana.getUTCFullYear(), 0, 1));
     return Math.ceil((((tana - aastaAlgus) / 86400000) + 1) / 7);
 }
+
+// =========================================================================
+// 📥 KOPEERIMISE (COPY) JA EKRAANIPILDI (SCREENSHOT) DÜNAAMILISED FUNKTSIOONID
+// =========================================================================
+function SeadistaEksportKuulajad() {
+    const cBtn = document.getElementById("btnKopeeriTekst");
+    const sBtn = document.getElementById("btnTeeScreenshot");
+    if (cBtn) cBtn.onclick = KopeeriRaportLikelauale;
+    if (sBtn) sBtn.onclick = TeeTyoalastScreenshot;
+}
+
+// Pikendame esialgset kuulajate funktsiooni lennult ilma vanu asju lõhkumata
+const algneFiltriKuulajaMootor = SeadistaFiltriKuulajad;
+SeadistaFiltriKuulajad = function() {
+    algneFiltriKuulajaMootor();
+    SeadistaEksportKuulajad();
+};
+
+function KopeeriRaportLikelauale() {
+    if (!window.viimaneKoondraportTekst) {
+        return alert("Andmeid pole veel arvutatud!");
+    }
+    navigator.clipboard.writeText(window.viimaneKoondraportTekst)
+        .then(() => alert("📋 Koondraport kopeeritud! Võid selle nüüd otse meili või sõnumisse kleepida."))
+        .catch(err => console.error("Kopeerimise tõrge:", err));
+}
+
+async function TeeTyoalastScreenshot() {
+    alert("Valmistun ekraanipildi loomiseks. Palun oota hetk...");
+    
+    // 🔧 PARANDATUD: Täielik ja toimiv html2canvas raamistiku CDN aadress
+    if (typeof html2canvas === "undefined") {
+        await new Promise((resolve) => {
+            const script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
+
+            script.onload = resolve;
+            document.head.appendChild(script);
+        });
+    }
+
+    // Pildistab terve lehe sisu topeltteravusega
+    const uuringuKest = document.body;
+    html2canvas(uuringuKest, { background: "#ffffff", useCORS: true, scale: 2 }).then(canvas => {
+        const link = document.createElement("a");
+        // 🔧 PARANDATUD: Lisatud õiged template stringi jutumärgid failinime ümber
+        link.download = `piirimae-raport-${new Date().toISOString().split('T')[0]}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+
 
 
