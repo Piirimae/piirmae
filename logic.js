@@ -1007,3 +1007,4 @@ window.addEventListener("afterprint", () => {
     });
 });
 
+}
