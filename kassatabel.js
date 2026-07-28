@@ -141,70 +141,7 @@ function seadistaNupudJaLukustus() {
 async function salvestaParandatudArhiiv() {
     // Teie olemasolev salvestamise loogika...
 }
-// =========================================================================
-// 📺 UNIVERSAALNE TÄISEKRAANI MOOTOR (Kogu rakenduse lehtedele) [1.1]
-// =========================================================================
-window.addEventListener("DOMContentLoaded", () => {
-    // 1. Luuakse dünaamiliselt väike puhas ujuv nupp ekraani ülanurka [1.1]
-  const ujuvNupp = document.createElement("button");
-ujuvNupp.id = "globaalneFullscreenBtn";
-ujuvNupp.innerHTML = "📺 Täisekraan";
- Algsis tekst
-    
-    // Stiilime nupu otse koodist, et ta ei sõltuks CSS faili segadustest
-    Object.assign(ujuvNupp.style, {
-        position: "fixed",
-        top: "10px",
-        right: "10px",
-        zIndex: "99999", // Alati kõige peal
-        padding: "8px 12px",
-        background: "#2c3e50",
-        color: "white",
-        border: "1px solid #cbd5e1",
-        borderRadius: "6px",
-        cursor: "pointer",
-        fontWeight: "bold",
-        fontSize: "12px",
-        boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-        transition: "all 0.2s ease"
-    });
 
-    document.body.appendChild(ujuvNupp);
-
-    // 2. Täisekraani sisse- ja väljalülitamise käsk lennult [1.1]
-    ujuvNupp.onclick = () => {
-        if (!document.fullscreenElement && 
-            !document.webkitFullscreenElement && 
-            !document.msFullscreenElement) {
-            
-            const docEl = document.documentElement;
-            if (docEl.requestFullscreen) docEl.requestFullscreen();
-            else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen(); // Safari / iOS
-            else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
-        } else {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            else if (document.msExitFullscreen) document.msExitFullscreen();
-        }
-    };
-
-    // 3. OLEKU JÄLGIMINE: Tuvastab ka telefoni enda 'Tagasi' nupu või žesti [1.1]
-    function uuendaNupuVisuaali() {
-        const onTaisekraan = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
-        
-        if (onTaisekraan) {
-            ujuvNupp.innerHTML = "❌ Sulge"; // Muutub ristiks või sulgemise märgiks, nagu kaardil [1.1]
-            ujuvNupp.style.background = "#e74c3c"; // Muutub punaseks
-        } else {
-            ujuvNupp.innerHTML = "📺 Täisekraan";
-            ujuvNupp.style.background = "#2c3e50"; // Tumesinine tagasi
-        }
-    }
-
-    document.addEventListener("fullscreenchange", uuendaNupuVisuaali);
-    document.addEventListener("webkitfullscreenchange", uuendaNupuVisuaali);
-    document.addEventListener("msfullscreenchange", uuendaNupuVisuaali);
-});
 
 
 
