@@ -1006,4 +1006,82 @@ document.addEventListener("DOMContentLoaded", () => {
  
     init();
 });
+// =========================================================================
+// ✅ SÜNKRONISEERITUD PRINTIMISE KÄSITLEMINE KASSATABELI HTML-IS (TÕSTETUD LOGIC.JS SISSE)
+// =========================================================================
+window.addEventListener("beforeprint", () => {
+    const printHeader = document.getElementById("printHeader");
+    const printTitle = document.getElementById("printTitle");
+    const h2Pealkiri = document.querySelector("h2");
+    const selector = document.getElementById("kuuValik");
+    
+    let kuuJaAastaTekst = "";
+
+    // Otsime tabeli esimest rida kuupäeva tuvastamiseks (nt "01.07.2026")
+    const esimeneRida = document.querySelector("tbody tr[data-date]");
+    if (esimeneRida) {
+        const kuupaevaTekst = esimeneRida.dataset.date || esimeneRida.querySelector("td")?.textContent || "";
+        
+        if (kuupaevaTekst && kuupaevaTekst.includes(".")) {
+            const osad = kuupaevaTekst.split(".");
+            if (osad.length >= 3) {
+                const kuuNr = parseInt(osad[1], 10); // Kuu on keskmine element
+                const aastaNr = osad[2];            // Aasta on viimane
+                const kuudeNimed = ["Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", "Juuli", "August", "September", "Oktoober", "November", "Detsember"];
+                if (kuuNr >= 1 && kuuNr <= 12) {
+                    kuuJaAastaTekst = `${kuudeNimed[kuuNr - 1]} ${aastaNr}`;
+                }
+            }
+        }
+    }
+
+    // Varulahendus: Kui tabelist ei saanud, proovime dropdowni valikut
+    if (!kuuJaAastaTekst && selector && selector.options[selector.selectedIndex]) {
+        kuuJaAastaTekst = selector.options[selector.selectedIndex].text;
+    }
+
+    // Kirjutame teksti Sinu HTML-i printTitle sisse ja teeme päise nähtavaks
+    if (printTitle) {
+        printTitle.textContent = `${kuuJaAastaTekst || "Kassatabel"} – Kassatabel – Kuu vaade`;
+    }
+    if (printHeader) {
+        printHeader.style.display = "flex";
+        printHeader.style.setProperty("display", "flex", "important");
+    }
+    
+    if (h2Pealkiri) h2Pealkiri.style.display = "none";
+
+    // Peidame vaaterežiimi riba
+    const vReziim = document.getElementById("vaateReziim");
+    if (vReziim) vReziim.style.display = "none";
+
+    // Muudame input-kastid prindi ajaks tekstiks
+    document.querySelectorAll("td input").forEach(inp => {
+        const span = document.createElement("span");
+        span.textContent = inp.value;
+        span.classList.add("print-value");
+        inp.dataset.wasVisible = "true";
+        inp.style.display = "none";
+        inp.parentNode.appendChild(span);
+    });
+});
+
+window.addEventListener("afterprint", () => {
+    const printHeader = document.getElementById("printHeader");
+    const h2Pealkiri = document.querySelector("h2");
+    if (printHeader) printHeader.style.display = "none";
+    if (h2Pealkiri) h2Pealkiri.style.display = "block";
+
+    const vReziim = document.getElementById("vaateReziim");
+    if (vReziim) vReziim.style.display = "block";
+
+    // Taastame input-kastid
+    document.querySelectorAll(".print-value").forEach(span => span.remove());
+    document.querySelectorAll("td input").forEach(inp => {
+        if (inp.dataset.wasVisible === "true") {
+            inp.style.display = "";
+            inp.removeAttribute("data-was-visible");
+        }
+    });
+});
 
