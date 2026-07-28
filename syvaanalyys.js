@@ -290,11 +290,17 @@ function K2ivitaRistanalyys() {
     }
 
     // Uuendame parema tiiva infoakna põhilised tekstid
-    document.getElementById("uuringKoikPaevad").innerText = uuritavadPaevad;
-    document.getElementById("uuringMyugiPaevad").innerText = myugigaPaevad;
-    document.getElementById("uuringTootedKogus").innerText = `${uuringuKogusummaTooted} tk`;
-    document.getElementById("uuringKassaSumma").innerText = `${uuringuKogusummaKassa.toFixed(2)} €`;
-    document.getElementById("uuringAktiivsedTooted").innerText = valitudTooted.length;
+       // ✅ PARANDATUD: Uuendame parema tiiva tekstid (Eemaldatud olematud ID-d, mis vigasid pildusid!)
+    if (document.getElementById("uuringKoikPaevad")) {
+        document.getElementById("uuringKoikPaevad").innerText = `${valitudKuud.length} kuud valitud`;
+    }
+    if (document.getElementById("uuringMyugiPaevad")) {
+        document.getElementById("uuringMyugiPaevad").innerText = `${myugigaPaevad} päeva`;
+    }
+    if (document.getElementById("uuringKassaSumma")) {
+        document.getElementById("uuringKassaSumma").innerText = `${uuringuKogusummaKassa.toFixed(2)} €`;
+    }
+
 
     // 🌟 GLOBAALNE MUUTUJA: Paneme valmis raporti teksti koheseks kopeerimiseks
     window.viimaneKoondraportTekst = `📊 PIIRIMÄE ANALÜÜTIKA KOONDINFO\n` +
