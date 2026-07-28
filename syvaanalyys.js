@@ -416,6 +416,7 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
 }
 
 // --- 6. Perioodi tootegruppide koondsektordiagramm ---
+// --- 6. Perioodi tootegruppide koondsektordiagramm (PROTSENDID + MITME KASTI LUKUSTUS) ---
 function JoonistaKoondSektorGraafik(labels, data) {
     if (uuringuSektorGraafik) uuringuSektorGraafik.destroy();
 
@@ -427,39 +428,90 @@ function JoonistaKoondSektorGraafik(labels, data) {
 
     const paevadeVarvid = ["#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#e67e22", "#1abc9c", "#34495e"];
 
-  // ✅ MUUDETUD: Sektordiagrammi seaded klikiga lukustamiseks (nt TERMO 407 tk)
-uuringuSektorGraafik = new Chart(ctx.getContext("2d"), {
-    type: "pie",
-    data: {
-        labels: labels,
-        datasets: [{
-            data: data,
-            backgroundColor: paevadeVarvid.slice(0, labels.length),
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        // 🌟 KRIITILINE UUENDUS: Sektor reageerib info lukustamiseks klikile
-        events: ['click', 'mouseout'],
-        plugins: {
-            legend: { display: false },
-            title: { display: true, text: "Valitud koondperioodi tootejaotus", font: { size: 11 } },
-            tooltip: {
-                enabled: true,
-                trigger: 'item',
-                callbacks: {
-                    label: (context) => {
-                        return ` ${context.label}: ${context.raw} tk`;
-                    }
+    // 1. arvutame kogu perioodi toodete tükisumma, et leida protsendid lennult
+    const kogusummaTk = data.reduce((a, b) => a + b, 0);
+
+    // 2. 🌟 KAVAL TRIKK: Ehitame uued sildid, kus on protsent ja nimi kohe sees! (nt "SUPP (24%)")
+    const dunaamilisedSildid = labels.map((nimi, idx) => {
+        const kogus = data[idx];
+        const protsent = kogusummaTk > 0 ? ((kogus * 100) / kogusummaTk).toFixed(0) : 0;
+        return `${nimi} (${protsent}%)`;
+    });
+
+    // 3. Joonistame graafiku, kus vaike-tooltip on välja lülitatud ja asendatud HTML märkmetega
+    uuringuSektorGraafik = new Chart(ctx.getContext("2d"), {
+        type: "pie",
+        data: {
+            labels: dunaamilisedSildid, // Kasutame uusi protsendiga silte!
+            datasets: [{
+                data: data,
+                backgroundColor: paevadeVarvid.slice(0, labels.length),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    display: true, 
+                    position: "bottom", 
+                    labels: { boxWidth: 10, font: { size: 10 }, padding: 4 } 
+                },
+                tooltip: { enabled: false } // Keelame vaike-akna, et HTML märkmed saaksid toimida
+            },
+            // 4. 🌟 MULTI-LUKUSTUS: Teha klikiga piiramatult püsivaid musti kaste
+            onClick: (event, elements, chart) => {
+                if (!elements || elements.length === 0) return;
+                const element = elements[0];
+                const notatsiooniId = `note-sektor-${element.index}`;
+                const olemasolevNote = document.getElementById(notatsiooniId);
+                
+                // Kui klikitakse uuesti, võtame märkme maha
+                if (olemasolevNote) {
+                    olemasolevNote.remove();
+                    return;
                 }
+
+                // Arvutame püsiva HTML-kasti täpse asukoha ekraanil
+                const canvasPosition = chart.canvas.getBoundingClientRect();
+                const vigaTop = window.scrollY + canvasPosition.top + element.element.y - 20;
+                const vigaLeft = window.scrollX + canvasPosition.left + element.element.x - 40;
+
+                const noot = document.createElement("div");
+                noot.id = notatsiooniId;
+                noot.className = "lukustatud-notatsioon";
+                
+                const tooteNimiJaProtsent = chart.data.labels[element.index];
+                const tykkideArv = chart.data.datasets[0].data[element.index];
+                
+                noot.innerHTML = `<strong>${tooteNimiJaProtsent}</strong>: ${tykkideArv} tk`;
+                
+                Object.assign(noot.style, {
+                    position: "absolute", 
+                    top: `${vigaTop}px`, 
+                    left: `${vigaLeft}px`,
+                    background: "rgba(0, 0, 0, 0.85)", 
+                    color: "white", 
+                    padding: "5px 8px",
+                    borderRadius: "4px", 
+                    fontSize: "11px", 
+                    pointerEvents: "auto",
+                    zIndex: "1001", 
+                    cursor: "pointer",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                    fontFamily: "sans-serif"
+                });
+
+                // Kastile klikates saab selle samuti sulgeda
+                noot.onclick = () => noot.remove();
+                document.body.appendChild(noot);
             }
         }
-    }
-});
-
+    });
 }
+
+
 
 // --- 7. ISO Nädalapäeva tuvastamise standard ---
 function TuvastaNadalaNumber(d) {
