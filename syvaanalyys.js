@@ -368,40 +368,41 @@ function EhitajaJaJoonistaHierarhia(andmebaas) {
     if (uuringuGraafik) uuringuGraafik.destroy();
 
     const ctx = document.getElementById("uuringuGraafik").getContext("2d");
-    uuringuGraafik = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: sildid,
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: { display: true, text: "Kassa rütmianalüüs: Nädalad jaotatud päevade lõikes" },
-                legend: { position: "top", labels: { boxWidth: 12, font: { size: 11 } } },
-                tooltip: {
-                    callbacks: {
-                        label: (context) => {
-                            if (context.raw === 0) return null;
-                            return `${context.dataset.label}: ${context.raw.toFixed(2)} €`;
-                        }
+    // ✅ MUUDETUD: Suure rütmigraafiku seaded klikiga lukustamiseks
+uuringuGraafik = new Chart(ctx, {
+    type: "bar",
+    data: {
+        labels: sildid,
+        datasets: datasets
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        // 🌟 KRIITILINE UUENDUS: Graafik reageerib ainult klikkidele (mobiilis näpuvajutus)
+        // See jätab musta kasti ekraanile püsima, kuni klikid mujale!
+        events: ['click', 'mouseout'], 
+        plugins: {
+            title: { display: true, text: "Kassa rütmianalüüs: Nädalad jaotatud päevade lõikes" },
+            legend: { position: "top", labels: { boxWidth: 12, font: { size: 11 } } },
+            tooltip: {
+                enabled: true,
+                trigger: 'item', // Kuvab teabe täpselt selle triibu kohta, kuhu vajutad
+                position: 'nearest',
+                callbacks: {
+                    label: (context) => {
+                        if (context.raw === 0) return null;
+                        return `${context.dataset.label}: ${context.raw.toFixed(2)} €`;
                     }
                 }
-            },
-            scales: {
-                x: {
-                    stacked: true,
-                    ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 }
-                },
-                y: {
-                    stacked: true,
-                    beginAtZero: true,
-                    title: { display: true, text: "Summa eurodes (€)" }
-                }
             }
+        },
+        scales: {
+            x: { stacked: true, ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } },
+            y: { stacked: true, beginAtZero: true, title: { display: true, text: "Summa eurodes (€)" } }
         }
-    });
+    }
+});
+
 }
 
 // --- 6. Perioodi tootegruppide koondsektordiagramm ---
@@ -416,30 +417,38 @@ function JoonistaKoondSektorGraafik(labels, data) {
 
     const paevadeVarvid = ["#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#e67e22", "#1abc9c", "#34495e"];
 
-    uuringuSektorGraafik = new Chart(ctx.getContext("2d"), {
-        type: "pie",
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: paevadeVarvid.slice(0, labels.length),
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                title: { display: true, text: "Valitud koondperioodi tootejaotus", font: { size: 11 } },
-                tooltip: {
-                    callbacks: {
-                        label: (context) => { return ` ${context.label}: ${context.raw} tk`; }
+  // ✅ MUUDETUD: Sektordiagrammi seaded klikiga lukustamiseks (nt TERMO 407 tk)
+uuringuSektorGraafik = new Chart(ctx.getContext("2d"), {
+    type: "pie",
+    data: {
+        labels: labels,
+        datasets: [{
+            data: data,
+            backgroundColor: paevadeVarvid.slice(0, labels.length),
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        // 🌟 KRIITILINE UUENDUS: Sektor reageerib info lukustamiseks klikile
+        events: ['click', 'mouseout'],
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: "Valitud koondperioodi tootejaotus", font: { size: 11 } },
+            tooltip: {
+                enabled: true,
+                trigger: 'item',
+                callbacks: {
+                    label: (context) => {
+                        return ` ${context.label}: ${context.raw} tk`;
                     }
                 }
             }
         }
-    });
+    }
+});
+
 }
 
 // --- 7. ISO Nädalapäeva tuvastamise standard ---
