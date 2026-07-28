@@ -143,59 +143,74 @@ async function salvestaParandatudArhiiv() {
 }
 
 // =========================================================================
-// ✅ POMMIKINDEL PRINTIMISE KÄSITLEMINE (Loeb kuu otse tabeli ridadest)
+// ✅ POMMIKINDEL PRINTIMISE KÄSITLEMINE (Eesti formaadis PP.KK.AAAA jaoks)
 // =========================================================================
 window.addEventListener("beforeprint", () => {
     const h2Pealkiri = document.querySelector("h2");
     
     if (h2Pealkiri) {
-        let tehnilineKuu = "";
-
-        // 🔧 LAHENDUS: Otsime tabeli esimest rida, millel on olemas kuupäeva attribuut (data-date)
-        const esimeneRida = document.querySelector("tbody tr[data-date]");
-        if (esimeneRida && esimeneRida.dataset.date) {
-            // dataset.date on näiteks "2026-04-01". Lõikame sealt välja "2026-04"
-            const kuupaevaOsad = esimeneRida.dataset.date.split("-");
-            if (kuupaevaOsad.length >= 2) {
-                tehnilineKuu = `${kuupaevaOsad[0]}-${kuupaevaOsad[1]}`;
-            }
-        }
-
-        // Kui tabelist ei saadud (turvavõrk), proovime globaalset muutujat 'praeguneKuu'
-        if (!tehnilineKuu && typeof praeguneKuu !== "undefined" && praeguneKuu) {
-            tehnilineKuu = praeguneKuu;
-        }
-
         let kuuJaAastaTekst = "";
 
-        // Tõlgime leitud kuu koodi (YYYY-MM) ilusaks eesti keeleks
-        if (tehnilineKuu && tehnilineKuu.includes("-")) {
-            const osad = tehnilineKuu.split("-");
-            const aastaNr = osad[0];
-            const kuuNr = parseInt(osad[1], 10);
+        // Otsime tabeli esimest rida, millel on olemas kuupäeva atribuut (data-date)
+        const esimeneRida = document.querySelector("tbody tr[data-date]");
+        
+        // 🔧 LAHENDUS: Kui tabeli data-date või lahtri tekst on Eesti formaadis (nt "01.07.2026")
+        if (esimeneRida) {
+            // Proovime esmalt rea data-date atribuuti, kui see on seal punktidega, või võtame esimese lahtri teksti
+            const kuupaevaTekst = esimeneRida.dataset.date || esimeneRida.querySelector("td")?.textContent || "";
             
-            const kuudeNimed = [
-                "Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", 
-                "Juuli", "August", "September", "Oktoober", "November", "Detsember"
-            ];
-            
-            if (kuuNr >= 1 && kuuNr <= 12) {
-                kuuJaAastaTekst = `${kuudeNimed[kuuNr - 1]} ${aastaNr} – `;
+            if (kuupaevaTekst && kuupaevaTekst.includes(".")) {
+                // Tükeldame punkti järgi: ["01", "07", "2026"]
+                const osad = kuupaevaTekst.split(".");
+                if (osad.length >= 3) {
+                    const kuuNr = parseInt(osad[1], 10); // Teine element on kuu (07)
+                    const aastaNr = osad[2];            // Kolmas element on aasta (2026)
+                    
+                    const kuudeNimed = [
+                        "Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", 
+                        "Juuli", "August", "September", "Oktoober", "November", "Detsember"
+                    ];
+                    
+                    if (kuuNr >= 1 && kuuNr <= 12) {
+                        kuuJaAastaTekst = `${kuudeNimed[kuuNr - 1]} ${aastaNr} – `;
+                    }
+                }
+            } else if (kuupaevaTekst && kuupaevaTekst.includes("-")) {
+                // Turvavõrk juhuks, kui andmebaasi kriipsud peaksid kusagile sisse jääma (YYYY-MM-DD)
+                const osad = kuupaevaTekst.split("-");
+                if (osad.length >= 2) {
+                    const aastaNr = osad[0];
+                    const kuuNr = parseInt(osad[1], 10);
+                    const kuudeNimed = [
+                        "Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", 
+                        "Juuli", "August", "September", "Oktoober", "November", "Detsember"
+                    ];
+                    if (kuuNr >= 1 && kuuNr <= 12) {
+                        kuuJaAastaTekst = `${kuudeNimed[kuuNr - 1]} ${aastaNr} – `;
+                    }
+                }
             }
         }
 
-        // Salvestame vana pealkirja mällu, et see pärast printimist taastada
+        // Kui tabelist ikka kätte ei saanud (viimane hädavariant), kasutame süsteemset kuupäeva
+        if (!kuuJaAastaTekst && typeof praeguneKuu !== "undefined" && praeguneKuu && praeguneKuu.includes("-")) {
+            const osad = praeguneKuu.split("-");
+            const kuudeNimed = ["Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", "Juuli", "August", "September", "Oktoober", "November", "Detsember"];
+            kuuJaAastaTekst = `${kuudeNimed[parseInt(osad[1], 10) - 1]} ${osad[0]} – `;
+        }
+
+        // Salvestame algse pealkirja mällu, et see pärast tagasi panna
         h2Pealkiri.dataset.algneTekst = h2Pealkiri.textContent;
         
-        // Kirjutame pealkirja täpselt Sinu soovitud kujul!
+        // Trükib paberile suurelt ja täpselt: Juuli 2026 – Kassatabel – kuu vaade
         h2Pealkiri.textContent = `${kuuJaAastaTekst}Kassatabel – kuu vaade`;
     }
 
-    // Peidame vaate-režiimi teate kasti prindi ajaks, et see ruumi ei raiskaks
+    // Peidame vaate-režiimi teate kasti prindi ajaks
     const vReziim = document.getElementById("vaateReziim");
     if (vReziim) vReziim.style.display = "none";
 
-    // Muudame sisendkastid prindi ajaks puhtaks tekstiks [1.1]
+    // Muudame kõik sisendkastid prindi ajaks puhtaks tekstiks [1.1]
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
         span.textContent = inp.value;
@@ -214,7 +229,7 @@ window.addEventListener("afterprint", () => {
         h2Pealkiri.removeAttribute("data-algne-tekst");
     }
 
-    // Toome vaate-režiimi teate kasti ekraanile tagasi (kui tabel on lukus)
+    // Toome vaate-režiimi teate kasti ekraanile tagasi
     const vReziim = document.getElementById("vaateReziim");
     if (vReziim && typeof tabelLukus !== "undefined") {
         vReziim.style.display = tabelLukus ? "block" : "none";
@@ -229,6 +244,7 @@ window.addEventListener("afterprint", () => {
         }
     });
 });
+
 
 
 
