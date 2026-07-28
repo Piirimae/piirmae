@@ -23,6 +23,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("analyysAlates").value = aastaTagasi.toISOString().split('T')[0];
 
     SeadistaFiltriKuulajad();
+    SeadistaEksportKuulajad(); 
     await LaeBaasAndmedSupabasest();
 });
 
