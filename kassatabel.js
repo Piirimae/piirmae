@@ -143,38 +143,55 @@ async function salvestaParandatudArhiiv() {
 }
 
 // =========================================================================
-// ✅ SÜNKRONISEERITUD PRINTIMISE KÄSITLEMINE (#printArea JAOKS)
+// ✅ KALENDRIPÕHINE JA SÕLTUMATU PRINTIMISE KÄSITLEMINE (#printArea)
 // =========================================================================
 window.addEventListener("beforeprint", () => {
     const printArea = document.getElementById("printArea");
     const selector = document.getElementById("kuuValik");
     
     if (printArea) {
-        // 1. Tuvastame dropdowni reaalse nähtava teksti (nt "juuli 2026")
-        let kuuTekst = selector ? selector.options[selector.selectedIndex]?.text : "";
-        
-        // Turvavõrk: Kui tekst on tühi, võtame globaalsest muutujast 'praeguneKuu'
-        if (!kuuTekst && typeof praeguneKuu !== "undefined" && praeguneKuu) {
-            kuuTekst = `Kuu ${praeguneKuu}`;
+        // 1. Tuvastame kuu koodi otse väärtusest (nt "2026-04" või globaalsest muutujast)
+        let tehnilineKuu = selector ? selector.value : "";
+        if (!tehnilineKuu && typeof praeguneKuu !== "undefined" && praeguneKuu) {
+            tehnilineKuu = praeguneKuu;
         }
 
-        // 2. 🌟 CSS LAHENDUS: Loome pealkirja otse printArea SISSE kõige esimeseks elemendiks!
+        let kuvatavPealkiriTekst = "Kassatabel – Kuu vaade";
+
+        // 2. Kui meil on kuu kood olemas (formaadis YYYY-MM), tõlgime selle ise eesti keelde!
+        if (tehnilineKuu && tehnilineKuu.includes("-")) {
+            const osad = tehnilineKuu.split("-");
+            const aastaNr = osad[0];
+            const kuuNr = parseInt(osad[1], 10);
+            
+            const kuudeNimed = [
+                "Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", 
+                "Juuli", "August", "September", "Oktoober", "November", "Detsember"
+            ];
+            
+            const kuuNimi = kuudeNimed[kuuNr - 1] || "";
+            kuvatavPealkiriTekst = `${kuuNimi} ${aastaNr} – Kassatabel – Kuu vaade`;
+        }
+
+        // 3. Loome pealkirja elemendi otse printArea sisse, et CSS visibility seda ei peidaks
         const dünaamilinePealkiri = document.createElement("h1");
         dünaamilinePealkiri.id = "dünaamilinePrintPealkiri";
-        dünaamilinePealkiri.textContent = `${kuuTekst || "Kassatabel"} – Kassatabel – Kuu vaade`;
+        dünaamilinePealkiri.textContent = kuvatavPealkiriTekst;
         
-        // Kujundame pealkirja (et CSS visibility:visible lubaks selle paberile)
+        // Kujundus paberile
         dünaamilinePealkiri.style.textAlign = "center";
         dünaamilinePealkiri.style.marginBottom = "20px";
         dünaamilinePealkiri.style.fontSize = "22px";
         dünaamilinePealkiri.style.fontFamily = "sans-serif";
         dünaamilinePealkiri.style.color = "#000";
+        dünaamilinePealkiri.style.display = "block";
+        dünaamilinePealkiri.style.visibility = "visible";
         
-        // Lisame selle printArea algusesse
+        // Lisame selle printArea algusesse kõige esimeseks asjaks
         printArea.insertBefore(dünaamilinePealkiri, printArea.firstChild);
     }
 
-    // Peidame input-lahtrid prindi ajaks ja asendame puhta tekstiga [1.1]
+    // Varjame input-kastid ja asendame puhta tekstiga prindi ajaks
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
         span.textContent = inp.value;
@@ -186,10 +203,10 @@ window.addEventListener("beforeprint", () => {
 });
 
 window.addEventListener("afterprint", () => {
-    // 🌟 PUHASTUS: Kustutame dünaamilise pealkirje lehelt, et see ekraanivaadet ei segaks
+    // Eemaldame dünaamilise pealkirja, et see ekraanile ette ei jääks
     document.getElementById("dünaamilinePrintPealkiri")?.remove();
 
-    // Taastame algsed muudetavad sisendkastid ekraanile [1.1]
+    // Taastame sisendkastid ekraanile muutmiseks
     document.querySelectorAll(".print-value").forEach(span => span.remove());
     document.querySelectorAll("td input").forEach(inp => {
         if (inp.dataset.wasVisible === "true") {
@@ -198,6 +215,7 @@ window.addEventListener("afterprint", () => {
         }
     });
 });
+
 
 
 
