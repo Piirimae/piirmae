@@ -1042,7 +1042,7 @@ window.addEventListener("beforeprint", () => {
 
     // Kirjutame teksti Sinu HTML-i printTitle sisse ja teeme päise nähtavaks
     if (printTitle) {
-        printTitle.textContent = `${kuuJaAastaTekst || "Kassatabel"} – Kassatabel – Kuu vaade`;
+        printTitle.textContent = `${kuuJaAastaTekst || "Kassatabel"} – Kassatabel`;
     }
     if (printHeader) {
         printHeader.style.display = "flex";
