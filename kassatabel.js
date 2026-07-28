@@ -143,26 +143,38 @@ async function salvestaParandatudArhiiv() {
 }
 
 // =========================================================================
-// ✅ POMMIKINDEL PRINTIMISE KÄSITLEMINE (Kassatabel)
+// ✅ SÜNKRONISEERITUD PRINTIMISE KÄSITLEMINE (#printArea JAOKS)
 // =========================================================================
 window.addEventListener("beforeprint", () => {
-    const printTitle = document.getElementById("printTitle");
+    const printArea = document.getElementById("printArea");
     const selector = document.getElementById("kuuValik");
     
-    if (printTitle) {
-        // Võtame dropdowni seest tekstilise väärtuse (nt "juuli 2026")
+    if (printArea) {
+        // 1. Tuvastame dropdowni reaalse nähtava teksti (nt "juuli 2026")
         let kuuTekst = selector ? selector.options[selector.selectedIndex]?.text : "";
         
-        // Turvavõrk: Kui tekst on tühi, teeme selle käsitsi muutujast 'praeguneKuu'
+        // Turvavõrk: Kui tekst on tühi, võtame globaalsest muutujast 'praeguneKuu'
         if (!kuuTekst && typeof praeguneKuu !== "undefined" && praeguneKuu) {
             kuuTekst = `Kuu ${praeguneKuu}`;
         }
+
+        // 2. 🌟 CSS LAHENDUS: Loome pealkirja otse printArea SISSE kõige esimeseks elemendiks!
+        const dünaamilinePealkiri = document.createElement("h1");
+        dünaamilinePealkiri.id = "dünaamilinePrintPealkiri";
+        dünaamilinePealkiri.textContent = `${kuuTekst || "Kassatabel"} – Kassatabel – Kuu vaade`;
         
-        // Kirjutame pealkirja elemendi sisse puhta teksti
-        printTitle.textContent = `${kuuTekst || "Kassatabel"} – Kuu vaade`;
+        // Kujundame pealkirja (et CSS visibility:visible lubaks selle paberile)
+        dünaamilinePealkiri.style.textAlign = "center";
+        dünaamilinePealkiri.style.marginBottom = "20px";
+        dünaamilinePealkiri.style.fontSize = "22px";
+        dünaamilinePealkiri.style.fontFamily = "sans-serif";
+        dünaamilinePealkiri.style.color = "#000";
+        
+        // Lisame selle printArea algusesse
+        printArea.insertBefore(dünaamilinePealkiri, printArea.firstChild);
     }
 
-    // Peidame sisendkastid prindi ajaks ja asendame puhta tekstiga
+    // Peidame input-lahtrid prindi ajaks ja asendame puhta tekstiga [1.1]
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
         span.textContent = inp.value;
@@ -174,7 +186,10 @@ window.addEventListener("beforeprint", () => {
 });
 
 window.addEventListener("afterprint", () => {
-    // Taastame algsed muudetavad sisendkastid täpselt samasse kohta
+    // 🌟 PUHASTUS: Kustutame dünaamilise pealkirje lehelt, et see ekraanivaadet ei segaks
+    document.getElementById("dünaamilinePrintPealkiri")?.remove();
+
+    // Taastame algsed muudetavad sisendkastid ekraanile [1.1]
     document.querySelectorAll(".print-value").forEach(span => span.remove());
     document.querySelectorAll("td input").forEach(inp => {
         if (inp.dataset.wasVisible === "true") {
