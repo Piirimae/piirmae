@@ -143,23 +143,32 @@ async function salvestaParandatudArhiiv() {
 }
 
 // =========================================================================
-// ✅ SÜNKRONISEERITUD PRINTIMISE KÄSITLEMINE (Kasutab olemasolevat h2 pealkirja)
+// ✅ POMMIKINDEL PRINTIMISE KÄSITLEMINE (Loeb kuu otse tabeli ridadest)
 // =========================================================================
 window.addEventListener("beforeprint", () => {
-    // Otsime üles Sinu lehel oleva põhilise h2 pealkirja
     const h2Pealkiri = document.querySelector("h2");
-    const selector = document.getElementById("kuuValik");
     
     if (h2Pealkiri) {
-        // Tuvastame kuu koodi otse väärtusest (nt "2026-04")
-        let tehnilineKuu = selector ? selector.value : "";
+        let tehnilineKuu = "";
+
+        // 🔧 LAHENDUS: Otsime tabeli esimest rida, millel on olemas kuupäeva attribuut (data-date)
+        const esimeneRida = document.querySelector("tbody tr[data-date]");
+        if (esimeneRida && esimeneRida.dataset.date) {
+            // dataset.date on näiteks "2026-04-01". Lõikame sealt välja "2026-04"
+            const kuupaevaOsad = esimeneRida.dataset.date.split("-");
+            if (kuupaevaOsad.length >= 2) {
+                tehnilineKuu = `${kuupaevaOsad[0]}-${kuupaevaOsad[1]}`;
+            }
+        }
+
+        // Kui tabelist ei saadud (turvavõrk), proovime globaalset muutujat 'praeguneKuu'
         if (!tehnilineKuu && typeof praeguneKuu !== "undefined" && praeguneKuu) {
             tehnilineKuu = praeguneKuu;
         }
 
         let kuuJaAastaTekst = "";
 
-        // Tõlgime tehnilise kuu koodi (YYYY-MM) ilusaks eesti keeleks
+        // Tõlgime leitud kuu koodi (YYYY-MM) ilusaks eesti keeleks
         if (tehnilineKuu && tehnilineKuu.includes("-")) {
             const osad = tehnilineKuu.split("-");
             const aastaNr = osad[0];
@@ -170,13 +179,15 @@ window.addEventListener("beforeprint", () => {
                 "Juuli", "August", "September", "Oktoober", "November", "Detsember"
             ];
             
-            kuuJaAastaTekst = `${kuudeNimed[kuuNr - 1]} ${aastaNr} – `;
+            if (kuuNr >= 1 && kuuNr <= 12) {
+                kuuJaAastaTekst = `${kuudeNimed[kuuNr - 1]} ${aastaNr} – `;
+            }
         }
 
-        // 🌟 LUKUSTUS: Salvestame vana pealkirja mällu, et see pärast prindiraami sulgumist taastada
+        // Salvestame vana pealkirja mällu, et see pärast printimist taastada
         h2Pealkiri.dataset.algneTekst = h2Pealkiri.textContent;
         
-        // Kirjutame pealkirja kujul: Aprill 2026 – Kassatabel – kuu vaade
+        // Kirjutame pealkirja täpselt Sinu soovitud kujul!
         h2Pealkiri.textContent = `${kuuJaAastaTekst}Kassatabel – kuu vaade`;
     }
 
@@ -218,6 +229,7 @@ window.addEventListener("afterprint", () => {
         }
     });
 });
+
 
 
 
