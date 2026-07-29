@@ -56,6 +56,21 @@ export async function laeRoll(email) {
     if (data && data.length > 0) return data[0].roll; // ✅ Parandatud massiivi indeks [0]
     return "vaatleja";
 }
+const { data: tulemus, error: selErr } = await sb
+  .from("kasutajad")
+  .select("roll, id")
+  .eq("email", email);
+
+if (selErr) console.error(selErr);
+
+if (tulemus && tulemus[0] && !tulemus[0].id) {
+  const { error: upErr } = await sb
+    .from("kasutajad")
+    .update({ id: uid })
+    .eq("email", email);
+
+  if (upErr) console.error("UPDATE fail:", upErr);
+}
 
 export async function logout() {
     await sb.auth.signOut();
