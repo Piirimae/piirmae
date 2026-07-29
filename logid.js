@@ -1,72 +1,79 @@
+// logid.js (MOODUL) - Piirimäe Turvatud Auditi Logid
 import { sb } from "./supabase.js";
 import { kuvaKasutajaNimi, logout } from "./auth.js";
 
 // --- Dropdownid ---
 async function laeKuud() {
   const { data, error } = await sb.from("logid").select("detailid");
-  if (error) return console.error(error);
+  if (error) return console.error("Logide laadimise viga (kuud):", error);
 
   const select = document.getElementById("filterAeg");
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Vali kuu --</option>'; // Puhastame ja lisame vaikevaliku
+  
   const kuud = new Set();
-
   data.forEach(r => {
     if (r.detailid?.kuu) kuud.add(r.detailid.kuu);
   });
 
   [...kuud].sort().forEach(kuu => {
     const opt = document.createElement("option");
-    opt.value = kuu;
-    opt.textContent = kuu;
+    opt.value = opt.textContent = kuu;
     select.appendChild(opt);
   });
 }
 
 async function laeKasutajad() {
+  // 🔧 PARANDATUD KONFLIKT: Kasutame õiget andmebaasi nime "kasutajad"
+
+  
   const { data, error } = await sb.from("kasutajad").select("email").order("email");
-  if (error) return console.error(error);
+  if (error) return console.error("Kasutajate laadimise viga:", error);
 
   const select = document.getElementById("filterKasutaja");
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Vali kasutaja --</option>';
 
   data.forEach(u => {
     const opt = document.createElement("option");
-    opt.value = u.email;
-    opt.textContent = u.email;
+    opt.value = opt.textContent = u.email;
     select.appendChild(opt);
   });
 }
 
 async function laeTegevused() {
   const { data, error } = await sb.from("logid").select("tegevus");
-  if (error) return console.error(error);
+  if (error) return console.error("Logide laadimise viga (tegevused):", error);
 
   const select = document.getElementById("filterTegevus");
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Vali tegevus --</option>';
+  
   const tegevused = new Set(data.map(r => r.tegevus));
 
   [...tegevused].sort().forEach(t => {
     const opt = document.createElement("option");
-    opt.value = t;
-    opt.textContent = t;
+    opt.value = opt.textContent = t;
     select.appendChild(opt);
   });
 }
 
 // --- Logide kuvamine ---
 async function kuvaLogid() {
-  const aeg = document.getElementById("filterAeg").value;
-  const kasutaja = document.getElementById("filterKasutaja").value;
-  const tegevus = document.getElementById("filterTegevus").value;
+  const aeg = document.getElementById("filterAeg")?.value;
+  const kasutaja = document.getElementById("filterKasutaja")?.value;
+  const tegevus = document.getElementById("filterTegevus")?.value;
 
   let query = sb.from("logid")
     .select("id, timestamp, tegevus, detailid, user_email")
     .order("timestamp", { ascending: false });
 
-  // Rakendame filtrid ainult siis, kui väärtus on reaalselt valitud
   if (aeg) query = query.contains("detailid", { kuu: aeg });
   if (kasutaja) query = query.eq("user_email", kasutaja);
   if (tegevus) query = query.eq("tegevus", tegevus);
 
   const { data, error } = await query;
-  if (error) return console.error(error);
+  if (error) return console.error("Logide kuvamise viga:", error);
 
   const card = document.getElementById("logiKonteiner");
   if (!card) return;
@@ -94,8 +101,8 @@ async function kuvaLogid() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${logi.id}</td>
-      <td>${new Date(logi.timestamp).toLocaleString("et-EE")}</td>
-      <td>${logi.user_email}</td>
+      <td>${logi.timestamp ? new Date(logi.timestamp).toLocaleString("et-EE") : "-"}</td>
+      <td>${logi.user_email || "süsteem"}</td>
       <td><strong>${logi.tegevus}</strong></td>
       <td><pre style="margin:0; font-family:monospace; font-size:0.9em;">${JSON.stringify(logi.detailid, null, 2)}</pre></td>
     `;
@@ -107,6 +114,15 @@ async function kuvaLogid() {
 
 // --- INIT ---
 window.addEventListener("DOMContentLoaded", async () => {
+  // 🔧 PARANDATUD KONFLIKT: Kontrollime ametlikult Supabase sessiooni olemasolu enne andmete pärimist.
+  // See tõestab andmebaasi RLS-ile, et Sa oled sisse logitud juhtkond!
+  const { data: sessionData } = await sb.auth.getSession();
+  if (!sessionData?.session) {
+      console.warn("Sessioon puudub! Suunan sisselogimisele...");
+      window.location.href = "index.html";
+      return;
+  }
+
   await kuvaKasutajaNimi();
   await laeKuud();
   await laeKasutajad();
@@ -119,4 +135,5 @@ window.addEventListener("DOMContentLoaded", async () => {
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) logoutBtn.onclick = logout;
 });
+
 
