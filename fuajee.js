@@ -61,6 +61,7 @@ if (roll === "superadmin") {
         toad.innerHTML = `
             <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
             <div class="room-card" onclick="location='pulss.html'">📈 Piirimäe Pulss</div>
+            <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
         `;
     } else {
         toad.innerHTML = `
