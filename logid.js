@@ -60,20 +60,30 @@ async function laeTegevused() {
 
 // --- Logide kuvamine ---
 async function kuvaLogid() {
-  const aeg = document.getElementById("filterAeg")?.value;
-  const kasutaja = document.getElementById("filterKasutaja")?.value;
-  const tegevus = document.getElementById("filterTegevus")?.value;
+  const aeg = document.getElementById("filterAeg")?.value || "";
+  const kasutaja = document.getElementById("filterKasutaja")?.value || "";
+  const tegevus = document.getElementById("filterTegevus")?.value || "";
 
   let query = sb.from("logid")
     .select("id, timestamp, tegevus, detailid, user_email")
     .order("timestamp", { ascending: false });
 
-  if (aeg) query = query.contains("detailid", { kuu: aeg });
-  if (kasutaja) query = query.eq("user_email", kasutaja);
-  if (tegevus) query = query.eq("tegevus", tegevus);
+  // 🔧 LAHENDUS: Rakendame filtreid rangelt ainult siis, kui väärtus on olemas ega ole tühi string!
+  if (aeg && aeg !== "") {
+      query = query.contains("detailid", { kuu: aeg });
+  }
+  if (kasutaja && kasutaja !== "") {
+      query = query.eq("user_email", kasutaja);
+  }
+  if (tegevus && tegevus !== "") {
+      query = query.eq("tegevus", tegevus);
+  }
 
   const { data, error } = await query;
-  if (error) return console.error("Logide kuvamise viga:", error);
+  if (error) {
+      console.error("Logide kuvamise viga päringus:", error);
+      return;
+  }
 
   const card = document.getElementById("logiKonteiner");
   if (!card) return;
