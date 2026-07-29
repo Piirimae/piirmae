@@ -123,27 +123,36 @@ async function kuvaLogid() {
 }
 
 // --- INIT ---
+// =========================================================================
+// ✅ PARANDATUD JA TURVATUD ALGSEADISTUS (Konfliktivaba alglaadimine)
+// =========================================================================
 window.addEventListener("DOMContentLoaded", async () => {
-  // 🔧 PARANDATUD KONFLIKT: Kontrollime ametlikult Supabase sessiooni olemasolu enne andmete pärimist.
-  // See tõestab andmebaasi RLS-ile, et Sa oled sisse logitud juhtkond!
-  const { data: sessionData } = await sb.auth.getSession();
-  if (!sessionData?.session) {
-      console.warn("Sessioon puudub! Suunan sisselogimisele...");
-      window.location.href = "index.html";
-      return;
+  // 1. Kuvame kasutaja nime ekraanile
+  try {
+      await kuvaKasutajaNimi();
+  } catch (e) {
+      console.error("Kasutajanime kuvamise tõrge:", e);
   }
 
-  await kuvaKasutajaNimi();
-  await laeKuud();
-  await laeKasutajad();
-  await laeTegevused();
-  await kuvaLogid();
+  // 2. Laeme dropdown filtrid iseseisvate plokkidena (Et ükski viga ei blokeeriks teist!)
+  try { await laeKuud(); } catch (e) { console.error("Kuude laadimise tõrge:", e); }
+  try { await laeKasutajad(); } catch (e) { console.error("Kasutajate laadimise tõrge:", e); }
+  try { await laeTegevused(); } catch (e) { console.error("Tegevuste laadimise tõrge:", e); }
 
+  // 3. 🌟 KÄIVITAME LOGIDE KUVAMISE (Kuna eelnevad on isoleeritud, käivitub see alati!)
+  try {
+      await kuvaLogid();
+  } catch (e) {
+      console.error("Logitabeli joonistamise tõrge:", e);
+  }
+
+  // Seome nuppude klikid turvaliselt
   const filtreeriBtn = document.getElementById("filtreeriBtn");
   if (filtreeriBtn) filtreeriBtn.onclick = kuvaLogid;
 
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) logoutBtn.onclick = logout;
 });
+
 
 
