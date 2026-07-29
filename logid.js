@@ -126,33 +126,27 @@ async function kuvaLogid() {
 // =========================================================================
 // ✅ PARANDATUD JA TURVATUD ALGSEADISTUS (Konfliktivaba alglaadimine)
 // =========================================================================
+// --- INIT (Automaatne laadimine lehele tulles) ---
 window.addEventListener("DOMContentLoaded", async () => {
-  // 1. Kuvame kasutaja nime ekraanile
-  try {
-      await kuvaKasutajaNimi();
-  } catch (e) {
-      console.error("Kasutajanime kuvamise tõrge:", e);
-  }
+  // 1. Kuvame kasutaja nime
+  await kuvaKasutajaNimi();
+  
+  // 2. Laeme dropdownide valikud taustal valmis
+  await laeKuud();
+  await laeKasutajad();
+  await laeTegevused();
+  
+  // 3. 🌟 KRIITILINE SAMM: Sunnime logid koheselt ekraanile ilmuma, kui leht avatakse!
+  await kuvaLogid();
 
-  // 2. Laeme dropdown filtrid iseseisvate plokkidena (Et ükski viga ei blokeeriks teist!)
-  try { await laeKuud(); } catch (e) { console.error("Kuude laadimise tõrge:", e); }
-  try { await laeKasutajad(); } catch (e) { console.error("Kasutajate laadimise tõrge:", e); }
-  try { await laeTegevused(); } catch (e) { console.error("Tegevuste laadimise tõrge:", e); }
-
-  // 3. 🌟 KÄIVITAME LOGIDE KUVAMISE (Kuna eelnevad on isoleeritud, käivitub see alati!)
-  try {
-      await kuvaLogid();
-  } catch (e) {
-      console.error("Logitabeli joonistamise tõrge:", e);
-  }
-
-  // Seome nuppude klikid turvaliselt
+  // Nuppude kuulajad
   const filtreeriBtn = document.getElementById("filtreeriBtn");
   if (filtreeriBtn) filtreeriBtn.onclick = kuvaLogid;
 
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) logoutBtn.onclick = logout;
 });
+
 
 
 
