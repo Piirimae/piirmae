@@ -5,6 +5,7 @@
   <title>Logid</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    /* Hoiame logitabeli kujunduse puhtana */
     .logitabel {
       width: 100%;
       border-collapse: collapse;
@@ -18,60 +19,87 @@
     .logitabel th {
       background-color: #f0f0f0;
     }
-    .filters {
-      margin-bottom: 1em;
-    }
-    .filters label {
-      margin-right: 1em;
+    .badge {
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<div class="filters">
-  <label>
-    Aeg:
-    <select id="filterAeg">
-      <option value="">Kõik</option>
-    </select>
-  </label>
-
-  <label>
-    Kasutaja:
-    <select id="filterKasutaja">
-      <option value="">Kõik</option>
-    </select>
-  </label>
-
-  <label>
-    Tegevus:
-    <select id="filterTegevus">
-      <option value="">Kõik</option>
-    </select>
-  </label>
-
-  <button id="filtreeriBtn">Filtreeri</button>
-</div>
-
+<!-- 1. PÄIS: Kasutajanimi, Fuajee nupp ja Logi välja (Sünkroonis teiste lehtedega) -->
 <header class="header">
   <div id="kasutajaNimi"></div>
   <button onclick="window.location='fuajee.html'" class="btn-small">Tagasi</button>
   <button id="logoutBtn" class="btn-small">Logi välja</button>
 </header>
 
-<h2>Logid</h2>
-
-<div class="card" id="logiKonteiner">
-  <p>Laen logisid...</p>
+<!-- 2. PRINDIPÄIS: Logo ja Pealkiri (Vajalik, et printimisel ei tekiks JavaScripti vigu) -->
+<div id="printHeader" style="display: none;">
+  <img src="logo1.png" alt="Logo">
+  <h1 id="printTitle"></h1>
 </div>
 
-<!-- ⭐ ÕIGED MOODULID -->
+<h2>Auditi Logid</h2>
+
+<!-- 3. TÖÖRIISTARIBA: Kõik filtrid on koondatud ühte kompaktsesse ritta -->
+<div class="toolbar" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 15px;">
+  <label>
+    <strong>Aeg:</strong>
+    <select id="filterAeg">
+      <option value="">Kõik kuud</option>
+    </select>
+  </label>
+
+  <label>
+    <strong>Kasutaja:</strong>
+    <select id="filterKasutaja">
+      <option value="">Kõik kasutajad</option>
+    </select>
+  </label>
+
+  <label>
+    <strong>Tegevus:</strong>
+    <select id="filterTegevus">
+      <option value="">Kõik tegevused</option>
+    </select>
+  </label>
+
+  <button id="filtreeriBtn" class="btn-small" style="background: #1abc9c; color: white; font-weight: bold;">Filtreeri</button>
+</div>
+
+<!-- 4. 🔐 LUBADE JA ÕIGUSTE AVAMISE NUPP (Ilmub ainult superadminile) -->
+<div style="margin-bottom: 15px;">
+    <button id="btnAvaLoad" style="display: none; background: #2c3e50; color: white; padding: 8px 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px;">
+        🔐 Kasutajate õigused ja load
+    </button>
+</div>
+
+<!-- 5. 🔐 LUBADE HALDUSTABELI KONTEINER (Avaneb nupule vajutades) -->
+<div id="lubadePaneelKonteiner" style="display: none; background: #ffffff; padding: 15px; border-radius: 6px; border: 2px solid #2c3e50; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <h3 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #cbd5e1; padding-bottom: 5px;">👥 Logilehe vaatamise õiguste seadistamine</h3>
+    <div id="lubadeTabeliKoht" style="overflow-x: auto;">Laen kasutajate nimekirja...</div>
+    <div style="margin-top: 12px; text-align: right;">
+        <button id="btnSulgeLoad" class="btn-small" style="background: #718096; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">Sulge juhtpaneel</button>
+    </div>
+</div>
+
+<!-- 6. PÕHILINE LOGITABELI KOHT -->
+<div class="card" id="logiKonteiner">
+  <p>Laen logisid Supabasest...</p>
+</div>
+
+<!-- ⭐ SISSINGUD JA MOODULID (Laetakse õiges järjekorras) -->
 <script type="module" src="supabase.js"></script>
 <script type="module" src="auth.js"></script>
 <script type="module" src="logid.js"></script>
 
 </body>
 </html>
+
 
 
 
