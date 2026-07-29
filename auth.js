@@ -72,21 +72,7 @@ if (tulemus && tulemus[0] && !tulemus[0].id) {
 
   if (upErr) console.error("UPDATE fail:", upErr);
 }
-const { data: tulemus, error: selErr } = await sb
-  .from("kasutajad")
-  .select("roll, id")
-  .eq("email", email);
 
-console.log("SELECT err", selErr, "rows", tulemus);
-
-if (tulemus?.[0]?.id == null) {
-  const { error: upErr } = await sb
-    .from("kasutajad")
-    .update({ id: uid })
-    .eq("email", email);
-
-  console.log("UPDATE err", upErr);
-}
 export async function logout() {
     await sb.auth.signOut();
     window.location = "index.html";
