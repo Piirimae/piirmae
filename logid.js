@@ -59,54 +59,90 @@ async function laeTegevused() {
 }
 
 // --- Logide kuvamine ---
+// --- Logide kuvamine (RAKENDAB ANDMEBAASIST LOETUD LOGI_LOAD EESKIRJU) ---
 async function kuvaLogid() {
+  // 1. Tuvastame, kes on sisse logitud ja küsime andmebaasist tema isiklikud load
+  const { data: { user } } = await sb.auth.getUser();
+  const sisselogitudEmail = user?.email || "";
+
+  // Küsime kasutajate tabelist just selle konkreetse kasutaja logi_load eeskirja
+  const { data: kasutajaAndmed } = await sb
+    .from("kasutajad")
+    .select("logi_load")
+    .eq("email", sisselogitudEmail)
+    .single();
+
+  // Kui eeskirja pole või logib sisse Peakonto, on õigused täielikud ("kõik")
+  const eeskiri = sisselogitudEmail === "piirimaeinge@gmail.com" 
+    ? { aeg: "kõik", tegevused: "kõik", kasutajad: "kõik" }
+    : (kasutajaAndmed?.logi_load || { aeg: "kõik", tegevused: "kõik", kasutajad: "kõik" });
+
+  // Loeme ekraanilt dropdownide hetkevalikud
   const aeg = document.getElementById("filterAeg")?.value || "";
   const kasutaja = document.getElementById("filterKasutaja")?.value || "";
   const tegevus = document.getElementById("filterTegevus")?.value || "";
 
+  // Algatame Supabase baaspäringu logidele
   let query = sb.from("logid")
     .select("id, timestamp, tegevus, detailid, user_email")
     .order("timestamp", { ascending: false });
 
-  // 🔧 LAHENDUS: Rakendame filtreid rangelt ainult siis, kui väärtus on olemas ega ole tühi string!
-  if (aeg && aeg !== "") {
-      query = query.contains("detailid", { kuu: aeg });
-  }
-  if (kasutaja && kasutaja !== "") {
-      query = query.eq("user_email", kasutaja);
-  }
-  if (tegevus && tegevus !== "") {
-      query = query.eq("tegevus", tegevus);
+  // =========================================================================
+  // 🛡️ FÜÜSILINE FILTREERIMINE VASTAVALT SALVESTATUD LOGI_LOAD EESKIRJALE
+  // =========================================================================
+
+  // --- Osa 1: AJALINE PIIRANG (eeskirja põhjal) ---
+  if (eeskiri.aeg === "30") {
+      const piirKpv = new Date();
+      piirKpv.setDate(piirKpv.getDate() - 30);
+      query = query.gte("timestamp", piirKpv.toISOString());
+  } else if (eeskiri.aeg === "60") {
+      const piirKpv = new Date();
+      piirKpv.setDate(piirKpv.getDate() - 60);
+      query = query.gte("timestamp", piirKpv.toISOString());
+  } else if (eeskiri.aeg && eeskiri.aeg !== "kõik") {
+      // Kui on määratud käsitsi kindel alguskuupäev (nt "2026-03-01")
+      query = query.gte("timestamp", new Date(eeskiri.aeg).toISOString());
   }
 
+  // --- Osa 2: KASUTAJATE VAATAMISE PIIRANG ---
+  if (eeskiri.kasutajad === "ainult_ise") {
+      // Näidatakse ainult selle admini enda tehtud logisid
+      query = query.eq("user_email", sisselogitudEmail);
+  }
+
+  // --- Osa 3: TEGEVUSTE PIIRANG (Linnukeste süsteem) ---
+  if (Array.isArray(eeskiri.tegevused)) {
+      // Kui superadmin lubas ainult teatud tegevused (massiivina), filtriks need sisse
+      query = query.in("tegevus", eeskiri.tegevused);
+  }
+
+  // =========================================================================
+  // 🔍 TAVALISED FILTRID (Ekraani dropdownid - rakenduvad piirangu seest)
+  // =========================================================================
+  if (aeg && aeg !== "") query = query.contains("detailid", { kuu: aeg });
+  if (kasutaja && kasutaja !== "") query = query.eq("user_email", kasutaja);
+  if (tegevus && tegevus !== "") query = query.eq("tegevus", tegevus);
+
+  // Käivitame päringu
   const { data, error } = await query;
-  if (error) {
-      console.error("Logide kuvamise viga päringus:", error);
-      return;
-  }
+  if (error) return console.error("Logide filtreerimise tõrge:", error);
 
+  // D. TABELI JOONISTAMINE EKRAANILE (Sinu olemasolev viis)
   const card = document.getElementById("logiKonteiner");
   if (!card) return;
   card.innerHTML = "";
 
   const table = document.createElement("table");
   table.classList.add("logitabel");
-
   table.innerHTML = `
     <thead>
-      <tr>
-        <th>ID</th>
-        <th>Aeg</th>
-        <th>Kasutaja</th>
-        <th>Tegevus</th>
-        <th>Detailid</th>
-      </tr>
+      <tr><th>ID</th><th>Aeg</th><th>Kasutaja</th><th>Tegevus</th><th>Detailid</th></tr>
     </thead>
     <tbody></tbody>
   `;
 
   const tbody = table.querySelector("tbody");
-
   data.forEach(logi => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -118,7 +154,6 @@ async function kuvaLogid() {
     `;
     tbody.appendChild(tr);
   });
-
   card.appendChild(table);
 }
 
