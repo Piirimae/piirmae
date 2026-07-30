@@ -2,6 +2,17 @@
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi, logout } from "./auth.js";
+// Näide: kuuvaated.js või pulss.js failis peale kuvaKasutajaNimi() käivitamist
+await kuvaKasutajaNimi();
+
+const roll = window.userRole;
+// Kui roll on blokeeritud või kasutaja pole piisavate õigustega (nt vajab vähemalt sisestajat)
+if (roll === "blokeeritud" || roll === "vaatleja") { 
+    alert("Sul puuduvad õigused selle lehe vaatamiseks!");
+    window.location = "index.html"; // Viska ta pealehele tagasi
+    return;
+}
+
 
 // Globaalne muutuja hindade ajaloo hoidmiseks
 let hinnadAjalugu = [];
