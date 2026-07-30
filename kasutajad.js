@@ -18,17 +18,22 @@ async function logiTegevusSupabasse(tegevus, detailid = {}) {
 //  INIT
 // ==========================================
 async function initKasutajateLeht() {
-    await kuvaKasutajaNimi();
+    await kuvaKasutajaNimi(); // See paneb window.userName paika
 
     const accessError = document.getElementById("accessError");
     const sisu = document.getElementById("kasutajateSisu");
-    const roll = window.userRole || "vaatleja";
+    
+    // 🔒 PÄRIME ROLLI OTSE ANDMEBAASIST, et vältida konsoolis petmist
+    const roll = await laeRoll(window.userName);
+    window.userRole = roll; // Uuendame igaks juhuks ka akna muutujat
 
     if (roll !== "superadmin" && roll !== "admin") {
         if (accessError) accessError.style.display = "block";
         if (sisu) sisu.style.display = "none";
         return;
     }
+   
+
 
     if (accessError) accessError.style.display = "none";
     if (sisu) sisu.style.display = "block";
@@ -49,6 +54,12 @@ async function initKasutajateLeht() {
 //  LAE KASUTAJAD NIMEKIRI
 // ==========================================
 async function laeKasutajad() {
+    // 🔒 TURVAKONTROLL: Kui pole admin või superadmin, ära hakka andmeid laadimagi
+    const roll = window.userRole || "vaatleja";
+    if (roll !== "superadmin" && roll !== "admin") {
+        console.error("Blokeeritud: Puuduvad õigused andmete laadimiseks.");
+        return;
+    }
     const tbody = document.querySelector("#kasutajaTabel tbody");
     if (!tbody) return;
     
