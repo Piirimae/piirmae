@@ -73,7 +73,7 @@ export async function kuvaKasutajaNimi() {
 async function vigaJaValja(teade) {
     alert(teade);
     await sb.auth.signOut(); // Kustutab sisselogimise tokeni Supabase'ist
-    window.location = "https://index.html"; // Võid siia panna ka google.com või mis iganes suvalise lehe linki
+    window.location = "https://kahemk.github.io/Aisakellad"; // Võid siia panna ka google.com või mis iganes suvalise lehe linki
 }
 
 export async function laeRoll(email) {
