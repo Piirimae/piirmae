@@ -205,7 +205,7 @@ function seoNupud() {
                 email: email,
                 options: {
                     shouldCreateUser: true,
-                    emailRedirectTo: "https://github.io"
+                    emailRedirectTo: "https://piirimae.github.io/piirmae/auth-callback.html"
                 }
             });
 
