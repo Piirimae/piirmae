@@ -1,7 +1,8 @@
 
 // kasutajad.js (MOODUL)
-import { sb } from "./supabase.js";
+import { sb, sbAdmin } from "./supabase.js"; // 👈 Lisa siia 'sbAdmin'
 import { kuvaKasutajaNimi } from "./auth.js";
+
 
 
 function formatDate(ts) {
@@ -154,6 +155,7 @@ async function laeKasutajad() {
 }
 
 // ==========================================
+// ==========================================
 //  NUPPUDE SIDUMINE (LISAMINE)
 // ==========================================
 function seoNupud() {
@@ -178,24 +180,46 @@ function seoNupud() {
             return;
         }
 
-        const { error } = await sb
-            .from("kasutajad")
-            .insert({ email, roll });
+        try {
+            // 1. 🔒 Kutsume kasutaja ametlikult Supabase süsteemi (loob konto auth.users tabelisse)
+            // See saadab kasutajale koheselt e-mailile ka sisselogimise Magic lingi teele!
+            const { data: authData, error: authError } = await sbAdmin.auth.admin.inviteUserByEmail(email, {
+                redirectTo: 'https://github.io'
+            });
 
-        if (error) {
-            alert("Viga lisamisel (võimalik, et see email on juba nimekirjas): " + error.message);
-            console.error(error);
-        } else {
-            emailEl.value = "";
-            
-            // ✅ PARANDATUD: Logime õige tegevuse "+kasutaja" korrektsete muutujatega
-            await logiTegevusSupabasse("+kasutaja", { email: email, roll: roll });
-            
-            alert(`Kasutaja ${email} edukalt eelregistreeritud rolliga ${roll}!`);
-            laeKasutajad();
+            if (authError) {
+                alert("Viga autentimissüsteemis kutsumisel: " + authError.message);
+                console.error(authError);
+                return;
+            }
+
+            // 2. Võtame Supabase poolt loodud värske unikaalse ID (UUID)
+            const uueKasutajaUid = authData.user.id;
+
+            // 3. Salvestame andmed Sinu kasutajate tabelisse, kus ID on KOHE alguses olemas
+            const { error: dbError } = await sb
+                .from("kasutajad")
+                .insert({ id: uueKasutajaUid, email: email, roll: roll });
+
+            if (dbError) {
+                alert("Kasutaja kutsuti, kuid profiili tabelisse lisamine ebaõnnestus: " + dbError.message);
+                console.error(dbError);
+            } else {
+                emailEl.value = "";
+                
+                // Logime õige tegevuse "+kasutaja"
+                await logiTegevusSupabasse("+kasutaja", { email: email, roll: roll });
+                
+                alert(`Kasutaja ${email} edukalt süsteemi kutsutud! Kutse sisselogimiseks saadeti tema meilile.`);
+                laeKasutajad();
+            }
+
+        } catch (e) {
+            console.error("Süsteemne tõrge kasutaja lisamisel:", e);
         }
     };
 }
+
 
 window.addEventListener("load", initKasutajateLeht);
 
