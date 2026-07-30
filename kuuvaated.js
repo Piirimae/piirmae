@@ -1,12 +1,9 @@
-// kuuvaated.js (MOODUL) - PARANDATUD DÜNAAMILISTE HINDADE TUGEVUS
+// kuuvaated.js (MOODUL) - PARANDATUD DÜNAAMILISTE HINDADE TUGEVUS JA TURVALUKK
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi, logout } from "./auth.js";
-async function initKuuvaatedLeht() {
 
-
-
-// Globaalne muutuja hindade ajaloo hoidmiseks
+// Globaalsed muutujad hindade ajaloo hoidmiseks
 let hinnadAjalugu = [];
 let seaded = null;
 
@@ -31,9 +28,24 @@ function leiaHinnaAjaloost(tooteNimi, kuupaevStr) {
     return v ? Number(v.hind) || 0 : 0;
 }
 
+// ==========================================
+//  PEAMINE LEHE LAADIMISE LOOGIKA
+// ==========================================
 window.addEventListener("DOMContentLoaded", async () => {
-    // 1. Tuvastame kasutaja ja seome väljalogimise
+    // 1. Tuvastame kasutaja rolli andmebaasist
     await kuvaKasutajaNimi();
+    
+    // 🔒 RANGELT TURVALUKK: Kui kasutaja on blokeeritud, katkestame lehe laadimise KOHE!
+    // See takistab võõrastel inimestel kassaandmete ja rahasummade nägemist.
+    if (window.userRole === "blokeeritud") {
+        console.error("[TURVALISUS] Ligipääs kuuvaadetele keelatud.");
+        const laud = document.getElementById("kuuvaadeTabeliKoht");
+        if (laud) {
+            laud.innerHTML = `<div style="padding: 20px; background: #fff5f5; color: #cc0000; border: 1px solid #ffcccc; font-weight:bold;">Sul puuduvad õigused selle lehe vaatamiseks!</div>`;
+        }
+        return; // Peatab koodi täitmise siinkohal täielikult
+    }
+
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) logoutBtn.onclick = logout;
 
@@ -46,7 +58,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     laud.innerHTML = "<tr><td style='padding:20px;'>Laen kassatabeli viimast salvestatud seisu...</td></tr>";
 
-    // 2. LAEME SEADED JA HINDADE FINANTSAJALOO (UUS!)
+    // 2. LAEME SEADED JA HINDADE FINANTSAJALOO
     seaded = await laeSeaded();
     const { data: hist } = await sb.from("hinnad").select("*");
     hinnadAjalugu = hist || [];
@@ -85,7 +97,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     let kuuKogusumma = 0;
 
     // --- HTML TABELI KOOSTAMINE ---
-    // Päis (Nüüd on puhas ja ilma fikseeritud hinnata, sest hinnad on dünaamilised!)
+    // Päis
     const thead = `
         <tr>
             <th>Kuupäev</th>
@@ -108,7 +120,6 @@ window.addEventListener("DOMContentLoaded", async () => {
             veergudeKogusummad[vIdx] += väärtus;
             
             if (v.tüüp === "toit") {
-                // PARANDATUD: Arvutame rea toidusumma kasutades kuupäevapõhist hinda!
                 const paevaHind = leiaHinnaAjaloost(v.nimi, kuupaev);
                 const reaToiduSumma = väärtus * paevaHind;
                 reaKokku += reaToiduSumma;
@@ -131,7 +142,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         `;
     }
 
-    // Jalus (Arvutab summad dünaamiliselt kokku veergude rahaliste summade põhjalt)
+    // Jalus
     const tfoot = `
         <tr>
             <td><strong>Kogus kokku</strong></td>
@@ -156,7 +167,8 @@ window.addEventListener("DOMContentLoaded", async () => {
             <tfoot>${tfoot}</tfoot>
         </table>
     `;
-});
+}); // Sünkroniseeritud sulgemine
+
 
 
 
