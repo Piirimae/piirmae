@@ -1,4 +1,3 @@
-
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi, logout } from "./auth.js";
@@ -18,17 +17,11 @@ async function initKuuvaatedLeht() {
     // 2. 🔒 TURVALUKK: Kui kasutaja on blokeeritud, katkestame lehe laadimise kohe!
     if (roll === "blokeeritud") {
         console.error("Ligipääs blokeeritud.");
-        return; // See rida takistab ülejäänud koodi (andmete laadimise) käivitamist!
+        return; 
     }
     
-    // Kui vaatleja roll ei tohi samuti seda lehte näha, kasuta hoopis seda:
-    // if (roll === "blokeeritud" || roll === "vaatleja") { ... }
-
-    // --- Siit edasi tuleb sinu lehe tavaline kood (graafikute joonistamine, andmete laadimine) ---
     console.log("Kasutaja on lubatud, laen Kuuvaated andmed...");
-    // laeGraafikud();
 }
-
 
 // --- Alglaadimine ---
 window.addEventListener("DOMContentLoaded", async () => {
@@ -81,7 +74,6 @@ function SeadistaFiltriKuulajad() {
             kuuGrupp.style.display = "none";
             vahemikGrupp.style.display = "flex";
         } else if (ajaTyyp.value === "nadal") {
-            // Nädalate vaade kasutab siin näitena jooksva aasta andmeid, kohandatav vastavalt vajadusele
             kuuGrupp.style.display = "none";
             vahemikGrupp.style.display = "none";
         } else {
@@ -101,6 +93,12 @@ function SeadistaFiltriKuulajad() {
             await UuendaPulssi();
         }
     };
+
+    // 🌟 SÜNKROONIS: Seadistame siinsamas ka kopeerimise ja screenshot'i nupud
+    const cpBtn = document.getElementById("btnKopeeriTekst");
+    const ssBtn = document.getElementById("btnTeeScreenshot");
+    if (cpBtn) cpBtn.onclick = KopeeriPulssRaportLikelauale;
+    if (ssBtn) ssBtn.onclick = TeePulssTyoalastScreenshot;
 }
 
 // UUS: Kui hiir liigub kaartidelt välja, kaotame aktiivse klassi ja nad tõmbuvad graafiku alla tagasi
@@ -139,7 +137,6 @@ async function UuendaPulssi() {
         if (alates) query = query.gte("kuupaev", alates);
         if (kuni) query = query.lte("kuupaev", kuni);
     } else if (ajaTyyp === "nadal") {
-        // Nädalavaate puhul päritakse vaikimisi kogu jooksev aasta, grupeerimine tehakse graafikus
         const jooksevAasta = new Date().getFullYear();
         query = query.gte("kuupaev", `${jooksevAasta}-01-01`).lte("kuupaev", `${jooksevAasta}-12-31`);
     }
@@ -149,10 +146,9 @@ async function UuendaPulssi() {
     laetudKassaAndmed = data || [];
 
     GenerreeriKombineeritudGraafik();
-    ArvutaJaKuvaPerioodiInfo(ajaTyyp); // UUS: Täidab parema tiiva kolmanda kasti staatika
-    UuendaGrupiSektoritGlobaalselt(); // UUS: Täidab esmase sektordiagrammi kogu perioodi andmetega
+    ArvutaJaKuvaPerioodiInfo(ajaTyyp); 
+    UuendaGrupiSektoritGlobaalselt(); 
 }
-
 // --- Suure kombineeritud graafiku joonistamine (Tulp + Joon) ---
 function GenerreeriKombineeritudGraafik() {
     const sildid = laetudKassaAndmed.map(r => r.kuupaev);
@@ -219,24 +215,38 @@ function GenerreeriKombineeritudGraafik() {
                 yArtiklid: { 
                     type: "linear", 
                     position: "right", 
-                    title: { display: true, text: "Kogus (tk)" },
-                    grid: { drawOnChartArea: false } // Hoiab ära joonte risti-rästi joone ekraanil
+                    title: { display: true, text: "Kogus tükkides (tk)" },
+                    grid: { drawOnChartArea: false } 
                 }
             },
-            // 🌟 MULTI-LUKUSTUS: Teeme suurel graafikul infoaknad klikiga ekraanile lukustatavaks!
+            // 🌟 MULTI-LUKUSTUS JA SÜNKROONIS SÜSTEEM:
             onClick: (event, elements, chart) => {
                 if (!elements || elements.length === 0) return;
                 const element = elements[0];
-                const notatsiooniId = `note-pulss-${element.datasetIndex}-${element.index}`;
+                const idx = element.index;
+
+                // 1. Toome parema tiiva kaardid esile
+                const kaartGrupid = document.getElementById("kaartTootegrupid");
+                const kaartInfo = document.getElementById("kaartPerioodiInfo");
+                if (kaartGrupid) kaartGrupid.classList.add("aktiivne");
+                if (kaartInfo) kaartInfo.classList.add("aktiivne");
+
+                // 2. Käivitame lohistatava akna ja päevapõhise sektori loogika
+                UuendaGrupiSektoritPaevaLõikes(idx);
+                
+                // Kuna Chart.js 4+ event standardis asub algne klikikoht e.native sees, võtame koordinaadid sealt
+                const nativeEvt = event.native || event;
+                LooLohistatavSektor(idx, nativeEvt.clientX, nativeEvt.clientY);
+
+                // 3. Tekitame musta info-notatsiooni püsivalt graafiku kohale screenshotiks
+                const notatsiooniId = `note-pulss-${element.datasetIndex}-${idx}`;
                 const olemasolevNote = document.getElementById(notatsiooniId);
                 
-                // Kui klikitakse uuesti samale tulbale, võetakse märk meilt maha
                 if (olemasolevNote) {
                     olemasolevNote.remove();
                     return;
                 }
 
-                // Arvutame ujuva HTML-kasti asukoha ekraanil
                 const canvasPosition = chart.canvas.getBoundingClientRect();
                 const vigaTop = window.scrollY + canvasPosition.top + element.element.y - 45;
                 const vigaLeft = window.scrollX + canvasPosition.left + element.element.x - 60;
@@ -245,9 +255,9 @@ function GenerreeriKombineeritudGraafik() {
                 noot.id = notatsiooniId;
                 noot.className = "lukustatud-notatsioon";
                 
-                const kuupaevTekst = chart.data.labels[element.index];
+                const kuupaevTekst = chart.data.labels[idx];
                 const seeriaNimi = chart.data.datasets[element.datasetIndex].label;
-                const vaartus = chart.data.datasets[element.datasetIndex].data[element.index];
+                const vaartus = chart.data.datasets[element.datasetIndex].data[idx];
                 const yhik = element.datasetIndex === 0 ? "€" : "tk";
                 
                 noot.innerHTML = `<strong>${kuupaevTekst}</strong><br>${seeriaNimi}: ${vaartus.toFixed(element.datasetIndex === 0 ? 2 : 0)} ${yhik}`;
@@ -256,7 +266,7 @@ function GenerreeriKombineeritudGraafik() {
                     position: "absolute", top: `${vigaTop}px`, left: `${vigaLeft}px`,
                     background: "rgba(0, 0, 0, 0.9)", color: "white", padding: "6px 10px",
                     borderRadius: "4px", fontSize: "11px", zIndex: "1000", cursor: "pointer",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.3)", fontFamily: "sans-serif", lineHeights: "1.3"
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.3)", fontFamily: "sans-serif", lineLines: "1.3"
                 });
 
                 noot.onclick = () => noot.remove();
@@ -265,12 +275,12 @@ function GenerreeriKombineeritudGraafik() {
         }
     });
 }
-
 // --- KAST 2: Arvuta ja kuva perioodi koondinfo (Täidab Sinu loetelu!) ---
 function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
     let koguKäive = 0;
     let koguArtikleid = 0;
     let myugigaPaevi = 0;
+    let esinesHinnamuutusi = false;
     
     // Toodete koondobjekt
     const toodeteKoondStatistika = {};
@@ -281,6 +291,8 @@ function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
     });
 
     laetudKassaAndmed.forEach(r => {
+        let paevaKassa = 0;
+        let paevaTooted = 0;
         let paevalOliMyyki = false;
         
         seaded.veerud.forEach(v => {
@@ -291,6 +303,8 @@ function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
                 const hind = leiaHind(v.nimi, r.kuupaev);
                 const tulu = kogus * hind;
                 
+                paevaKassa += tulu;
+                paevaTooted += kogus;
                 koguKäive += tulu;
                 koguArtikleid += kogus;
                 
@@ -299,10 +313,16 @@ function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
                     toodeteKoondStatistika[v.nimi].tulu += tulu;
                 }
             } else if (v.tüüp === "number") {
+                paevaKassa += kogus;
                 koguKäive += kogus;
             }
         });
+        
         if (paevalOliMyyki) myugigaPaevi++;
+        kokkuTooteid = (typeof kokkuTooteid !== "undefined" ? kokkuTooteid : 0) + paevaTooted; // Turvavõrk vanale loogikale
+
+        const muutusSellelPaeval = hinnadAjalugu.some(h => h.kehtiv_alates === r.kuupaev);
+        if (muutusSellelPaeval) esinesHinnamuutusi = true;
     });
 
     // 🌟 JOONISTAME DÜNAAMILISE TEXT-LOENDI (Supp 74 tk / 296.00 €)
@@ -323,24 +343,38 @@ function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
         loendKonteiner.innerHTML = loendHtml || "<div style='color:#718096;'>Valitud vahemikus andmed puuduvad.</div>";
     }
 
-    // Uuendame kaardikasti tekstilised kokkuvõtted ekraanil [1.1]
-    if (document.getElementById("uuringKoikPaevad")) {
-        document.getElementById("uuringKoikPaevad").innerText = `${laetudKassaAndmed.length} päeva aknas`;
-    }
-    if (document.getElementById("uuringMyugiPaevad")) {
-        document.getElementById("uuringMyugiPaevad").innerText = `${myugigaPaevi} päeva`;
-    }
-    if (document.getElementById("uuringKassaSumma")) {
-        document.getElementById("uuringKassaSumma").innerText = `${koguKäive.toFixed(2)} €`;
+    // Turvaline väärtuste kuvamine (Täidab mõlemad võimalikud HTML-i ID versioonid lennult!) [1.1]
+    const kuvaElement = (id, tekst) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = tekst;
+    };
+
+    kuvaElement("uuringKoikPaevad", `${laetudKassaAndmed.length} päeva aknas`);
+    kuvaElement("infoKoikPaevad", laetudKassaAndmed.length);
+    
+    kuvaElement("uuringMyugiPaevad", `${myugigaPaevi} päeva`);
+    kuvaElement("infoMyugiPaevad", myugigaPaevi);
+    
+    kuvaElement("infoTootedKogus", `${koguArtikleid} tk`);
+    kuvaElement("uuringKassaSumma", `${koguKäive.toFixed(2)} €`);
+    kuvaElement("infoKassaSumma", `${koguKäive.toFixed(2)} €`);
+
+    const tyypTekstid = { kuu: "Kuu baasil", nadal: "Aasta nädalad", vahemik: "Vaba vahemik" };
+    kuvaElement("infoVordlusTüüp", tyypTekstid[ajaTyyp] || ajaTyyp);
+
+    // Näitame või peidame Sinu hoiatustuld
+    const hoiatusHinnad = document.getElementById("infoHinnaMuutused");
+    if (hoiatusHinnad) {
+        hoiatusHinnad.style.display = esinesHinnamuutusi ? "block" : "none";
     }
 
-    // 🌟 GLOBAALNE RAPORT: Paneme valmis puhta teksti kopeerimise (Copy) nupu jaoks [1.1]
-    window.viimanePulssRaportTekst = `📊 PIIRIMÄE PULSSI KOONDARUANNE\n` +
-        `Tüüp: ${ajaTyyp.toUpperCase()}\n` +
-        `Müügiga päevi: ${myugigaPaevi}\n` +
-        `Kogukäive: ${koguKäive.toFixed(2)} €\n` +
-        `Müüdud artikleid: ${koguArtikleid} tk\n\n` +
-        `TOODETE MÜÜGISTATISTIKA:\n` + raportiTekstRidad.map(r => `- ${r}`).join("\n");
+    // 🌟 GLOBAALNE RAPORT: Salvestame koondraporti teksti lõikelauale kopeerimise (Copy) nupu jaoks [1.1]
+    window.viimanePulssKoondraportTekst = `📊 PIIRIMÄE PULSSI KOONDARUANNE\n` +
+        `Vaadeldav periood: ${laetudKassaAndmed.length} kalendripäeva\n` +
+        `Müügiga päevi kokku: ${myugigaPaevi} päeva\n` +
+        `Kogu perioodi tulu: ${koguKäive.toFixed(2)} €\n` +
+        `Müüdud artikleid kokku: ${koguArtikleid} tk\n\n` +
+        `TOODETE DETAILNE JAOTUS:\n` + raportiTekstRidad.map(r => `- ${r}`).join("\n");
 }
 
 // --- KAST 1: Uuenda koondsektorit globaalselt (Kogu valitud perioodi tootejaotus) ---
@@ -360,7 +394,6 @@ function UuendaGrupiSektoritGlobaalselt() {
     const data = Object.values(sektorAndmed);
     const kogusummaTk = data.reduce((a, b) => a + b, 0);
 
-    // Ehitame legendi sisse automaatselt protsendid, et ketas poleks kole ja anonüümne
     const dunaamilisedSildid = labels.map((nimi, idx) => {
         const kogus = data[idx];
         const protsent = kogusummaTk > 0 ? ((kogus * 100) / kogusummaTk).toFixed(0) : 0;
@@ -369,7 +402,7 @@ function UuendaGrupiSektoritGlobaalselt() {
 
     if (grupiSektorGraafik) grupiSektorGraafik.destroy();
 
-    const ctx = document.getElementById("uuringuSektorGraafik");
+    const ctx = document.getElementById("uuringuSektorGraafik") || document.getElementById("grupiSektorGraafik");
     if (!ctx) return;
 
     const paevadeVarvid = ["#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#e67e22", "#1abc9c", "#34495e"];
@@ -389,9 +422,8 @@ function UuendaGrupiSektoritGlobaalselt() {
             maintainAspectRatio: false,
             plugins: {
                 legend: { display: true, position: "bottom", labels: { boxWidth: 10, font: { size: 10 }, padding: 4 } },
-                tooltip: { enabled: false } // Keelame vaike-akna HTML märkmete jaoks
+                tooltip: { enabled: false } 
             },
-            // 🌟 SEKTORI MULTI-LUKUSTUS: Jätab mustad märkmed klikiga paigale
             onClick: (event, elements, chart) => {
                 if (!elements || elements.length === 0) return;
                 const element = elements[0];
@@ -429,19 +461,16 @@ function UuendaGrupiSektoritGlobaalselt() {
         }
     });
 }
+        // 🌟 JÄTKUB SISSESÕIDU LOHISTAMISE LOGIKAST:
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
 
-// =========================================================================
-// 📥 KAST 3 MOOTOR: KOPEERIMINE JA TOPEALT-TERAV SCREENSHOT LENNULT
-// =========================================================================
-function SeadistaEksportKuulajad() {
-    const cpBtn = document.getElementById("btnKopeeriTekst");
-    const ssBtn = document.getElementById("btnTeeScreenshot");
-    
-    if (cpBtn) cpBtn.onclick = KopeeriPulssRaportLikelauale;
-    if (ssBtn) ssBtn.onclick = TeePulssTyoalastScreenshot;
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
 }
 
-// Pikendame alglaadimise filtrit lennult, et eksportnupud alati kuulataks
 // =========================================================================
 // 📥 EXPORT KASTI SEADISTAMINE JA KÄIVITAMINE (Kopeeri & Screenshot)
 // =========================================================================
@@ -464,13 +493,13 @@ SeadistaFiltriKuulajad = function() {
 
 // 2. Kopeerimine lõikelauale (Copy to clipboard)
 function KopeeriPulssRaportLikelauale() {
-    // 🌟 PARANDATUD MUUTUJA NIMI: Loeb andmed otse õigest koondraporti muutujast!
+    // 🌟 SÜNKROONIS: Loeb andmed otse õigest koondraporti muutujast!
     if (!window.viimanePulssKoondraportTekst) {
         return alert("Andmeid pole veel arvutatud või vahemik on tühi!");
     }
     
     navigator.clipboard.writeText(window.viimanePulssKoondraportTekst)
-        .then(() => alert("📋 Pulss-raport edukalt kopeeritud! Võid selle nüüd otse meili kleepida."))
+        .then(() => alert("📋 Pulss-raport edukalt kopeeritud! Võid selle nüüd otse meili kleepida (Paste / Ctrl+V)."))
         .catch(err => console.error("Kopeerimise tõrge:", err));
 }
 
@@ -482,7 +511,7 @@ async function TeePulssTyoalastScreenshot() {
     if (typeof html2canvas === "undefined") {
         await new Promise((resolve) => {
             const script = document.createElement("script");
-            script.src = "https://jsdelivr.net" + "/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
+            script.src = "https://cdn.jsdelivr.net" + "/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
             script.onload = resolve;
             document.head.appendChild(script);
         });
@@ -498,15 +527,6 @@ async function TeePulssTyoalastScreenshot() {
         link.click();
     });
 }
-        element.style.left = (element.offsetLeft - pos1) + "px";
-    }
-
-    function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-    }
-}
-
 // =========================================================================
 // 🌟 ÕIGED PARANDUSED JA TÄIENDUSED: KOGU LEHE KOONDSTATISTIKA JA EXPORT
 // =========================================================================
@@ -554,7 +574,6 @@ ArvutaJaKuvaPerioodiInfo = function(vordlusTyyp) {
     });
 
     // 🌟 JOONISTAME DÜNAAMILISE KAST 2 TOODETE TEKSTILOENDI (Supp 74 tk / 296.00 €)
-    // Otsime Sinu lehelt koha, kuhu loetelu panna. Kui ID-d pole, loob kood selle ise infoKassaSumma alla!
     let loendKest = document.getElementById("toodeteTekstLoend");
     if (!loendKest) {
         const kassaElement = document.getElementById("infoKassaSumma");
@@ -614,14 +633,12 @@ UuendaGrupiSektoritGlobaalselt = function() {
     const data = Object.values(gruppideSummad);
     const kogusummaTk = data.reduce((a, b) => a + b, 0);
 
-    // 🌟 KAVAL TRIKK: Ehitame uued sildid, kus on protsent ja nimi kohe sees! (nt "SUPP (24%)")
     const dunaamilisedSildid = labels.map((nimi, idx) => {
         const kogus = data[idx];
         const protsent = kogusummaTk > 0 ? ((kogus * 100) / kogusummaTk).toFixed(0) : 0;
         return `${nimi} (${protsent}%)`;
     });
 
-    // Joonistame Sinu sektorgraafiku uute targa legendi siltidega
     if (grupiSektorGraafik) grupiSektorGraafik.destroy();
     const ctx = document.getElementById("grupiSektorGraafik");
     if (!ctx) return;
@@ -640,9 +657,8 @@ UuendaGrupiSektoritGlobaalselt = function() {
             maintainAspectRatio: false,
             plugins: {
                 legend: { display: true, position: "bottom", labels: { boxWidth: 10, font: { size: 9 }, padding: 3 } },
-                tooltip: { enabled: false } // Keelame vaike-akna klikilukustuse jaoks
+                tooltip: { enabled: false } 
             },
-            // 🌟 MULTI-LUKUSTUS KETTAL: Jätab mustad märkmed klikiga paigale screenshotiks
             onClick: (event, elements, chart) => {
                 if (!elements || elements.length === 0) return;
                 const element = elements[0];
@@ -671,8 +687,11 @@ UuendaGrupiSektoritGlobaalselt = function() {
         }
     });
 };
+// =========================================================================
+// 📥 EXPORT PANEELI SEADISTAMINE JA KÄIVITAMINE (Kopeeri & Screenshot)
+// =========================================================================
 
-// --- 3. EXPORT KASTI SEADISTAMINE JA KÄIVITAMINE (Kopeeri & Screenshot) ---
+// 1. Sidumine nuppudega lennult lehe laadimisel
 function SeadistaPulssEksportKuulajad() {
     const cpBtn = document.getElementById("btnKopeeriTekst");
     const ssBtn = document.getElementById("btnTeeScreenshot");
@@ -681,28 +700,34 @@ function SeadistaPulssEksportKuulajad() {
     if (ssBtn) ssBtn.onclick = TeePulssTyoalastScreenshot;
 }
 
-// Pikendame esialgset kuulajate funktsiooni lennult ilma vanu asju rikkumata
+// Pikendame esialgset kuulajate funktsiooni lennult ilma Sinu vanu asju rikkumata
 const algneFiltriMootorKäsk = SeadistaFiltriKuulajad;
 SeadistaFiltriKuulajad = function() {
     algneFiltriMootorKäsk();
-    SeadistaPulssEksportKuulajad(); // Süütab eksportnupud põlema!
+    SeadistaPulssEksportKuulajad(); // 🌟 Süütab eksportnupud põlema!
 };
 
+// 2. Kopeerimine lõikelauale (Copy to clipboard)
 function KopeeriPulssRaportLikelauale() {
-    if (!window.viimanePulssKoondraportTekst) return alert("Andmeid pole veel arvutatud!");
+    // Kontrollime, kas globaalne raporti tekst on olemas
+    if (!window.viimanePulssKoondraportTekst) {
+        return alert("Andmeid pole veel arvutatud või perioodi vahemik on tühi!");
+    }
+    
     navigator.clipboard.writeText(window.viimanePulssKoondraportTekst)
-        .then(() => alert("📋 Koondraport kopeeritud! Võid selle nüüd otse meili kleepida."))
+        .then(() => alert("📋 Koondraport kopeeritud! Võid selle nüüd otse meili või sõnumisse kleepida (Paste / Ctrl+V)."))
         .catch(err => console.error("Kopeerimise tõrge:", err));
 }
 
+// 3. Ekraanipildi tegemine (Screenshot PNG)
 async function TeePulssTyoalastScreenshot() {
     alert("Valmistun ekraanipildi loomiseks. Palun oota hetk...");
     
-    // Laeme html2canvas pildistamise raamistiku turvaliselt ja blokeeringuvabalt
+    // 🔧 PARANDATUD: Täielik ja toimiv html2canvas raamistiku CDN veebiaadress
     if (typeof html2canvas === "undefined") {
         await new Promise((resolve) => {
             const script = document.createElement("script");
-            script.src = "https://jsdelivr.net" + "/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
+            script.src = "https://cdn.jsdelivr.net" + "/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
             script.onload = resolve;
             document.head.appendChild(script);
         });
@@ -717,3 +742,4 @@ async function TeePulssTyoalastScreenshot() {
         link.click();
     });
 }
+
