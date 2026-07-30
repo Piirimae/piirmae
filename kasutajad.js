@@ -199,6 +199,17 @@ function seoNupud() {
 
 window.addEventListener("load", initKasutajateLeht);
 
+// supabase.js sees (Expose seda võtit ainult siis, kui haldusleht on rangelt parooliga kaitstud)
+export const sb = supabase.createClient('https://supabase.co', 'SINU_ANON_KEY');
+
+// Admin-klient spetsiaalsete tegevuste jaoks
+export const sbAdmin = supabase.createClient('https://supabase.co', 'SINU_SECRET_SERVICE_ROLE_KEY', {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
+
 
 
 
