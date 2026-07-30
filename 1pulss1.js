@@ -1,4 +1,4 @@
-import { sb } from "./supabase.js";
+import { sb } from "./supabase.s";j<-- pane s ette
 import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi, logout } from "./auth.js";
 
