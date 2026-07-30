@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <title>Menüüde Juhtpaneel</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .menyy-tabel { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .menyy-tabel th, .menyy-tabel td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+    .menyy-tabel th { background-color: #f1f5f9; font-weight: bold; color: #1e293b; width: 150px; }
+    .paeva-veerg { background: #ffffff; vertical-align: top; }
+    .menyy-sisend { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; margin-bottom: 8px; box-sizing: border-box; }
+    .menyy-sisend:focus { border-color: #3182ce; outline: none; }
+    .padi-paev { font-weight: bold; color: #2c3e50; font-size: 15px; border-bottom: 2px solid #edf2f7; padding-bottom: 4px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- 1. STANDARDNE PÄIS: Kasutajanimi, Tagasi ja Logi välja -->
+<header class="header">
+  <div id="kasutajaNimi"></div>
+  <button onclick="window.location='fuajee.html'" class="btn-small">Tagasi</button>
+  <button id="logoutBtn" class="btn-small">Logi välja</button>
+</header>
+
+<!-- 2. TRÜKIPÄIS: Vajadusel menüü printimiseks -->
+<div id="printHeader" style="display: none;">
+  <img src="logo1.png" alt="Logo">
+  <h1 id="printTitle">NÄDALAMENÜÜ</h1>
+</div>
+
+<h2>🍽️ Menüüde Sisestamine ja Haldus</h2>
+
+<!-- 3. JUHTKAST: Näitame kalendrit ja salvestamise nuppu -->
+<div class="toolbar" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 20px; background:#f8f9fa; padding:12px; border-radius:6px; border:1px solid #e2e8f0;">
+  <label>
+    <strong>Vali nädala esmaspäev:</strong>
+    <input type="date" id="menyyAlgusEsmaspaev" style="padding: 5px; border-radius: 4px; border: 1px solid #cbd5e1;">
+  </label>
+  
+  <button id="btnLaeNadal" class="btn-small" style="background: #3498db; color:white; font-weight:bold;">🔍 Lae selle nädala toidud</button>
+  <button id="btnSalvestaMenyy" class="btn-small" style="background: #1abc9c; color:white; font-weight:bold; margin-left:auto;">💾 Salvesta kogu nädal</button>
+</div>
+
+<!-- 4. DÜNAAMILINE BLANKETT -->
+<div class="card" id="menyyBlankettKast" style="overflow-x: auto; padding: 15px;">
+  <p style="color:#718096; text-align:center;">Vali ülevalt kuupäev ja vajuta "Lae selle nädala toidud", et avada dünaamiline sisestuslaud.</p>
+</div>
+
+<!-- MOODULID JA TEEGID -->
+<script type="module" src="supabase.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="menyy.js"></script>
+
+</body>
+</html>
