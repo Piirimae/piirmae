@@ -541,7 +541,7 @@ function LooLohistatavSektor(kassaAndmeteIndex, clickX, clickY) {
     
     const rect = ala.getBoundingClientRect();
     Object.assign(popup.style, {
-    Object.assign(popup.style, {
+   
         position: "absolute", 
         left: `${clickX - rect.left - 50}px`, 
         top: `${clickY - rect.top - 50}px`,
