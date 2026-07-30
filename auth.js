@@ -1,10 +1,11 @@
-// auth.js (MOODUL)
+// auth.js (MOODUL) - RAUDNE LUKK VÕÕRASTELE JA USER ROLLILE
 import { sb } from "./supabase.js";
 
 export async function kuvaKasutajaNimi() {
     const { data: userData } = await sb.auth.getUser();
     const user = userData?.user;
 
+    // Kui üldse sisse logitud pole, kohe minema avalehele
     if (!user) {
         window.location = "index.html";
         return;
@@ -15,7 +16,7 @@ export async function kuvaKasutajaNimi() {
     window.userName = email; 
 
     try {
-        // Küsime andmebaasist nimekirja
+        // Küsime andmebaasist selle meili rida
         const { data: tulemus, error } = await sb
             .from("kasutajad")
             .select("roll, id")
@@ -23,29 +24,43 @@ export async function kuvaKasutajaNimi() {
 
         if (error) {
             console.error("Andmebaasi viga:", error);
-            window.userRole = "blokeeritud"; // 🔒 Turvaline vaikeväärtus vea korral
-        } else if (tulemus && tulemus.length > 0) {
-            // ✅ LEITUD: Kasutaja on adminni poolt lubatud nimekirjas!
-            window.userRole = tulemus[0].roll;
-
-            // Kui andmebaasis pole veel selle kasutaja ID-d kirjas, salvestame selle tuleviku jaoks
-            if (!tulemus[0].id) {
-                await sb.from("kasutajad").update({ id: uid }).eq("email", email);
-            }
-        } else {
-            // ❌ BLOKEERITUD: Seda meili pole admin eelregistreerinud!
-            console.warn(`[TURVALISUS] Tundmatu sisselogimine blokeeritud: ${email}`);
             window.userRole = "blokeeritud";
-            
-            // Logime ta kohe Supabase'ist välja ja suuname minema, et ta ei saaks lehel olla
-            await sb.auth.signOut();
-            alert("Sinu e-posti aadress ei ole süsteemis registreeritud! Ligipääs keelatud.");
-            window.location = "index.html";
+            await vigaJaValja("Andmebaasi tõrge! Ligipääs keelatud.");
+            return;
+        } 
+        
+        // 🔒 KONTROLL 1: Kui seda meili pole üldse administraatori nimekirjas olemaski
+        if (!tulemus || tulemus.length === 0) {
+            console.warn(`[TURVALISUS] Tundmatu meil püüdis sisse ronida: ${email}`);
+            window.userRole = "blokeeritud";
+            await vigaJaValja("Sinu e-posti aadress ei ole süsteemis registreeritud! Ligipääs rangelt keelatud.");
             return;
         }
+
+        const leitudRoll = tulemus[0].roll;
+
+        // 🔒 KONTROLL 2: Sinu mure koht! Kui roll on "user" või tühi, siis EI LASE edasi!
+        // Süsteemi pääsevad AINULT lubatud sisemised rollid.
+        if (leitudRoll === "user" || leitudRoll === "vaatleja" || !leitudRoll) {
+            console.warn(`[TURVALISUS] Kasutaja ${email} rolliga '${leitudRoll}' blokeeriti sisenemisel.`);
+            window.userRole = "blokeeritud";
+            await vigaJaValja(`Sul on roll '${leitudRoll || 'puudub'}'. Sul puudub õigus sellesse süsteemi siseneda!`);
+            return;
+        }
+
+        // ✅ KUI JÕUAB SIIA, on tegu õige inimesega (superadmin, admin, sisestaja vms)
+        window.userRole = leitudRoll;
+
+        // Kui andmebaasis pole veel selle kasutaja ID-d kirjas, salvestame selle tuleviku jaoks
+        if (!tulemus[0].id) {
+            await sb.from("kasutajad").update({ id: uid }).eq("email", email);
+        }
+
     } catch (e) {
         console.error("Tõrge auth süsteemis:", e);
         window.userRole = "blokeeritud";
+        await vigaJaValja("Süsteemne tõrge! Sind suunatakse välja.");
+        return;
     }
 
     console.log(`[AUTH] Kasutaja ${email} rolliks määrati: ${window.userRole}`);
@@ -54,15 +69,26 @@ export async function kuvaKasutajaNimi() {
     if (elem) elem.textContent = email;
 }
 
+// 🛑 ABIFUNKTSIOON: Puhastab sessiooni ja viskab tondi minema
+async function vigaJaValja(teade) {
+    alert(teade);
+    await sb.auth.signOut(); // Kustutab sisselogimise tokeni Supabase'ist
+    window.location = "https://index.html"; // Võid siia panna ka google.com või mis iganes suvalise lehe linki
+}
+
 export async function laeRoll(email) {
-    if (!email) return "blokeeritud"; // 🔒 Muudetud vaatleja -> blokeeritud
+    if (!email) return "blokeeritud";
     const { data } = await sb
         .from("kasutajad")
         .select("roll")
         .eq("email", email.toLowerCase().trim());
         
-    if (data && data.length > 0) return data[0].roll;
-    return "blokeeritud"; // 🔒 Kui meili pole tabelis, on ta blokeeritud
+    if (data && data.length > 0) {
+        const r = data[0].roll;
+        if (r === "user" || r === "vaatleja") return "blokeeritud";
+        return r;
+    }
+    return "blokeeritud";
 }
 
 export async function logout() {
@@ -70,56 +96,42 @@ export async function logout() {
     window.location = "index.html";
 }
 
-// auth.js (Lisa faili lõppu)
 export async function logiTegevus(tegevus, detailid = {}) {
     try {
         const { data: userData } = await sb.auth.getUser();
         const userEmail = userData?.user?.email || "tundmatu";
 
-        const { error } = await sb
-            .from("logid")
-            .insert({
-                tegevus: tegevus,
-                detailid: detailid,
-                user_email: userEmail,
-                timestamp: new Date().toISOString()
-            });
-
-        if (error) console.error("Viga tegevuse logimisel Supabasesse:", error);
+        await sb.from("logid").insert({
+            tegevus: tegevus,
+            detailid: detailid,
+            user_email: userEmail,
+            timestamp: new Date().toISOString()
+        });
     } catch (err) {
         console.error("Viga logiTegevus funktsioonis:", err);
     }
 }
 
 // =========================================================================
-// 📺 GLOBAALNE TÄISEKRAANI NUPUKE (Kõigile 9 lehele)
+// 📺 GLOBAALNE TÄISEKRAANI NUPUKE
 // =========================================================================
 (function() {
-    // Kontrollime, et nupukest ei loodaks topelt, kui faili uuesti laetakse
     if (document.getElementById("globaalneMobiilFullscreenBtn")) return;
-
     const fsBtn = document.createElement("button");
     fsBtn.id = "globaalneMobiilFullscreenBtn";
     fsBtn.innerHTML = "📺"; 
-    
-    // Stiilid mittehäirivaks nupuks
     Object.assign(fsBtn.style, {
         position: "fixed", top: "8px", right: "8px", zIndex: "999999",
         padding: "6px", background: "rgba(0,0,0,0.5)", color: "white", 
         border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "16px"
     });
-
     document.body.appendChild(fsBtn);
-
-    // Täisekraani loogika
     fsBtn.onclick = () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            document.exitFullscreen();
-        }
+        if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); } 
+        else { document.exitFullscreen(); }
     };
 })();
+
 
 
 
