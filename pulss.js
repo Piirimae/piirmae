@@ -1,4 +1,221 @@
-                // (JÄTKUB SIIT)
+
+import { sb } from "./supabase.js";
+import { laeSeaded } from "./seaded.js";
+import { kuvaKasutajaNimi, logout } from "./auth.js";
+
+let pohiGraafik = null;
+let grupiSektorGraafik = null; // UUS: Parema tiiva sektorgraafiku objekt
+let seaded = null;
+let hinnadAjalugu = [];
+let laetudKassaAndmed = [];
+
+async function initKuuvaatedLeht() {
+    // 1. Käivitame autoriseerimise ja ootame, kuni roll on teada
+    await kuvaKasutajaNimi(); 
+
+    const roll = window.userRole;
+
+    // 2. 🔒 TURVALUKK: Kui kasutaja on blokeeritud, katkestame lehe laadimise kohe!
+    if (roll === "blokeeritud") {
+        console.error("Ligipääs blokeeritud.");
+        return; // See rida takistab ülejäänud koodi (andmete laadimise) käivitamist!
+    }
+    
+    // Kui vaatleja roll ei tohi samuti seda lehte näha, kasuta hoopis seda:
+    // if (roll === "blokeeritud" || roll === "vaatleja") { ... }
+
+    // --- Siit edasi tuleb sinu lehe tavaline kood (graafikute joonistamine, andmete laadimine) ---
+    console.log("Kasutaja on lubatud, laen Kuuvaated andmed...");
+    // laeGraafikud();
+}
+
+
+// --- Alglaadimine ---
+window.addEventListener("DOMContentLoaded", async () => {
+    await kuvaKasutajaNimi();
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) logoutBtn.onclick = logout;
+
+    seaded = await laeSeaded();
+    
+    // Laeme hindade finantsajaloo
+    const { data: hist } = await sb.from("hinnad").select("*");
+    hinnadAjalugu = hist || [];
+
+    TäidaKuuDropdown();
+    SeadistaFiltriKuulajad();
+    SeadistaKaartideKlikid(); // UUS: Kaartide tagasitõmbumise kuulajad
+    
+    // Vaikimisi käivitame jooksva kuu Pulsi
+    await UuendaPulssi();
+});
+
+// --- Kuupäevade ja filtrite loogika ---
+function TäidaKuuDropdown() {
+    const select = document.getElementById("pulssKuu");
+    const nüüd = new Date();
+    let jooksevAasta = nüüd.getFullYear();
+    let jooksevKuu = nüüd.getMonth() + 1;
+
+    let html = "";
+    // Genereerime viimased 12 kuud dropdowni valikusse
+    for (let i = 0; i < 12; i++) {
+        const kuuStr = `${jooksevAasta}-${String(jooksevKuu).padStart(2, '0')}`;
+        html += `<option value="${kuuStr}">${kuuStr}</option>`;
+        jooksevKuu--;
+        if (jooksevKuu === 0) {
+            jooksevKuu = 12;
+            jooksevAasta--;
+        }
+    }
+    select.innerHTML = html;
+}
+
+function SeadistaFiltriKuulajad() {
+    const ajaTyyp = document.getElementById("ajaTyyp");
+    const kuuGrupp = document.getElementById("kuuValikGrupp");
+    const vahemikGrupp = document.getElementById("vahemikValikGrupp");
+
+    ajaTyyp.onchange = () => {
+        if (ajaTyyp.value === "vahemik") {
+            kuuGrupp.style.display = "none";
+            vahemikGrupp.style.display = "flex";
+        } else if (ajaTyyp.value === "nadal") {
+            // Nädalate vaade kasutab siin näitena jooksva aasta andmeid, kohandatav vastavalt vajadusele
+            kuuGrupp.style.display = "none";
+            vahemikGrupp.style.display = "none";
+        } else {
+            kuuGrupp.style.display = "flex";
+            vahemikGrupp.style.display = "none";
+        }
+    };
+
+    document.getElementById("uuendaPulssBtn").onclick = UuendaPulssi;
+    
+    // Perioodi navigatsiooni nupp
+    document.getElementById("eelmineKuuBtn").onclick = async () => {
+        const kuuSelect = document.getElementById("pulssKuu");
+        const praeguneIndex = kuuSelect.selectedIndex;
+        if (praeguneIndex < kuuSelect.options.length - 1 && ajaTyyp.value === "kuu") {
+            kuuSelect.selectedIndex = praeguneIndex + 1;
+            await UuendaPulssi();
+        }
+    };
+}
+
+// UUS: Kui hiir liigub kaartidelt välja, kaotame aktiivse klassi ja nad tõmbuvad graafiku alla tagasi
+function SeadistaKaartideKlikid() {
+    document.querySelectorAll(".nihkes-kaart").forEach(kaart => {
+        kaart.addEventListener("mouseleave", () => {
+            kaart.classList.remove("aktiivne");
+        });
+    });
+}
+
+// --- Andmete pärimine ja arvutused ---
+function leiaHind(tooteNimi, kuupaevStr) {
+    const targetTime = new Date(`${kuupaevStr}T00:00:00`).getTime();
+    const leitud = hinnadAjalugu.find(h => {
+        if (h.nimi !== tooteNimi) return false;
+        const alates = new Date(h.kehtiv_alates).getTime();
+        const kuni = h.kehtiv_kuni ? new Date(h.kehtiv_kuni).getTime() : Infinity;
+        return targetTime >= alates && targetTime <= kuni;
+    });
+    if (leitud) return Number(leitud.hind);
+    const v = seaded.veerud.find(i => i.nimi === tooteNimi);
+    return v ? Number(v.hind) || 0 : 0;
+}
+
+async function UuendaPulssi() {
+    const ajaTyyp = document.getElementById("ajaTyyp").value;
+    let query = sb.from("kassatabel").select("*");
+
+    if (ajaTyyp === "kuu") {
+        const valitudKuu = document.getElementById("pulssKuu").value;
+        query = query.eq("kuu_id", valitudKuu);
+    } else if (ajaTyyp === "vahemik") {
+        const alates = document.getElementById("vahemikAlates").value;
+        const kuni = document.getElementById("vahemikKuni").value;
+        if (alates) query = query.gte("kuupaev", alates);
+        if (kuni) query = query.lte("kuupaev", kuni);
+    } else if (ajaTyyp === "nadal") {
+        // Nädalavaate puhul päritakse vaikimisi kogu jooksev aasta, grupeerimine tehakse graafikus
+        const jooksevAasta = new Date().getFullYear();
+        query = query.gte("kuupaev", `${jooksevAasta}-01-01`).lte("kuupaev", `${jooksevAasta}-12-31`);
+    }
+
+    const { data, error } = await query.order("kuupaev", { ascending: true });
+    if (error) return console.error(error);
+    laetudKassaAndmed = data || [];
+
+    GenerreeriKombineeritudGraafik();
+    ArvutaJaKuvaPerioodiInfo(ajaTyyp); // UUS: Täidab parema tiiva kolmanda kasti staatika
+    UuendaGrupiSektoritGlobaalselt(); // UUS: Täidab esmase sektordiagrammi kogu perioodi andmetega
+}
+
+// --- Suure kombineeritud graafiku joonistamine (Tulp + Joon) ---
+function GenerreeriKombineeritudGraafik() {
+    const sildid = laetudKassaAndmed.map(r => r.kuupaev);
+    const kassaKäibed = [];
+    const artikliteArvud = [];
+
+    laetudKassaAndmed.forEach(r => {
+        let päevaKäive = 0;
+        let päevaArtiklid = 0;
+
+        seaded.veerud.forEach(v => {
+            const kogus = Number(r[v.nimi]) || 0;
+            if (v.tüüp === "toit") {
+                päevaKäive += kogus * leiaHind(v.nimi, r.kuupaev);
+                päevaArtiklid += kogus;
+            } else if (v.tüüp === "number") {
+                päevaKäive += kogus;
+            }
+        });
+
+        kassaKäibed.push(päevaKäive);
+        artikliteArvud.push(päevaArtiklid);
+    });
+
+    if (pohiGraafik) pohiGraafik.destroy();
+
+    const ctx = document.getElementById("pohiGraafik").getContext("2d");
+    pohiGraafik = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: sildid,
+            datasets: [
+                {
+                    label: "Kassa käive (€)",
+                    data: kassaKäibed,
+                    backgroundColor: "rgba(241, 196, 15, 0.6)",
+                    borderColor: "rgba(241, 196, 15, 1)",
+                    borderWidth: 1,
+                    yAxisID: "yKassa"
+                },
+                {
+                    label: "Kokku artikleid (tk)",
+                    data: artikliteArvud,
+                    type: "line",
+                    borderColor: "#2c3e50",
+                    backgroundColor: "#2c3e50",
+                    borderWidth: 3,
+                    pointBackgroundColor: "#e74c3c",
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    yAxisID: "yArtiklid",
+                    tension: 0.1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: "Kassa tulu ja artiklite maht perioodil" },
+                tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.raw.toFixed(context.datasetIndex === 0 ? 2 : 0)}` } }
+            },
+            scales: {
+                yKassa: { type: "linear", position: "left", title: { display: true, text: "Käive eurodes (€)" } },
                 yArtiklid: { 
                     type: "linear", 
                     position: "right", 
