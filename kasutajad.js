@@ -1,6 +1,8 @@
+
 // kasutajad.js (MOODUL)
 import { sb } from "./supabase.js";
-import { kuvaKasutajaNimi } from "./auth.js";
+import { kuvaKasutajaNimi, laeRoll } from "./auth.js"; // 👈 LISATUD: laeRoll siia juurde
+
 
 function formatDate(ts) {
     if (!ts) return "Pole veel sisse loginud";
