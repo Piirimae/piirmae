@@ -25,9 +25,7 @@ async function initKasutajateLeht() {
     const accessError = document.getElementById("accessError");
     const sisu = document.getElementById("kasutajateSisu");
     
-    // 🔒 PÄRIME ROLLI OTSE ANDMEBAASIST, et vältida konsoolis petmist
-    const roll = await laeRoll(window.userName);
-    window.userRole = roll; // Uuendame igaks juhuks ka akna muutujat
+   const roll = window.userRole || "vaatleja";
 
     if (roll !== "superadmin" && roll !== "admin") {
         if (accessError) accessError.style.display = "block";
