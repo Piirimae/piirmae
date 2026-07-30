@@ -8,16 +8,26 @@ let seaded = null;
 let hinnadAjalugu = [];
 let laetudKassaAndmed = [];
 
-// Näide: kuuvaated.js või pulss.js failis peale kuvaKasutajaNimi() käivitamist
-await kuvaKasutajaNimi();
+async function initKuuvaatedLeht() {
+    // 1. Käivitame autoriseerimise ja ootame, kuni roll on teada
+    await kuvaKasutajaNimi(); 
 
-const roll = window.userRole;
-// Kui roll on blokeeritud või kasutaja pole piisavate õigustega (nt vajab vähemalt sisestajat)
-if (roll === "blokeeritud" || roll === "vaatleja") { 
-    alert("Sul puuduvad õigused selle lehe vaatamiseks!");
-    window.location = "index.html"; // Viska ta pealehele tagasi
-    return;
+    const roll = window.userRole;
+
+    // 2. 🔒 TURVALUKK: Kui kasutaja on blokeeritud, katkestame lehe laadimise kohe!
+    if (roll === "blokeeritud") {
+        console.error("Ligipääs blokeeritud.");
+        return; // See rida takistab ülejäänud koodi (andmete laadimise) käivitamist!
+    }
+    
+    // Kui vaatleja roll ei tohi samuti seda lehte näha, kasuta hoopis seda:
+    // if (roll === "blokeeritud" || roll === "vaatleja") { ... }
+
+    // --- Siit edasi tuleb sinu lehe tavaline kood (graafikute joonistamine, andmete laadimine) ---
+    console.log("Kasutaja on lubatud, laen Kuuvaated andmed...");
+    // laeGraafikud();
 }
+
 
 // --- Alglaadimine ---
 window.addEventListener("DOMContentLoaded", async () => {
