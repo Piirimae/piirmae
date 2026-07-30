@@ -586,10 +586,13 @@ function LooLohistatavSektor(kassaAndmeteIndex, clickX, clickY) {
     MuudaAkenLohistatavaks(popup);
 }
 
+// =========================================================================
+// 🍕 DÜNAAMILISTE, LOHISTATAVATE KETASTE LOHISTAMISMOOTOR
+// =========================================================================
 function MuudaAkenLohistatavaks(element) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     const header = document.getElementById(`${element.id}-header`);
-    
+
     if (header) header.onmousedown = dragMouseDown;
     else element.onmousedown = dragMouseDown;
 
@@ -609,6 +612,7 @@ function MuudaAkenLohistatavaks(element) {
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
+        
         element.style.top = (element.offsetTop - pos2) + "px";
         element.style.left = (element.offsetLeft - pos1) + "px";
     }
@@ -622,24 +626,40 @@ function MuudaAkenLohistatavaks(element) {
 // =========================================================================
 // 📥 EXPORT PANEELI SEADISTAMINE JA KÄIVITAMINE (Kopeeri & Screenshot)
 // =========================================================================
+
+// 1. 🌟 ABI-FUNKTSIOON: Seob nupud füüsiliselt klikkidega
 function SeadistaPulssEksportKuulajad() {
     const cpBtn = document.getElementById("btnKopeeriTekst");
     const ssBtn = document.getElementById("btnTeeScreenshot");
+    
     if (cpBtn) cpBtn.onclick = KopeeriPulssRaportLikelauale;
     if (ssBtn) ssBtn.onclick = TeePulssTyoalastScreenshot;
 }
 
+// 2. 🌟 KRIITILINE LAHENDUS: Laiendame Sinu DOMContentLoaded kuulajaid lennult,
+// et nupud hakkaksid lehe avanemise sekundil koheselt tööle!
+const algneFiltriMootorKäsk = SeadistaFiltriKuulajad;
+SeadistaFiltriKuulajad = function() {
+    algneFiltriMootorKäsk();
+    SeadistaPulssEksportKuulajad(); // Süütab nupud põlema!
+};
+
+// 3. Kopeerimine lõikelauale (Copy to clipboard)
 function KopeeriPulssRaportLikelauale() {
+    // Kontrollime, et muutuja nimi ühtiks sendipealt ArvutaJaKuvaPerioodiInfo käsuga!
     if (!window.viimanePulssKoondraportTekst) {
         return alert("Andmeid pole veel arvutatud või vahemik on tühi!");
     }
+    
     navigator.clipboard.writeText(window.viimanePulssKoondraportTekst)
-        .then(() => alert("📋 Koondraport kopeeritud! Võid selle nüüd meili kleepida (Ctrl+V)."))
+        .then(() => alert("📋 Koondraport edukalt kopeeritud! Võid selle nüüd otse meili kleepida (Paste / Ctrl+V)."))
         .catch(err => console.error("Kopeerimise tõrge:", err));
 }
 
+// 4. Ekraanipildi tegemine (Screenshot PNG)
 async function TeePulssTyoalastScreenshot() {
     alert("Valmistun ekraanipildi loomiseks. Palun oota hetk...");
+    
     if (typeof html2canvas === "undefined") {
         await new Promise((resolve) => {
             const script = document.createElement("script");
@@ -648,6 +668,7 @@ async function TeePulssTyoalastScreenshot() {
             document.head.appendChild(script);
         });
     }
+
     const uuringuKest = document.body;
     html2canvas(uuringuKest, { background: "#ffffff", useCORS: true, scale: 2 }).then(canvas => {
         const link = document.createElement("a");
@@ -656,4 +677,5 @@ async function TeePulssTyoalastScreenshot() {
         link.click();
     });
 }
+
 
