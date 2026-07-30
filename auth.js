@@ -1,4 +1,4 @@
-// auth.js (MOODUL) - RAUDNE LUKK VÕÕRASTELE JA USER ROLLILE
+// auth.js (MOODUL) - LUBAB VAATLEJAT, BLOKEERIB USER ROLLIL
 import { sb } from "./supabase.js";
 
 export async function kuvaKasutajaNimi() {
@@ -29,7 +29,7 @@ export async function kuvaKasutajaNimi() {
             return;
         } 
         
-        // 🔒 KONTROLL 1: Kui seda meili pole üldse administraatori nimekirjas olemaski
+        // 🔒 KONTROLL 1: Kui seda meili pole üldse nimekirjas olemaski
         if (!tulemus || tulemus.length === 0) {
             console.warn(`[TURVALISUS] Tundmatu meil püüdis sisse ronida: ${email}`);
             window.userRole = "blokeeritud";
@@ -37,18 +37,18 @@ export async function kuvaKasutajaNimi() {
             return;
         }
 
-        const leitudRoll = tulemus[0].roll;
+        const leitudRoll = tulemus[0].roll; // ✅ Parandatud massiivi indeks [0]
 
-        // 🔒 KONTROLL 2: Sinu mure koht! Kui roll on "user" või tühi, siis EI LASE edasi!
-        // Süsteemi pääsevad AINULT lubatud sisemised rollid.
-        if (leitudRoll === "user" || leitudRoll === "vaatleja" || !leitudRoll) {
+        // 🔒 KONTROLL 2: BÄNNIME AINULT "user" rolli ja täiesti tühjad rollid!
+        // Vaatleja, Sisestaja, Admin ja Superadmin LUBATAKSE edasi.
+        if (leitudRoll === "user" || !leitudRoll) {
             console.warn(`[TURVALISUS] Kasutaja ${email} rolliga '${leitudRoll}' blokeeriti sisenemisel.`);
             window.userRole = "blokeeritud";
             await vigaJaValja(`Sul on roll '${leitudRoll || 'puudub'}'. Sul puudub õigus sellesse süsteemi siseneda!`);
             return;
         }
 
-        // ✅ KUI JÕUAB SIIA, on tegu õige inimesega (superadmin, admin, sisestaja vms)
+        // ✅ KUI JÕUAB SIIA, on tegu õige inimesega (superadmin, admin, sisestaja, vaatleja)
         window.userRole = leitudRoll;
 
         // Kui andmebaasis pole veel selle kasutaja ID-d kirjas, salvestame selle tuleviku jaoks
@@ -73,7 +73,7 @@ export async function kuvaKasutajaNimi() {
 async function vigaJaValja(teade) {
     alert(teade);
     await sb.auth.signOut(); // Kustutab sisselogimise tokeni Supabase'ist
-    window.location = "https://kahemk.github.io/Aisakellad"; // Võid siia panna ka google.com või mis iganes suvalise lehe linki
+    window.location = "index.html"; // Viska ta tagasi sisselogimise lehele
 }
 
 export async function laeRoll(email) {
@@ -84,8 +84,8 @@ export async function laeRoll(email) {
         .eq("email", email.toLowerCase().trim());
         
     if (data && data.length > 0) {
-        const r = data[0].roll;
-        if (r === "user" || r === "vaatleja") return "blokeeritud";
+        const r = data[0].roll; // ✅ Parandatud massiivi indeks [0]
+        if (r === "user") return "blokeeritud";
         return r;
     }
     return "blokeeritud";
@@ -131,6 +131,7 @@ export async function logiTegevus(tegevus, detailid = {}) {
         else { document.exitFullscreen(); }
     };
 })();
+
 
 
 
