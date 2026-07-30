@@ -23,9 +23,9 @@ export async function kuvaKasutajaNimi() {
 
         if (error) {
             console.error("Andmebaasi viga:", error);
-            window.userRole = "vaatleja";
+            window.userRole = "blokeeritud"; // 🔒 Turvaline vaikeväärtus vea korral
         } else if (tulemus && tulemus.length > 0) {
-            // ✅ LEITUD: Võtame massiivi ESIMESE rea seest rolli [0] indeksiga
+            // ✅ LEITUD: Kasutaja on adminni poolt lubatud nimekirjas!
             window.userRole = tulemus[0].roll;
 
             // Kui andmebaasis pole veel selle kasutaja ID-d kirjas, salvestame selle tuleviku jaoks
@@ -33,11 +33,19 @@ export async function kuvaKasutajaNimi() {
                 await sb.from("kasutajad").update({ id: uid }).eq("email", email);
             }
         } else {
-            window.userRole = "vaatleja";
+            // ❌ BLOKEERITUD: Seda meili pole admin eelregistreerinud!
+            console.warn(`[TURVALISUS] Tundmatu sisselogimine blokeeritud: ${email}`);
+            window.userRole = "blokeeritud";
+            
+            // Logime ta kohe Supabase'ist välja ja suuname minema, et ta ei saaks lehel olla
+            await sb.auth.signOut();
+            alert("Sinu e-posti aadress ei ole süsteemis registreeritud! Ligipääs keelatud.");
+            window.location = "index.html";
+            return;
         }
     } catch (e) {
         console.error("Tõrge auth süsteemis:", e);
-        window.userRole = "vaatleja";
+        window.userRole = "blokeeritud";
     }
 
     console.log(`[AUTH] Kasutaja ${email} rolliks määrati: ${window.userRole}`);
@@ -47,22 +55,21 @@ export async function kuvaKasutajaNimi() {
 }
 
 export async function laeRoll(email) {
-    if (!email) return "vaatleja";
+    if (!email) return "blokeeritud"; // 🔒 Muudetud vaatleja -> blokeeritud
     const { data } = await sb
         .from("kasutajad")
         .select("roll")
         .eq("email", email.toLowerCase().trim());
         
-    if (data && data.length > 0) return data[0].roll; // ✅ Parandatud massiivi indeks [0]
-    return "vaatleja";
+    if (data && data.length > 0) return data[0].roll;
+    return "blokeeritud"; // 🔒 Kui meili pole tabelis, on ta blokeeritud
 }
-
-
 
 export async function logout() {
     await sb.auth.signOut();
     window.location = "index.html";
 }
+
 // auth.js (Lisa faili lõppu)
 export async function logiTegevus(tegevus, detailid = {}) {
     try {
@@ -83,10 +90,14 @@ export async function logiTegevus(tegevus, detailid = {}) {
         console.error("Viga logiTegevus funktsioonis:", err);
     }
 }
+
 // =========================================================================
 // 📺 GLOBAALNE TÄISEKRAANI NUPUKE (Kõigile 9 lehele)
 // =========================================================================
 (function() {
+    // Kontrollime, et nupukest ei loodaks topelt, kui faili uuesti laetakse
+    if (document.getElementById("globaalneMobiilFullscreenBtn")) return;
+
     const fsBtn = document.createElement("button");
     fsBtn.id = "globaalneMobiilFullscreenBtn";
     fsBtn.innerHTML = "📺"; 
@@ -109,6 +120,7 @@ export async function logiTegevus(tegevus, detailid = {}) {
         }
     };
 })();
+
 
 
 
