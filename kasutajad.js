@@ -158,6 +158,9 @@ async function laeKasutajad() {
 // ==========================================
 //  NUPPUDE SIDUMINE (LISAMINE)
 // ==========================================
+// ==========================================
+//  NUPPUDE SIDUMINE (LISAMINE)
+// ==========================================
 function seoNupud() {
     const lisaBtn = document.getElementById("lisaBtn");
     if (!lisaBtn) return;
@@ -173,7 +176,7 @@ function seoNupud() {
         }
 
         const email = emailEl.value.trim().toLowerCase();
-        const roll = rollEl.value;
+        const roll = rollEl.value; // Võtab otse dropdownist (admin, sisestaja, vaatleja)
 
         if (!email) {
             alert("Palun sisesta e-posti aadress!");
@@ -181,43 +184,54 @@ function seoNupud() {
         }
 
         try {
-            // 1. Loome kasutajale päris konto ja saadame kinnituskirja ilma salajase võtmeta
-            // Fake parool on vajalik, sest 'Allow new users to sign up' on sul maas, 
-            // aga see signUp trikk lubab sisselogitud adminnil kasutajat tekitada.
-            const { data: authData, error: authError } = await sb.auth.signUp({
+            // 1. Loome rea Sinu tabelisse. Saadame teele nii meili kui ka valitud ROLLI.
+            // ID on esialgu null, sest auth süsteemis pole teda veel olemas.
+            const { error: dbError } = await sb
+                .from("kasutajad")
+                .insert([
+                    { email: email, roll: roll, id: null }
+                ]);
+
+            if (dbError) {
+                alert("Viga andmebaasi kirjutamisel: " + dbError.message);
+                console.error(dbError);
+                return;
+            }
+
+            // 2. Kui rida sai andmebaasi õige rolliga kirja, saadame sisselogimislingi.
+            // Kuna kasutajat pole auth.users tabelis, siis signInWithOtp koos valikuga
+            // "shouldCreateUser: true" loob talle konto taustal valmis ja saadab kirja.
+            const { error: authError } = await sb.auth.signInWithOtp({
                 email: email,
-                password: "AjutineParool123!", 
                 options: {
+                    shouldCreateUser: true,
                     emailRedirectTo: "https://github.io"
                 }
             });
 
             if (authError) {
-                alert("Viga autentimissüsteemis: " + authError.message);
+                alert("Kasutaja lisati tabelisse, kuid Magic lingi saatmine ebaõnnestus: " + authError.message);
+                console.error(authError);
                 return;
             }
 
-            const uueKasutajaUid = authData.user.id;
-
-            // 2. Lisame rea Sinu tabelisse koos ID-ga
-            const { error: dbError } = await sb
-                .from("kasutajad")
-                .insert({ id: uueKasutajaUid, email: email, roll: roll });
-
-            if (dbError) {
-                alert("Kasutaja loodi, kuid profiili tabelisse lisamine ebaõnnestus: " + dbError.message);
-            } else {
-                emailEl.value = "";
-                await logiTegevusSupabasse("+kasutaja", { email: email, roll: roll });
-                alert(`Kasutaja ${email} edukalt süsteemi loodud ja talle saadeti kinnituskiri!`);
-                laeKasutajad();
-            }
+            // 3. Kõik õnnestus! Puhastame tekstivälja.
+            emailEl.value = "";
+            
+            // Logime tegevuse süsteemi
+            await logiTegevusSupabasse("+kasutaja", { email: email, roll: roll });
+            
+            alert(`Kasutaja ${email} edukalt eelregistreeritud rolliga "${roll}"! Link saadeti meilile.`);
+            
+            // 🔄 UUENDAME TABELIT AUTOMAATSELT (Sinu Ctrl+R asendus!)
+            await laeKasutajad();
 
         } catch (e) {
-            console.error("Süsteemne tõrge:", e);
+            console.error("Süsteemne tõrge kasutaja lisamisel:", e);
         }
     };
 }
+
 
 
 window.addEventListener("load", initKasutajateLeht);
