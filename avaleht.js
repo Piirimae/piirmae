@@ -72,10 +72,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
         .gte("kuupaev", esmaspaevaKuupaev)
         .lte("kuupaev", reedeStr);
 
-    const tekstideIndeks = {};
-    menyyTekstid?.forEach(t => {
-        tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
-    });
+    
 
        // ... siin on su eelnev menyyTekstid loogika ...
 
