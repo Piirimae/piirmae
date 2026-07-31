@@ -156,15 +156,14 @@
 
     </div>
 
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Sinu skriptide laadimine -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="supabase.js"></script>
     <script type="module" src="avaleht.js"></script>
+
+    <!-- Korrektne ja sulgetud mooduli plokk -->
     <script type="module">
         import { sb } from "./supabase.js";
-
-   
-
-        
 
         // 🌟 DÜNAAMILINE KLIKILÜLITI: Suurendab/Vähendab blanketid lennult ja juhib pimendust
         window.MuudaSuurendust = function(element) {
@@ -186,15 +185,16 @@
                 };
             }
         };
- document.getElementById("emailLogin").onclick = async () => {
+
+        // Sisselogimise loogika
+        document.getElementById("emailLogin").onclick = async () => {
             const email = prompt("Sisesta oma e-post:");
             if (!email) return;
 
             const { error } = await sb.auth.signInWithOtp({
                 email: email,
                 options: {
-                 
-            emailRedirectTo: "https://piirimae.github.io/piirmae/fuajee.html"
+                    emailRedirectTo: "https://piirimae.github.io/piirmae/fuajee.html"
                 }
             });
 
@@ -207,6 +207,7 @@
     </script>
 </body>
 </html>
+
 
 
 
