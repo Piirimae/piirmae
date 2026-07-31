@@ -72,7 +72,9 @@ async function LaeJaKuvaAvaleheMenyyd() {
 
     const tekstideIndeks = {};
     menyyTekstid?.forEach(t => {
-        tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
+        if (t.toode_nimi_kood && t.reaalne_toidu_nimi) {
+            tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
+        }
     });
 
     const aktiivsedToidud = seaded.veerud.filter(v => v.tüüp === "toit");
