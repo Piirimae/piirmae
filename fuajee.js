@@ -40,28 +40,31 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     // 5. Joonistame toad vastavalt rollile
     // fuajee.js täiendus superadminile ja adminile:
-if (roll === "superadmin") {
-    toad.innerHTML = `
-        <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
-        <div class="room-card" onclick="location='pulss.html'">📈 Piirimäe Pulss</div> <!-- ✅ LISATUD -->
-        <div class="room-card" onclick="location='arhiiv.html'">📁 Arhiiv</div>
-        <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
-        <div class="room-card" onclick="location='seaded.html'">🔧 Seaded</div>
-        <div class="room-card" onclick="location='kasutajad.html'">👥 Kasutajate haldus</div>
-    `;
-} else if (roll === "admin") {
-    toad.innerHTML = `
-        <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
-        <div class="room-card" onclick="location='pulss.html'">📈 Piirimäe Pulss</div> <!-- ✅ LISATUD -->
-        <div class="room-card" onclick="location='arhiiv.html'">📁 Arhiiv</div>
-        <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
-        <div class="room-card" onclick="location='seaded.html'">🔧 Seaded</div>
-    `;
+    // 5. Joonistame toad vastavalt rollile
+    if (roll === "superadmin") {
+        toad.innerHTML = `
+            <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
+            <div class="room-card" onclick="location='pulss.html'">📈 Piirimäe Pulss</div>
+            <div class="room-card" onclick="location='menyy.html'" style="background: #2c3e50; color: white;">🍽️ Menüüde Juhtpaneel</div> <!-- 🌟 UUS -->
+            <div class="room-card" onclick="location='arhiiv.html'">📁 Arhiiv</div>
+            <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
+            <div class="room-card" onclick="location='seaded.html'">🔧 Seaded</div>
+            <div class="room-card" onclick="location='kasutajad.html'">👥 Kasutajate haldus</div>
+        `;
+    } else if (roll === "admin") {
+        toad.innerHTML = `
+            <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
+            <div class="room-card" onclick="location='pulss.html'">📈 Piirimäe Pulss</div>
+            <div class="room-card" onclick="location='menyy.html'" style="background: #2c3e50; color: white;">🍽️ Menüüde Juhtpaneel</div> <!-- 🌟 UUS -->
+            <div class="room-card" onclick="location='arhiiv.html'">📁 Arhiiv</div>
+            <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
+            <div class="room-card" onclick="location='seaded.html'">🔧 Seaded</div>
+        `;
     } else if (roll === "sisestaja") {
         toad.innerHTML = `
             <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
             <div class="room-card" onclick="location='pulss.html'">📈 Piirimäe Pulss</div>
-            <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
+            <div class="room-card" onclick="location='logid.html'">🧾 Logid</div> <!-- ✅ SISSESTAJA NÄEB LOGISID -->
         `;
     } else {
         toad.innerHTML = `
