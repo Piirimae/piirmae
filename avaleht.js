@@ -77,7 +77,22 @@ async function LaeJaKuvaAvaleheMenyyd() {
         tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
     });
 
+       // ... siin on su eelnev menyyTekstid loogika ...
+
+    const tekstideIndeks = {};
+    menyyTekstid?.forEach(t => {
+        tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
+    });
+
+    // PANE NEED READ SIIA (asenda funktsiooni viimane rida):
+    console.log("Süsteemi seaded:", seaded);
+
     const aktiivsedToidud = seaded.veerud.filter(v => v.tüüp === "toit");
+    
+    console.log("Aktiivsed toidud pärast filtrit:", aktiivsedToidud);
+
+    // See on funktsiooni LaeJaKuvaAvaleheMenyyd() lõpp, siit edasi tulevad juba POOL A ja POOL B html-i koodid
+
 
     // =========================================================================
     // 🥣 POOL A: PÄEVAMENÜÜ (Kuvab kõike, mis on sisestatud!)
