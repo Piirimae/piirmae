@@ -68,6 +68,11 @@ if (roll === "superadmin") {
             <div class="room-card" onclick="location='kuuvaated.html'">📄 Kuuvaated</div>
         `;
     }
+// ✅ TURVALUKK FUAJEES: Avaneb uks ainult juhtkonnale
+if (roll === "superadmin" || roll === "admin") {
+    const menyyBtn = document.getElementById("menyyHaldusBtn");
+    if (menyyBtn) menyyBtn.style.display = "block"; // või "inline-block", olenevalt Teie stiilist
+}
 
     // 6. Seome väljalogimise nupu
     const logoutBtn = document.getElementById("logoutBtn");
