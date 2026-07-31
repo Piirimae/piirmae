@@ -1,69 +1,201 @@
 <!DOCTYPE html>
 <html lang="et">
 <head>
-  <meta charset="UTF-8">
-  <title>Menüüde Juhtpaneel ja Trükk</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .menyy-tabel { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    .menyy-tabel th, .menyy-tabel td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
-    .menyy-tabel th { background-color: #f1f5f9; font-weight: bold; color: #1e293b; width: 150px; }
-    .paeva-veerg { background: #ffffff; vertical-align: top; width: 20%; }
-    .menyy-sisend { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; margin-bottom: 8px; box-sizing: border-box; }
-    .menyy-teade-input { width: 100%; padding: 6px; border: 1px solid #fbd38d; background: #fffaf0; border-radius: 4px; font-size: 12px; box-sizing: border-box; font-style: italic; }
-    .padi-paev { font-weight: bold; color: #2c3e50; font-size: 15px; border-bottom: 2px solid #edf2f7; padding-bottom: 4px; margin-bottom: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piirimäe - Päeva- ja Nädalamenüü</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* =========================================================================
+           🎨 RESTORANI AVAKUVA JA SUJUVAD SUUMIMISE STIILID
+           ========================================================================= */
+        body.page-esileht {
+            background: #1a1a1e url('taust.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Georgia', serif;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .avaleht-töölaud {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1550px;
+            margin: 40px auto;
+            gap: 25px;
+            padding: 20px;
+            box-sizing: border-box;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        /* 🖼️ MINIATUURSED BLANKETID VAIKIMISI Seisus */
+        .menyy-blankett {
+            background-color: #fdfbf7; 
+            border: 6px double #c5a880; 
+            padding: 25px;
+            border-radius: 4px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+            text-align: center;
+            cursor: zoom-in;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s, width 0.4s, max-width 0.4s;
+            position: relative;
+        }
+        
+        .paev-taust { 
+            width: 38%; 
+            background: #fdfbf7 url('paev_taust.png') no-repeat center center; 
+            background-size: cover; 
+        }
+        .nadal-taust { 
+            width: 40%; 
+            background: #fdfbf7 url('nadal_taust.png') no-repeat center center; 
+            background-size: cover; 
+        }
+
+        /* 🌟 EFEKT: Klikates muutub blankett ujuvaks üle-ekraani kergituseks! */
+        .menyy-blankett.suurendatud {
+            position: fixed !important;
+            top: 5%;
+            left: 5%;
+            width: 90% !important;
+            height: 90vh !important;
+            max-width: 800px !important;
+            margin: 0 auto !important;
+            right: 5%;
+            z-index: 3000 !important;
+            cursor: zoom-out;
+            transform: scale(1.02) !important;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        /* Varjutav tume taust, kui menüü on suurendatud */
+        .menyy-pimendus {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2500;
+        }
+
+        /* Sisselogimise kaart stabiilselt paremal, jääb suurenduse alla varju */
+        .login-card-tiiv {
+            width: 17%;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #cbd5e1;
+            padding: 25px 20px;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .menyy-tiitel { font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #1a202c; margin-bottom: 5px; }
+        .menyy-kpv { font-size: 15px; font-style: italic; color: #4a5568; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        
+        .toidu-rida { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; font-size: 15px; }
+        .toidu-nimi { text-align: left; font-weight: 500; max-width: 75%; }
+        .toidu-joon { flex-grow: 1; border-bottom: 1px dotted #cbd5e1; margin: 0 10px 4px 10px; }
+        .toidu-hind { font-weight: bold; white-space: nowrap; color: #1a202c; }
+        
+        .nadala-paev-pealkiri { font-weight: bold; font-size: 14px; color: #2b6cb0; text-transform: uppercase; text-align: left; margin: 18px 0 8px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; }
+        .live-teade-kast { margin-top: 20px; padding: 10px; background: rgba(255, 255, 255, 0.95); border-left: 4px solid #c5a880; font-size: 14px; font-style: italic; text-align: left; color: #2d3748; }
+
+        @media (max-width: 1024px) {
+            .avaleht-töölaud { flex-direction: column; align-items: center; }
+            .paev-taust, .nadal-taust, .login-card-tiiv { width: 100% !important; max-width: 550px; }
+        }
+    </style>
 </head>
-<body>
+<body class="page-esileht centered">
 
-<header class="header">
-  <div id="kasutajaNimi"></div>
-  <button onclick="window.location='fuajee.html'" class="btn-small">Tagasi</button>
-  <button id="logoutBtn" class="btn-small">Logi välja</button>
-</header>
+    <!-- Tausta pimendaja loogika jaoks -->
+    <div id="lehePimendus" class="menyy-pimendus"></div>
 
-<h2>🍽️ Menüüde Haldus ja Trükikeskus</h2>
+    <div class="avaleht-töölaud">
+        
+        <!-- SAMMAS 1: Päevamenüü blankett -->
+        <div class="menyy-blankett paev-taust" id="paevamenyyKonteiner" onclick="MuudaSuurendust(this)">
+            <div class="menyy-tiitel">Tänased Lõunapakkumised</div>
+            <div class="menyy-kpv" id="tekstPaevaKpv">Laen kuupäeva...</div>
+            
+            <div id="paevamenyyTootedKast">
+                <p style="color:#718096; font-style:italic;">Laen pakkumisi...</p>
+            </div>
+            
+            <div style="font-family: 'Brush Script MT', cursive, serif; font-size: 26px; color: #4a5568; margin-top: 30px;">Head isu !</div>
+            <div id="kuvaPaevaTeade" class="live-teade-kast" style="display: none;"></div>
+        </div>
 
-<!-- JUHTPANEEL -->
-<div class="toolbar" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; background:#f8f9fa; padding:12px; border-radius:6px; border:1px solid #e2e8f0;">
-  <label>
-    <strong>Esmaspäev:</strong>
-    <input type="date" id="menyyAlgusEsmaspaev" style="padding: 5px; border-radius: 4px; border: 1px solid #cbd5e1;">
-  </label>
-  
-  <button id="btnLaeNadal" class="btn-small" style="background: #3498db; color:white;">🔍 Lae nädal</button>
-  <button id="btnSalvestaMenyy" class="btn-small" style="background: #1abc9c; color:white; font-weight:bold;">💾 Salvesta andmebaasi</button>
+        <!-- SAMMAS 2: Nädalamenüü blankett -->
+        <div class="menyy-blankett nadal-taust" id="nadalamenyyKonteiner" onclick="MuudaSuurendust(this)">
+            <div class="menyy-tiitel">Nädalamenüü</div>
+            <div class="menyy-kpv" id="tekstNadalaKpv">Laen nädala vahemikku...</div>
+            
+            <div id="nadalamenyyTootedKast">
+                <p style="color:#718096; font-style:italic;">Laen nädala menüüd...</p>
+            </div>
+            
+            <div id="kuvaNadalaTeade" class="live-teade-kast" style="display: none;"></div>
+        </div>
 
-  <!-- 🖨️ TRÜKIPULT ERALDI SEISVATELE AKNATELE -->
-  <div style="margin-left: auto; display: flex; gap: 10px;">
-    <select id="prindiPaevValik" style="padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 13px;">
-      <option value="0">Esmaspäev</option>
-      <option value="1">Teisipäev</option>
-      <option value="2">Kolmapäev</option>
-      <option value="3">Neljapäev</option>
-      <option value="4">Reede</option>
-    </select>
-    <button id="btnPrindiPaev" class="btn-small" style="background: #e67e22; color:white; font-weight:bold;">🖨️ Trüki Päev (A4)</button>
-    <button id="btnPrindiNadal" class="btn-small" style="background: #9b59b6; color:white; font-weight:bold;">🖨️ Trüki Nädal (A4)</button>
-  </div>
-</div>
+        <!-- SAMMAS 3: Alati avatud sisselogimise kaart -->
+        <div class="card login-card login-card-tiiv">
+            <h2 style="margin-top: 0; font-size: 20px; color: #1a202c;">Tere tulemast majja</h2>
+            <p style="font-size: 13px; color: #4a5568; margin-bottom: 20px;">Logi sisse e-postiga.</p>
+            <button id="emailLogin" class="btn-yellow" style="width: 100%; padding: 12px; font-weight: bold; border: none; cursor: pointer; border-radius: 4px;">
+                Saada sisselogimislink
+            </button>
+        </div>
 
-<!-- NÄDALA ÜLDTEADE (Tabeli kohal või all) -->
-<div style="margin-bottom: 15px; background: #ebf8ff; border: 1px solid #bee3f8; padding: 10px; border-radius: 6px;">
-  <label style="font-size: 13px; font-weight: bold; color: #2b6cb0;">📢 NÄDALA ÜLDTEAVE VÕI SÕNUM (Kuvatakse ainult nädalamenüü trükisel):</label>
-  <input type="text" id="inputNadalUldTeade" style="width:100%; padding:8px; margin-top:5px; border: 1px solid #90cdf4; border-radius:4px;" placeholder="nt. Reedel oleme avatud kuni 15:00!...">
-</div>
+    </div>
 
-<!-- DÜNAAMILINE BLANKETT -->
-<div class="card" id="menyyBlankettKast" style="overflow-x: auto; padding: 15px;">
-  <p style="text-align:center; color:#718096;">Laen sisestustabelit...</p>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script type="module" src="supabase.js"></script>
+    <script type="module" src="avaleht.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script type="module" src="supabase.js"></script>
-<script type="module" src="auth.js"></script>
-<script type="module" src="menyy.js"></script>
+    <script type="module">
+        import { sb } from "./supabase.js";
 
+        document.getElementById("emailLogin").onclick = async () => {
+            const email = prompt("Sisesta oma e-post:");
+            if (!email) return;
+            const { error } = await sb.auth.signInWithOtp({
+                email: email,
+                options: { emailRedirectTo: "https://github.io" }
+            });
+            if (error) alert("Viga: " + error.message);
+            else alert("Sisselogimislink saadetud!");
+        };
+
+        // 🌟 DÜNAAMILINE KLIKILÜLITI: Suurendab/Vähendab blanketid lennult ja juhib pimendust
+        window.MuudaSuurendust = function(element) {
+            const pimendus = document.getElementById("lehePimendus");
+            
+            if (element.classList.contains("suurendatud")) {
+                element.classList.remove("suurendatud");
+                pimendus.style.display = "none";
+            } else {
+                // Eemaldame igaks juhuks teiselt blanketilt aktiivse klassi
+                document.querySelectorAll(".menyy-blankett").forEach(b => b.classList.remove("suurendatud"));
+                element.classList.add("suurendatud");
+                pimendus.style.display = "block";
+                
+                // Kui klikitakse pimendatud taustale, sulgub aken samuti
+                pimendus.onclick = () => {
+                    element.classList.remove("suurendatud");
+                    pimendus.style.display = "none";
+                };
+            }
+        };
+    </script>
 </body>
 </html>
+
 
