@@ -53,6 +53,14 @@ async function LaeJaKuvaAvaleheMenyyd() {
     const pOsad = paevaKuupaev.split("-");
     const eOsad = esmaspaevaKuupaev.split("-");
     const rOsad = reedeStr.split("-");
+    // Avaleht.js -> kuvamine
+const paevaTeadeTekst = tekstideIndeks[`${paevaKuupaev}_ERITEADE`] || "";
+const paevaTeadeKast = document.getElementById("kuvaPaevaTeade");
+if (paevaTeadeKast) {
+    paevaTeadeKast.innerText = paevaTeadeTekst;
+    paevaTeadeKast.style.display = paevaTeadeTekst ? "block" : "none";
+}
+
 
     const paevaKpvElement = document.getElementById("tekstPaevaKpv");
     if (paevaKpvElement) {
