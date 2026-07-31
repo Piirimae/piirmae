@@ -1,3 +1,4 @@
+console.log("AVALEHT.JS ON LAETUD!");
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 
