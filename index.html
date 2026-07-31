@@ -2,44 +2,166 @@
 <html lang="et">
 <head>
     <meta charset="UTF-8">
-    <title>Logi sisse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piirimäe - Päeva- ja Nädalamenüü</title>
     <link rel="stylesheet" href="style.css">
-</head>
+    <style>
+        /* =========================================================================
+           🎨 RESTORANI AVAKUVA JA KUNSTILINE DISAIN
+           ========================================================================= */
+        body.page-esileht {
+            background: #1a1a1e url('taust.jpg') no-repeat center center fixed; /* Süsteemi hubane üldtaust */
+            background-size: cover;
+            font-family: 'Georgia', serif;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+        }
 
+        /* Kolme samba süsteem: Päevamenüü (40%), Nädalamenüü (40%), Logi-Card (18%) + vahed */
+        .avaleht-töölaud {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1550px;
+            margin: 40px auto;
+            gap: 25px;
+            padding: 20px;
+            box-sizing: border-box;
+            align-items: flex-start;
+        }
+
+        /* 🖼️ KUNSTILISE TAUSTAGA MENÜÜBLANKETID */
+        .menyy-blankett {
+            background-color: #fdfbf7; 
+            border: 6px double #c5a880; /* Elegantne kohvikupärane topeltraam */
+            padding: 35px;
+            border-radius: 4px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+            text-align: center;
+        }
+        
+        /* Isiklikud .png või .jpg pildid taustadeks päevale ja nädalale */
+        .paev-taust { 
+            width: 39%; 
+            background: #fdfbf7 url('paev_taust.png') no-repeat center center; 
+            background-size: cover; 
+        }
+        .nadal-taust { 
+            width: 41%; 
+            background: #fdfbf7 url('nadal_taust.png') no-repeat center center; 
+            background-size: cover; 
+        }
+
+        /* 🔐 ALATI AVATUD JA NÄHTAV SISSELOGIMISE CARD PAREMAL TIIVAL */
+        .login-card-tiiv {
+            width: 16%;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #cbd5e1;
+            padding: 25px 20px;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        /* Kirjastiilid blankettide sees */
+        .menyy-tiitel { font-size: 26px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #1a202c; margin-bottom: 6px; }
+        .menyy-kpv { font-size: 16px; font-style: italic; color: #4a5568; margin-bottom: 25px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        
+        .toidu-rida { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; font-size: 15px; }
+        .toidu-nimi { text-align: left; font-weight: 500; max-width: 75%; }
+        .toidu-joon { flex-grow: 1; border-bottom: 1px dotted #cbd5e1; margin: 0 10px 4px 10px; }
+        .toidu-hind { font-weight: bold; white-space: nowrap; color: #1a202c; }
+        
+        .nadala-paev-pealkiri { font-weight: bold; font-size: 14px; color: #2b6cb0; text-transform: uppercase; text-align: left; margin: 20px 0 8px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; }
+
+        /* Jooksvate teadete stiil menüü sees (Päevade kaupa tabeli all ja nädala teave) */
+        .live-teade-kast { margin-top: 20px; padding: 10px; background: rgba(255, 250, 240, 0.95); border-left: 4px solid #c5a880; font-size: 14px; font-style: italic; text-align: left; color: #2d3748; border-radius: 0 4px 4px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+
+        /* Mobiili kohandatav vaade, et midagi ei nihkuks risti-rästi */
+        @media (max-width: 1024px) {
+            .avaleht-töölaud { flex-direction: column; align-items: center; }
+            .paev-taust, .nadal-taust, .login-card-tiiv { width: 100% !important; max-width: 550px; }
+        }
+    </style>
+</head>
 <body class="page-esileht centered">
 
-<div class="card login-card">
-    <h2>Tere tulemast majja</h2>
-    <p>Logi sisse e-postiga.</p>
+    <div class="avaleht-töölaud">
+        
+        <!-- SAMMAS 1: Päevamenüü blankett (Isikliku paev_taust.png pildiga) -->
+        <div class="menyy-blankett paev-taust" id="paevamenyyKonteiner">
+            <div class="menyy-tiitel">Tänased Lõunapakkumised</div>
+            <div class="menyy-kpv" id="tekstPaevaKpv">Laen tänast kuupäeva...</div>
+            
+            <!-- JavaScript täidab selle kasti reaalsete toitude ja seadete hindadega -->
+            <div id="paevamenyyTootedKast">
+                <p style="color:#718096; font-style:italic;">Laen tänaseid lõunapakkumisi...</p>
+            </div>
+            
+            <div style="font-family: 'Brush Script MT', cursive, serif; font-size: 26px; color: #4a5568; margin-top: 30px;">Head isu !</div>
+            
+            <!-- 📢 Päeva erisõnum (Kuvatakse tabeli all, kui admin on selle sisestanud) -->
+            <div id="kuvaPaevaTeade" class="live-teade-kast" style="display: none;"></div>
+        </div>
 
-    <button id="emailLogin" class="btn-yellow">Saada sisselogimislink</button>
-</div>
+        <!-- SAMMAS 2: Nädalamenüü blankett (Isikliku nadal_taust.png pildiga) -->
+        <div class="menyy-blankett nadal-taust" id="nadalamenyyKonteiner">
+            <div class="menyy-tiitel">Nädalamenüü</div>
+            <div class="menyy-kpv" id="tekstNadalaKpv">Laen nädala vahemikku...</div>
+            
+            <!-- JavaScript joonistab siia E-R toidud ritta -->
+            <div id="nadalamenyyTootedKast">
+                <p style="color:#718096; font-style:italic;">Laen käesoleva nädala menüüd...</p>
+            </div>
+            
+            <!-- 📢 Nädala üldteave/sõnum tabeli all -->
+            <div id="kuvaNadalaTeade" class="live-teade-kast" style="display: none;"></div>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="supabase.js"></script>
+        <!-- SAMMAS 3: Alati avatud, viisakas ja elus sisselogimise kaart paremal tiival -->
+        <div class="card login-card login-card-tiiv">
+            <h2 style="margin-top: 0; font-size: 20px; color: #1a202c;">Tere tulemast majja</h2>
+            <p style="font-size: 13px; color: #4a5568; margin-bottom: 20px;">Logi sisse e-postiga.</p>
 
-<script type="module">
-import { sb } from "./supabase.js";
+            <button id="emailLogin" class="btn-yellow" style="width: 100%; padding: 12px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer;">
+                Saada sisselogimislink
+            </button>
+        </div>
 
-document.getElementById("emailLogin").onclick = async () => {
-    const email = prompt("Sisesta oma e-post:");
-    if (!email) return;
+    </div>
 
-   const { error } = await sb.auth.signInWithOtp({
-    email: email,
-    options: {
-        // ✅ PARANDATUD: Suunab kasutaja otse Sinu repositooriumi callback faili
-        emailRedirectTo: "https://piirimae.github.io/piirmae/auth-callback.html"
-    }
-});
+    <!-- SÜSTEEMI LÄHTE-TEEGID JA AUTOMATISEERITUD MOOTORID -->
+    <script src="https://jsdelivr.net"></script>
+    <script type="module" src="supabase.js"></script>
+    <script type="module" src="avaleht.js"></script>
 
-    if (error) {
-        alert("Viga: " + error.message);
-    } else {
-        alert("Sisselogimislink saadetud!");
-    }
-};
-</script>
+    <!-- Sisselogimise skripti moodul (Sinu täiesti toimiv ja kontrollitud Magic Linki loogika) -->
+    <script type="module">
+        import { sb } from "./supabase.js";
+
+        document.getElementById("emailLogin").onclick = async () => {
+            const email = prompt("Sisesta oma e-post:");
+            if (!email) return;
+
+            const { error } = await sb.auth.signInWithOtp({
+                email: email,
+                options: {
+                    emailRedirectTo: "https://github.io"
+                }
+            });
+
+            if (error) {
+                alert("Viga: " + error.message);
+            } else {
+                alert("Sisselogimislink saadetud! Kontrolli oma meilikasti.");
+            }
+        };
+    </script>
+</body>
+</html>
+
 
 
 
