@@ -2,55 +2,68 @@
 <html lang="et">
 <head>
   <meta charset="UTF-8">
-  <title>Menüüde Juhtpaneel</title>
+  <title>Menüüde Juhtpaneel ja Trükk</title>
   <link rel="stylesheet" href="style.css">
   <style>
     .menyy-tabel { width: 100%; border-collapse: collapse; margin-top: 15px; }
     .menyy-tabel th, .menyy-tabel td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
     .menyy-tabel th { background-color: #f1f5f9; font-weight: bold; color: #1e293b; width: 150px; }
-    .paeva-veerg { background: #ffffff; vertical-align: top; }
+    .paeva-veerg { background: #ffffff; vertical-align: top; width: 20%; }
     .menyy-sisend { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; margin-bottom: 8px; box-sizing: border-box; }
-    .menyy-sisend:focus { border-color: #3182ce; outline: none; }
+    .menyy-teade-input { width: 100%; padding: 6px; border: 1px solid #fbd38d; background: #fffaf0; border-radius: 4px; font-size: 12px; box-sizing: border-box; font-style: italic; }
     .padi-paev { font-weight: bold; color: #2c3e50; font-size: 15px; border-bottom: 2px solid #edf2f7; padding-bottom: 4px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-<!-- 1. STANDARDNE PÄIS: Kasutajanimi, Tagasi ja Logi välja -->
 <header class="header">
   <div id="kasutajaNimi"></div>
   <button onclick="window.location='fuajee.html'" class="btn-small">Tagasi</button>
   <button id="logoutBtn" class="btn-small">Logi välja</button>
 </header>
 
-<!-- 2. TRÜKIPÄIS: Vajadusel menüü printimiseks -->
-<div id="printHeader" style="display: none;">
-  <img src="logo1.png" alt="Logo">
-  <h1 id="printTitle">NÄDALAMENÜÜ</h1>
-</div>
+<h2>🍽️ Menüüde Haldus ja Trükikeskus</h2>
 
-<h2>🍽️ Menüüde Sisestamine ja Haldus</h2>
-
-<!-- 3. JUHTKAST: Näitame kalendrit ja salvestamise nuppu -->
-<div class="toolbar" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 20px; background:#f8f9fa; padding:12px; border-radius:6px; border:1px solid #e2e8f0;">
+<!-- JUHTPANEEL -->
+<div class="toolbar" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; background:#f8f9fa; padding:12px; border-radius:6px; border:1px solid #e2e8f0;">
   <label>
-    <strong>Vali nädala esmaspäev:</strong>
+    <strong>Esmaspäev:</strong>
     <input type="date" id="menyyAlgusEsmaspaev" style="padding: 5px; border-radius: 4px; border: 1px solid #cbd5e1;">
   </label>
   
-  <button id="btnLaeNadal" class="btn-small" style="background: #3498db; color:white; font-weight:bold;">🔍 Lae selle nädala toidud</button>
-  <button id="btnSalvestaMenyy" class="btn-small" style="background: #1abc9c; color:white; font-weight:bold; margin-left:auto;">💾 Salvesta kogu nädal</button>
+  <button id="btnLaeNadal" class="btn-small" style="background: #3498db; color:white;">🔍 Lae nädal</button>
+  <button id="btnSalvestaMenyy" class="btn-small" style="background: #1abc9c; color:white; font-weight:bold;">💾 Salvesta andmebaasi</button>
+
+  <!-- 🖨️ TRÜKIPULT ERALDI SEISVATELE AKNATELE -->
+  <div style="margin-left: auto; display: flex; gap: 10px;">
+    <select id="prindiPaevValik" style="padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 13px;">
+      <option value="0">Esmaspäev</option>
+      <option value="1">Teisipäev</option>
+      <option value="2">Kolmapäev</option>
+      <option value="3">Neljapäev</option>
+      <option value="4">Reede</option>
+    </select>
+    <button id="btnPrindiPaev" class="btn-small" style="background: #e67e22; color:white; font-weight:bold;">🖨️ Trüki Päev (A4)</button>
+    <button id="btnPrindiNadal" class="btn-small" style="background: #9b59b6; color:white; font-weight:bold;">🖨️ Trüki Nädal (A4)</button>
+  </div>
 </div>
 
-<!-- 4. DÜNAAMILINE BLANKETT -->
+<!-- NÄDALA ÜLDTEADE (Tabeli kohal või all) -->
+<div style="margin-bottom: 15px; background: #ebf8ff; border: 1px solid #bee3f8; padding: 10px; border-radius: 6px;">
+  <label style="font-size: 13px; font-weight: bold; color: #2b6cb0;">📢 NÄDALA ÜLDTEAVE VÕI SÕNUM (Kuvatakse ainult nädalamenüü trükisel):</label>
+  <input type="text" id="inputNadalUldTeade" style="width:100%; padding:8px; margin-top:5px; border: 1px solid #90cdf4; border-radius:4px;" placeholder="nt. Reedel oleme avatud kuni 15:00!...">
+</div>
+
+<!-- DÜNAAMILINE BLANKETT -->
 <div class="card" id="menyyBlankettKast" style="overflow-x: auto; padding: 15px;">
-  <p style="color:#718096; text-align:center;">Vali ülevalt kuupäev ja vajuta "Lae selle nädala toidud", et avada dünaamiline sisestuslaud.</p>
+  <p style="text-align:center; color:#718096;">Laen sisestustabelit...</p>
 </div>
 
-<!-- MOODULID JA TEEGID -->
+<script src="https://jsdelivr.net"></script>
 <script type="module" src="supabase.js"></script>
 <script type="module" src="auth.js"></script>
 <script type="module" src="menyy.js"></script>
 
 </body>
 </html>
+
