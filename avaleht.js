@@ -157,7 +157,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
 
 
 // Pane see puhas plokk avaleht.js faili KÕIGE LÕPPU:
-(async () => {
+window.addEventListener("DOMContentLoaded",(async () => {
     try {
         // Sunnime koodi ootama, kuni andmebaas on seaded reaalselt tagastanud
         const laetudSeaded = await laeSeaded();
