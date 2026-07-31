@@ -12,33 +12,34 @@ function lisaPaevad(algKpv, paevadeArv) {
 function TuvastaAktiivsedKuupaevad() {
     const nüüd = new Date();
     const praeguneTund = nüüd.getHours();
-    const nädalapäev = nüüd.getDay(); 
+    const nädalapäev = nüüd.getDay(); // 0 = pühapäev, 1 = esmaspäev...
 
-    let paevaKuupaev = nüüd.toISOString().split('T')[0];
-    let esmaspaevaKuupaev = null;
-
+    // 1. Päevamenüü kuupäev (pärast kl 18 lülitab homse peale)
+    let paevaKuupaevObj = new Date(nüüd);
     if (praeguneTund >= 18) {
-        const homme = new Date();
-        homme.setDate(homme.getDate() + 1);
-        paevaKuupaev = homme.toISOString().split('T')[0];
+        paevaKuupaevObj.setDate(paevaKuupaevObj.getDate() + 1);
+    }
+    const paevaKuupaev = paevaKuupaevObj.toISOString().split('T')[0];
+
+    // 2. Tuvastame, millise nädala esmaspäeva meil vaja on
+    let sihtPaev = new Date(nüüd);
+    
+    // Kui on reede õhtu (kl 18+) või laupäev või pühapäev, nihutame sihtpäeva uude nädalasse
+    if ((nädalapäev === 5 && praeguneTund >= 18) || nädalapäev === 6 || nädalapäev === 0) {
+        // Nihutame sihtpäeva järgmisesse nädalasse (lisame 3, 2 või 1 päeva, et jõuda esmaspäevani)
+        const paeviEsmaspaevani = nädalapäev === 5 ? 3 : (nädalapäev === 6 ? 2 : 1);
+        sihtPaev.setDate(sihtPaev.getDate() + paeviEsmaspaevani);
+    } else {
+        // Tööpäevadel enne reede õhtut liigume jooksva nädala esmaspäevale
+        const nihe = nädalapäev === 0 ? -6 : 1 - nädalapäev;
+        sihtPaev.setDate(sihtPaev.getDate() + nihe);
     }
 
-    const testPäev = new Date();
-    if (praeguneTund >= 18 && nädalapäev === 5) {
-        testPäev.setDate(testPäev.getDate() + 3);
-    } else if (nädalapäev === 6) {
-        testPäev.setDate(testPäev.getDate() + 2);
-    } else if (nädalapäev === 0) {
-        testPäev.setDate(testPäev.getDate() + 1);
-    }
-
-    const d = new Date(testPäev);
-    const day = d.getDay();
-    const nihe = d.getDate() - day + (day === 0 ? -6 : 1);
-    esmaspaevaKuupaev = new Date(d.setDate(nihe)).toISOString().split('T')[0];
+    const esmaspaevaKuupaev = sihtPaev.toISOString().split('T')[0];
 
     return { paevaKuupaev, esmaspaevaKuupaev };
 }
+
 
 function HangiKuuNimi(kuuStr) {
     const kuud = ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"];
