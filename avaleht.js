@@ -49,11 +49,6 @@ function HangiKuuNimi(kuuStr) {
 }
 
 async function LaeJaKuvaAvaleheMenyyd() {
-    // 🌟 KRAAN LAHTI: Kui seadeid pole veel laetud või on tühi, laeme nad otse siin funktsiooni alguses sisse!
-    if (!seaded || !seaded.veerud || seaded.veerud.length === 0) {
-        seaded = await laeSeaded();
-    }
-
     const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
     const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
 
@@ -161,12 +156,18 @@ async function LaeJaKuvaAvaleheMenyyd() {
 }
 
 
-window.addEventListener("DOMContentLoaded", async () => {
+// Pane see puhas plokk avaleht.js faili KÕIGE LÕPPU:
+(async () => {
     try {
-        seaded = await laeSeaded();
-        await LaeJaKuvaAvaleheMenyyd();
+        // Sunnime koodi ootama, kuni andmebaas on seaded reaalselt tagastanud
+        const laetudSeaded = await laeSeaded();
+        if (laetudSeaded) {
+            seaded = laetudSeaded;
+            await LaeJaKuvaAvaleheMenyyd();
+        }
     } catch (viga) {
         console.error("Viga menüü laadimisel:", viga);
     }
-});
+})();
+
 
