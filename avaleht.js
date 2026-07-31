@@ -154,12 +154,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
     }
 }
 
-window.addEventListener("DOMContentLoaded", async () => {
-    seaded = await laeSeaded();
-    await LaeJaKuvaAvaleheMenyyd();
-});
-
-// See käivitub igal juhul, sõltumata sellest, millal fail laeti
+window.addEventListener("DOMContentLoaded", // See käivitub igal juhul, sõltumata sellest, millal fail laeti
 (async () => {
     try {
         seaded = await laeSeaded();
