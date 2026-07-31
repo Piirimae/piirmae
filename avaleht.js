@@ -157,17 +157,14 @@ async function LaeJaKuvaAvaleheMenyyd() {
 
 
 // Pane see puhas plokk avaleht.js faili KÕIGE LÕPPU:
-window.addEventListener("DOMContentLoaded",(async () => {
+window.addEventListener("DOMContentLoaded", async () => {
     try {
-        // Sunnime koodi ootama, kuni andmebaas on seaded reaalselt tagastanud
-        const laetudSeaded = await laeSeaded();
-        if (laetudSeaded) {
-            seaded = laetudSeaded;
-            await LaeJaKuvaAvaleheMenyyd();
-        }
+        seaded = await laeSeaded();
+        await LaeJaKuvaAvaleheMenyyd();
     } catch (viga) {
         console.error("Viga menüü laadimisel:", viga);
     }
-})();
+});
+
 
 
