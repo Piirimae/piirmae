@@ -155,12 +155,12 @@ async function LaeJaKuvaAvaleheMenyyd() {
     }
 }
 
-window.addEventListener("DOMContentLoaded", // See käivitub igal juhul, sõltumata sellest, millal fail laeti
-(async () => {
+window.addEventListener("DOMContentLoaded", async () => {
     try {
         seaded = await laeSeaded();
         await LaeJaKuvaAvaleheMenyyd();
     } catch (viga) {
         console.error("Viga menüü laadimisel:", viga);
     }
-})();
+});
+
