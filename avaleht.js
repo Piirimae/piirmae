@@ -55,34 +55,38 @@ function HangiKuuNimi(kuuStr) {
 }
 // --- 3. ANDMETE KUVAMISE JA JOONISTAMISE MOOTOR ---
 async function LaeJaKuvaAvaleheMenyyd() {
-    const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
-    
-    // Uuendame päiste kuupäevade tekstilised tiitlid ekraanil
-    const pOsad = paevaKuupaev.split("-");
-    const eOsad = esmaspaevaKuupaev.split("-");
-    const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
-    const rOsad = reedeStr.split("-");
-
-    const paevaKpvElement = document.getElementById("tekstPaevaKpv");
-    if (paevaKpvElement) {
-        paevaKpvElement.innerText = `${pOsad[2]}. ${HangiKuuNimi(pOsad[1])} ${pOsad[0]}`;
+    // 1. Tagame seadete olemasolu
+    if (!seaded || !seaded.veerud || seaded.veerud.length === 0) {
+        seaded = await laeSeaded();
     }
 
+    const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
+    const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
+
+    // Tükeldame kuupäevad massiiviks: [0]=aasta, [1]=kuu, [2]=päev
+    const pOsad = paevaKuupaev.split("-");
+    const eOsad = esmaspaevaKuupaev.split("-");
+    const rOsad = reedeStr.split("-");
+
+    // Päeva kuupäev (nt "1. august 2026")
+    const paevaKpvElement = document.getElementById("tekstPaevaKpv");
+    if (paevaKpvElement) {
+        paevaKpvElement.innerText = `${parseInt(pOsad[2], 10)}. ${HangiKuuNimi(pOsad[1])} ${pOsad[0]}`;
+    }
+
+    // Nädala vahemik (nt "03.08 - 07.08.2026")
     const nadalaKpvElement = document.getElementById("tekstNadalaKpv");
     if (nadalaKpvElement) {
         nadalaKpvElement.innerText = `${eOsad[2]}.${eOsad[1]} - ${rOsad[2]}.${rOsad[1]}.${rOsad[0]}`;
     }
 
-    // Tõmbame andmebaasist korraga ära kogu selle nädala tekstid
-    const { data: menyyTekstid, error } = await sb
+    // Andmebaasi päring
+    const { data: menyyTekstid } = await sb
         .from("menyy_tekstid")
         .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
         .gte("kuupaev", esmaspaevaKuupaev)
         .lte("kuupaev", reedeStr);
 
-    if (error) return console.error("Viga avalehe menüüde laadimisel:", error);
-
-    // Teeme otsinguindeksi: "kuupaev_kood" -> "Tekst"
     const tekstideIndeks = {};
     menyyTekstid?.forEach(t => {
         tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
@@ -91,7 +95,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
     const aktiivsedToidud = seaded.veerud.filter(v => v.tüüp === "toit");
 
     // =========================================================================
-    // 🥣 OSAMUUTUJA A: PÄEVAMENÜÜ JOONISTAMINE
+    // 🥣 POOL A: PÄEVAMENÜÜ
     // =========================================================================
     const paevKast = document.getElementById("paevamenyyTootedKast");
     if (paevKast) {
@@ -100,26 +104,22 @@ async function LaeJaKuvaAvaleheMenyyd() {
 
         aktiivsedToidud.forEach(toode => {
             const tekst = tekstideIndeks[`${paevaKuupaev}_${toode.nimi}`] || "";
-            
-            // 🌟 SINKROONIS REEGEL: Kui lahtris on midagi (kasvõi kriips _), kuvame!
             if (tekst.trim() !== "") {
-                const hind = toode.hind || 0;
                 paevHtml += `
                     <div class="toidu-rida">
                         <span class="toidu-nimi">${tekst}</span>
                         <span class="toidu-joon"></span>
-                        <span class="toidu-hind">${Number(hind).toFixed(2)} €</span>
+                        <span class="toidu-hind">${Number(toode.hind).toFixed(2)} €</span>
                     </div>
                 `;
                 lahtreidKuvatud++;
             }
         });
-
         paevKast.innerHTML = lahtreidKuvatud > 0 ? paevHtml : "<p style='color:#718096; font-style:italic;'>Selleks päevaks pole lõunapakkumisi sisestatud.</p>";
     }
 
     // =========================================================================
-    // 📅 OSAMUUTUJA B: NÄDALAMENÜÜ JOONISTAMINE
+    // 📅 POOL B: NÄDALAMENÜÜ
     // =========================================================================
     const nadalKast = document.getElementById("nadalamenyyTootedKast");
     if (nadalKast) {
@@ -135,39 +135,54 @@ async function LaeJaKuvaAvaleheMenyyd() {
         TOOPAEVAD.forEach(p => {
             const kpvStr = lisaPaevad(new Date(esmaspaevaKuupaev), p.nihe);
             const kOsad = kpvStr.split("-");
-            
             let paevaToidudRiad = "";
 
             aktiivsedToidud.forEach(toode => {
+                const koodVäike = toode.nimi.toLowerCase();
+                if (koodVäike.includes("šnitsel") || koodVäike.includes("magus") || koodVäike.includes("termo")) {
+                    return; 
+                }
+
                 const tekst = tekstideIndeks[`${kpvStr}_${toode.nimi}`] || "";
-                
-                // 🌟 SINKROONIS REEGEL: Kui lahtris on midagi, kuvame ka nädalas!
                 if (tekst.trim() !== "") {
-                    const hind = toode.hind || 0;
                     paevaToidudRiad += `
-                        <div class="toidu-rida">
+                        <div class="toidu-rida" style="font-size:13px; margin-bottom:8px;">
                             <span class="toidu-nimi">${tekst}</span>
                             <span class="toidu-joon"></span>
-                            <span class="toidu-hind">${Number(hind).toFixed(2)} €</span>
+                            <span class="toidu-hind">${Number(toode.hind).toFixed(2)} €</span>
                         </div>
                     `;
                 }
             });
 
-            // Kui sel päeval oli vähemalt üks toit kirjas, kuvame selle päeva bloki
             if (paevaToidudRiad !== "") {
                 nadalHtml += `
-                    <div style="margin-bottom: 15px; text-align: left;">
-                        <div class="nadala-paev-pealkiri">${p.nimi} (${kOsad[2]}.${kOsad[1]})</div>
+                    <div style="margin-bottom: 12px; text-align: left;">
+                        <div class="nadala-paev-pealkiri" style="margin: 10px 0 5px 0; font-size:12px;">${p.nimi} (${kOsad[2]}.${kOsad[1]})</div>
                         ${paevaToidudRiad}
                     </div>
                 `;
             }
         });
+        nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
+    }
 
-        nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Selle nädala menüüd pole veel sisestatud.</p>";
+    // 📢 LISATEATED: Kuvame lisateated, kui nad on andmebaasi salvestatud
+    const paevaTeadeTekst = tekstideIndeks[`${paevaKuupaev}_PAEVA_TEADE`] || "";
+    const paevaTeadeKast = document.getElementById("kuvaPaevaTeade");
+    if (paevaTeadeKast) {
+        paevaTeadeKast.innerText = paevaTeadeTekst;
+        paevaTeadeKast.style.display = paevaTeadeTekst ? "block" : "none";
+    }
+
+    const nadalaTeadeTekst = tekstideIndeks[`${esmaspaevaKuupaev}_NADALA_TEADE`] || "";
+    const nadalaTeadeKast = document.getElementById("kuvaNadalaTeade");
+    if (nadalaTeadeKast) {
+        nadalaTeadeKast.innerText = nadalaTeadeTekst;
+        nadalaTeadeKast.style.display = nadalaTeadeTekst ? "block" : "none";
     }
 }
+
 
 // --- 4. ALGSEADISTUS ---
 window.addEventListener("DOMContentLoaded", async () => {
