@@ -103,6 +103,7 @@
         </div>
 
         <!-- Parem pool: Kolm iseseisvalt nihkuvat kaarti -->
+                <!-- Parem pool: Kolm iseseisvalt nihkuvat kaarti -->
         <div class="bestselleri-tiiv">
             
             <!-- SEKTOR 1: Tootegrupid (supp, praad1, praad2 jne) -->
@@ -113,16 +114,16 @@
                 </div>
             </div>
 
-            <!-- SEKTOR 2: Menüübaasil vaade (Ootel) -->
+            <!-- SEKTOR 2: Menüübaasil vaade (NÜÜD LIVE JA KOPEERITAV!) -->
             <div class="nihkes-kaart" id="kaartMenuuBaas">
                 <h4>📋 Menüü ja hinnajaotis</h4>
-                <div class="ootel-teade">
-                    <span>Ootab Menüü lehte</span>
-                    <span style="font-size: 0.8em; opacity: 0.7; margin-top: 5px;">(Hinnastatistika integreerimine)</span>
+                <!-- 🌟 TARK TOODETE TEKSTILOEND: Siia sisse kuvab masin reaalsete nimedega summeeritud tooted -->
+                <div id="toodeteTekstLoend" style="max-height: 160px; overflow-y: auto; font-family: monospace; font-size: 11px; background: #f8f9fa; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; line-height: 1.4; text-align: left; color: #2d3748;">
+                    Laen menüüandmeid...
                 </div>
             </div>
 
-            <!-- SEKTOR 3: Perioodi dünaamiline infoaken -->
+            <!-- SEKTOR 3: Perioodi dünaamiline infoaken + EXPORTNUPUD -->
             <div class="nihkes-kaart" id="kaartPerioodiInfo">
                 <h4>📊 Vaadeldav ajavahemik</h4>
                 <div id="infoAkenSisu">
@@ -135,11 +136,23 @@
                         ⚠️ Perioodil esines tootehindade muudatusi.
                     </div>
                 </div>
+
+                <!-- 🌟 UUS: MEILI KOPEERIMISE JA SCREENSHOT-I NUPUD KASTI 3 ALLA -->
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
+                    <button id="btnKopeeriTekst" style="width: 100%; background: #2c3e50; color: white; padding: 8px; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        📋 Kopeeri raport meili jaoks
+                    </button>
+                    <button id="btnTeeScreenshot" style="width: 100%; background: #1abc9c; color: white; padding: 8px; border: none; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        📸 Salvesta ekraanipilt (PNG)
+                    </button>
+                </div>
             </div>
 
         </div>
     </div>
 </div>
+
+>
 
 <!-- Teegid ja skriptid -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
