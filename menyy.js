@@ -3,11 +3,9 @@ import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi, logout } from "./auth.js";
 
 let seaded = null;
-let aktiivsedToiduKoodid = []; // Siia kogume seadetest aktiivsed veerud (nt 'supp', 'praad1')
+let aktiivsedToiduKoodid = []; 
 let valitudEsmaspaev = null;
 
-
-// Päevade nimed ja nihked esmaspäevast
 const TOOPAEVAD = [
     { nimi: "ESMASPÄEV", nihe: 0 },
     { nimi: "TEISIPÄEV", nihe: 1 },
@@ -16,23 +14,28 @@ const TOOPAEVAD = [
     { nimi: "REEDE", nihe: 4 }
 ];
 
-// --- 1. ABIINFO: Leiab kuupäeva nihke järgi ---
 function lisaPaevad(algKpv, paevadeArv) {
     const kpv = new Date(algKpv);
     kpv.setDate(kpv.getDate() + paevadeArv);
     return kpv.toISOString().split('T')[0];
 }
 
-// --- 2. MOOTOR: Joonistab seadete põhjal dünaamilise tabeli ---
+// Leiab etteantud kuupäeva nädala esmaspäeva
+function leiaEsmaspaev(kuupaev) {
+    const d = new Date(kuupaev);
+    const day = d.getDay();
+    const nihe = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(nihe));
+}
+
 async function EhitaMenyySisestusBlankett() {
     const algusSisend = document.getElementById("menyyAlgusEsmaspaev").value;
     if (!algusSisend) return alert("Palun vali kalendrist esmalt kuupäev!");
 
     valitudEsmaspaev = new Date(algusSisend);
     const blankettKonteiner = document.getElementById("menyyBlankettKast");
-    blankettKonteiner.innerHTML = "<p>Andmete laadimine andmebaasist...</p>";
+    blankettKonteiner.innerHTML = "<p>Laen andmeid andmebaasist...</p>";
 
-    // Tõmbame selle nädala kuupäevade vahemiku andmebaasist ära, et olemasolevad tekstid lahtritesse panna
     const esmaspaevStr = lisaPaevad(valitudEsmaspaev, 0);
     const reedeStr = lisaPaevad(valitudEsmaspaev, 4);
 
@@ -44,30 +47,26 @@ async function EhitaMenyySisestusBlankett() {
 
     if (error) console.error("Viga menüüde laadimisel:", error);
 
-    // Teeme otsinguindeksi: "kuupaev_kood" -> "Tekst"
     const tekstideIndeks = {};
     olemasolevadTekstid?.forEach(t => {
         tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
     });
 
-    // Hakkame HTML tabelit kokku panema
     let html = `<table class="menyy-tabel"><thead><tr>`;
     TOOPAEVAD.forEach(p => {
         const kpvStr = lisaPaevad(valitudEsmaspaev, p.nihe);
-        // Teisendame kuupäeva ilusamaks vaateks (nt "15.05")
         const kpvOsad = kpvStr.split("-");
         html += `<th class="paeva-veerg"><div class="padi-paev">${p.nimi}</div><div style="font-size:11px; color:#64748b;">${kpvOsad[2]}.${kpvOsad[1]}</div></th>`;
     });
     html += `</tr></thead><tbody><tr>`;
 
-    // Joonistame iga päeva alla tema aktiivsete toitude tekstilahtrid
     TOOPAEVAD.forEach((p, pIdx) => {
         const kpvStr = lisaPaevad(valitudEsmaspaev, p.nihe);
         html += `<td class="paeva-veerg">`;
 
+        // 🌟 DÜNAAMILINE: Loeb alati hetkel aktiivseid toite seadetest!
         aktiivsedToiduKoodid.forEach(toode => {
             const vanaTekst = tekstideIndeks[`${kpvStr}_${toode.nimi}`] || "";
-            // Tekitame unikaalse ID lahtrile kujul: "input-2026-07-30-supp"
             const inputId = `input-${kpvStr}-${toode.nimi}`;
             
             html += `
@@ -85,9 +84,8 @@ async function EhitaMenyySisestusBlankett() {
     blankettKonteiner.innerHTML = html;
 }
 
-// --- 3. SALVESTAMINE: Kogub andmed lahtritest kokku ja lennutab Supabasse ---
 async function SalvestaKoguNadalAndmebaasi() {
-    if (!valitudEsmaspaev) return alert("Blankett pole veel laetud! Vali kuupäev ja lae tabel.");
+    if (!valitudEsmaspaev) return alert("Blankett pole veel laetud!");
 
     const salvestatavadRead = [];
 
@@ -98,7 +96,8 @@ async function SalvestaKoguNadalAndmebaasi() {
             const inputId = `input-${kpvStr}-${toode.nimi}`;
             const lahtriVaartus = document.getElementById(inputId)?.value || "";
             
-            // Salvestame andmebaasi ainult need read, kuhu admin päriselt midagi kirjutas
+            // ✅ KAITSE: Salvestame ainult need read, kus on tekst olemas. 
+            // Tühjad kastid ei kirjuta andmebaasis vanu asju üle (saad suppi muutmata magusat lisada!)
             if (lahtriVaartus.trim() !== "") {
                 salvestatavadRead.push({
                     kuupaev: kpvStr,
@@ -110,51 +109,46 @@ async function SalvestaKoguNadalAndmebaasi() {
     });
 
     if (salvestatavadRead.length === 0) {
-        return alert("Tabel on täiesti tühi, pole midagi salvestada!");
+        return alert("Tabelis pole uusi muudatusi, mida salvestada!");
     }
 
-    // Kasutame .upsert() käsku, mis sünkroniseerib andmed automaatselt (loob uue või uuendab vana)
     const { error } = await sb
         .from("menyy_tekstid")
         .upsert(salvestatavadRead, { onConflict: "kuupaev,toode_nimi_kood" });
 
     if (!error) {
-        alert("💾 Näidatava nädala menüü tekstid on andmebaasis turvaliselt lukustatud!");
-        // Logime tegevuse ka ametlikku logitabelisse auditiks
-        try {
-            await sb.from("logid").insert({
-                tegevus: "menyy_uuendus",
-                user_email: window.userEmail || "admin",
-                detailid: { esmaspaev: lisaPaevad(valitudEsmaspaev, 0) }
-            });
-        } catch (e) { console.error(e); }
+        alert("💾 Menüü tekstid edukalt salvestatud!");
         
-        await EhitaMenyySisestusBlankett(); // Värskendame vaadet
+        // 🌟 AUTOMAATNE TAGASITULEK: Viime kalendri ja vaate koheselt tagasi KÄESOLEVA nädala peale!
+        SuunaTagasiPraegusesseNadalasse();
     } else {
         alert("Tõrge salvestamisel: " + error.message);
     }
 }
 
-// --- 4. ALGSEADISTUS (DOMContentLoaded) ---
+function SuunaTagasiPraegusesseNadalasse() {
+    const tana = new Date();
+    const jooksevEsmaspaev = leiaEsmaspaev(tana);
+    const kpvInput = document.getElementById("menyyAlgusEsmaspaev");
+    if (kpvInput) {
+        kpvInput.value = jooksevEsmaspaev.toISOString().split('T')[0];
+    }
+    EhitaMenyySisestusBlankett();
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
     await kuvaKasutajaNimi();
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) logoutBtn.onclick = logout;
 
-    // Laeme dünaamilised veerud seadetest
     seaded = await laeSeaded();
-    // Filtreerime välja ainult toidukaubad (ignoreerime numbrilisi kassa käibeid jne)
+    // Võtame seadetest ainult toidud. Šnitsel on nimekirjas sees, masin loeb seda siit muretult!
     aktiivsedToiduKoodid = seaded.veerud.filter(v => v.tüüp === "toit");
 
-    // Sättime kalendrisse automaatselt jooksva nädala kuupäeva
-    const tana = new Date();
-    const jooksevEsmaspaev = new Date(tana.setDate(tana.getDate() - tana.getDay() + (tana.getDay() === 0 ? -6 : 1)));
-    document.getElementById("menyyAlgusEsmaspaev").value = jooksevEsmaspaev.toISOString().split('T')[0];
+    // Algseadistus: paneme kalendri käesoleva nädala esmaspäevale
+    SuunaTagasiPraegusesseNadalasse();
 
-    // Seome nuppude klikid
     document.getElementById("btnLaeNadal").onclick = EhitaMenyySisestusBlankett;
     document.getElementById("btnSalvestaMenyy").onclick = SalvestaKoguNadalAndmebaasi;
-
-    // Laeme laua koheselt jooksva nädala peale valmis
-    await EhitaMenyySisestusBlankett();
 });
+
