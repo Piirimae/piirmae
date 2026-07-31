@@ -1,4 +1,3 @@
-console.log("AVALEHT.JS ON LAETUD!");
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 
@@ -13,34 +12,33 @@ function lisaPaevad(algKpv, paevadeArv) {
 function TuvastaAktiivsedKuupaevad() {
     const nüüd = new Date();
     const praeguneTund = nüüd.getHours();
-    const nädalapäev = nüüd.getDay(); // 0 = pühapäev, 1 = esmaspäev...
+    const nädalapäev = nüüd.getDay(); 
 
-    // 1. Päevamenüü kuupäev (pärast kl 18 lülitab homse peale)
-    let paevaKuupaevObj = new Date(nüüd);
+    let paevaKuupaev = nüüd.toISOString().split('T')[0];
+    let esmaspaevaKuupaev = null;
+
     if (praeguneTund >= 18) {
-        paevaKuupaevObj.setDate(paevaKuupaevObj.getDate() + 1);
-    }
-    const paevaKuupaev = paevaKuupaevObj.toISOString().split('T')[0];
-
-    // 2. Tuvastame, millise nädala esmaspäeva meil vaja on
-    let sihtPaev = new Date(nüüd);
-    
-    // Kui on reede õhtu (kl 18+) või laupäev või pühapäev, nihutame sihtpäeva uude nädalasse
-    if ((nädalapäev === 5 && praeguneTund >= 18) || nädalapäev === 6 || nädalapäev === 0) {
-        // Nihutame sihtpäeva järgmisesse nädalasse (lisame 3, 2 või 1 päeva, et jõuda esmaspäevani)
-        const paeviEsmaspaevani = nädalapäev === 5 ? 3 : (nädalapäev === 6 ? 2 : 1);
-        sihtPaev.setDate(sihtPaev.getDate() + paeviEsmaspaevani);
-    } else {
-        // Tööpäevadel enne reede õhtut liigume jooksva nädala esmaspäevale
-        const nihe = nädalapäev === 0 ? -6 : 1 - nädalapäev;
-        sihtPaev.setDate(sihtPaev.getDate() + nihe);
+        const homme = new Date();
+        homme.setDate(homme.getDate() + 1);
+        paevaKuupaev = homme.toISOString().split('T')[0];
     }
 
-    const esmaspaevaKuupaev = sihtPaev.toISOString().split('T')[0];
+    const testPäev = new Date();
+    if (praeguneTund >= 18 && nädalapäev === 5) {
+        testPäev.setDate(testPäev.getDate() + 3);
+    } else if (nädalapäev === 6) {
+        testPäev.setDate(testPäev.getDate() + 2);
+    } else if (nädalapäev === 0) {
+        testPäev.setDate(testPäev.getDate() + 1);
+    }
+
+    const d = new Date(testPäev);
+    const day = d.getDay();
+    const nihe = d.getDate() - day + (day === 0 ? -6 : 1);
+    esmaspaevaKuupaev = new Date(d.setDate(nihe)).toISOString().split('T')[0];
 
     return { paevaKuupaev, esmaspaevaKuupaev };
 }
-
 
 function HangiKuuNimi(kuuStr) {
     const kuud = ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"];
@@ -49,15 +47,6 @@ function HangiKuuNimi(kuuStr) {
 }
 
 async function LaeJaKuvaAvaleheMenyyd() {
-    // KRAAN LAHTI: Kui seadeid pole või veerud on tühjad, laeme nad otse siin uuesti sisse
-    if (!seaded || !seaded.veerud || seaded.veerud.length === 0) {
-        try {
-            seaded = await laeSeaded();
-        } catch (e) {
-            console.error("Seadete laadimise viga funktsioonis:", e);
-        }
-    }
-
     const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
     const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
 
@@ -75,30 +64,21 @@ async function LaeJaKuvaAvaleheMenyyd() {
         nadalaKpvElement.innerText = `${eOsad[2]}.${eOsad[1]} - ${rOsad[2]}.${rOsad[1]}.${rOsad[0]}`;
     }
 
-    // Päringu ümber paneme turvakontrolli, et kood siin kohas kinni ei jääks
-    let menyyTekstid = [];
-    try {
-        const vastus = await sb
-            .from("menyy_tekstid")
-            .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
-            .gte("kuupaev", esmaspaevaKuupaev)
-            .lte("kuupaev", reedeStr);
-        menyyTekstid = vastus.data || [];
-    } catch (err) {
-        console.error("Supabase menüü päringu viga:", err);
-    }
+    const { data: menyyTekstid } = await sb
+        .from("menyy_tekstid")
+        .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
+        .gte("kuupaev", esmaspaevaKuupaev)
+        .lte("kuupaev", reedeStr);
 
     const tekstideIndeks = {};
-    menyyTekstid.forEach(t => {
+    menyyTekstid?.forEach(t => {
         tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
     });
 
-    // Kontrollime, et seadete veerud oleks olemas enne filtreerimist
-    const veerudMassiiv = (seaded && seaded.veerud) ? seaded.veerud : [];
-    const aktiivsedToidud = veerudMassiiv.filter(v => v.tüüp === "toit");
+    const aktiivsedToidud = seaded.veerud.filter(v => v.tüüp === "toit");
 
     // =========================================================================
-    // 🥣 POOL A: PÄEVAMENÜÜ
+    // 🥣 POOL A: PÄEVAMENÜÜ (Kuvab kõike, mis on sisestatud!)
     // =========================================================================
     const paevKast = document.getElementById("paevamenyyTootedKast");
     if (paevKast) {
@@ -122,7 +102,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
     }
 
     // =========================================================================
-    // 📅 POOL B: NÄDALAMENÜÜ
+    // 📅 POOL B: NÄDALAMENÜÜ (🌟 DÜNAAMILINE LÜHENDAMINE!)
     // =========================================================================
     const nadalKast = document.getElementById("nadalamenyyTootedKast");
     if (nadalKast) {
@@ -142,6 +122,8 @@ async function LaeJaKuvaAvaleheMenyyd() {
 
             aktiivsedToidud.forEach(toode => {
                 const koodVäike = toode.nimi.toLowerCase();
+                
+                // 🌟 REEGEL: Nädalaosast lõigatakse Šnitsel, Magus ja Termo täielikult välja! [1.1]
                 if (koodVäike.includes("šnitsel") || koodVäike.includes("magus") || koodVäike.includes("termo")) {
                     return; 
                 }
@@ -171,17 +153,11 @@ async function LaeJaKuvaAvaleheMenyyd() {
     }
 }
 
-
-
-// Pane see puhas plokk avaleht.js faili KÕIGE LÕPPU:
 window.addEventListener("DOMContentLoaded", async () => {
-    try {
-        seaded = await laeSeaded();
-        await LaeJaKuvaAvaleheMenyyd();
-    } catch (viga) {
-        console.error("Viga menüü laadimisel:", viga);
-    }
+    seaded = await laeSeaded();
+    await LaeJaKuvaAvaleheMenyyd();
 });
+
 
 
 
