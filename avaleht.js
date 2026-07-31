@@ -49,6 +49,11 @@ function HangiKuuNimi(kuuStr) {
 }
 
 async function LaeJaKuvaAvaleheMenyyd() {
+    // 🌟 KRAAN LAHTI: Kui seadeid pole veel laetud või on tühi, laeme nad otse siin funktsiooni alguses sisse!
+    if (!seaded || !seaded.veerud || seaded.veerud.length === 0) {
+        seaded = await laeSeaded();
+    }
+
     const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
     const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
 
@@ -72,24 +77,12 @@ async function LaeJaKuvaAvaleheMenyyd() {
         .gte("kuupaev", esmaspaevaKuupaev)
         .lte("kuupaev", reedeStr);
 
-    
-
-       // ... siin on su eelnev menyyTekstid loogika ...
-
     const tekstideIndeks = {};
     menyyTekstid?.forEach(t => {
         tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
     });
 
-    // PANE NEED READ SIIA (asenda funktsiooni viimane rida):
-    console.log("Süsteemi seaded:", seaded);
-
     const aktiivsedToidud = seaded.veerud.filter(v => v.tüüp === "toit");
-    
-    console.log("Aktiivsed toidud pärast filtrit:", aktiivsedToidud);
-
-    // See on funktsiooni LaeJaKuvaAvaleheMenyyd() lõpp, siit edasi tulevad juba POOL A ja POOL B html-i koodid
-
 
     // =========================================================================
     // 🥣 POOL A: PÄEVAMENÜÜ (Kuvab kõike, mis on sisestatud!)
@@ -137,7 +130,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
             aktiivsedToidud.forEach(toode => {
                 const koodVäike = toode.nimi.toLowerCase();
                 
-                // 🌟 REEGEL: Nädalaosast lõigatakse Šnitsel, Magus ja Termo täielikult välja! [1.1]
+                // 🌟 REEGEL: Nädalaosast lõigatakse Šnitsel, Magus ja Termo täielikult välja!
                 if (koodVäike.includes("šnitsel") || koodVäike.includes("magus") || koodVäike.includes("termo")) {
                     return; 
                 }
@@ -166,6 +159,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
         nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
     }
 }
+
 
 window.addEventListener("DOMContentLoaded", async () => {
     try {
