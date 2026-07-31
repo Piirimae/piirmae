@@ -4,7 +4,8 @@ import { kuvaKasutajaNimi, logout } from "./auth.js";
 
 let seaded = null;
 let aktiivsedToiduKoodid = []; // Siia kogume seadetest aktiivsed veerud (nt 'supp', 'praad1')
-let valitudEsmaspaev Date = null;
+let valitudEsmaspaev = null;
+
 
 // Päevade nimed ja nihked esmaspäevast
 const TOOPAEVAD = [
