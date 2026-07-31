@@ -49,6 +49,15 @@ function HangiKuuNimi(kuuStr) {
 }
 
 async function LaeJaKuvaAvaleheMenyyd() {
+    // KRAAN LAHTI: Kui seadeid pole või veerud on tühjad, laeme nad otse siin uuesti sisse
+    if (!seaded || !seaded.veerud || seaded.veerud.length === 0) {
+        try {
+            seaded = await laeSeaded();
+        } catch (e) {
+            console.error("Seadete laadimise viga funktsioonis:", e);
+        }
+    }
+
     const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
     const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
 
@@ -66,21 +75,30 @@ async function LaeJaKuvaAvaleheMenyyd() {
         nadalaKpvElement.innerText = `${eOsad[2]}.${eOsad[1]} - ${rOsad[2]}.${rOsad[1]}.${rOsad[0]}`;
     }
 
-    const { data: menyyTekstid } = await sb
-        .from("menyy_tekstid")
-        .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
-        .gte("kuupaev", esmaspaevaKuupaev)
-        .lte("kuupaev", reedeStr);
+    // Päringu ümber paneme turvakontrolli, et kood siin kohas kinni ei jääks
+    let menyyTekstid = [];
+    try {
+        const vastus = await sb
+            .from("menyy_tekstid")
+            .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
+            .gte("kuupaev", esmaspaevaKuupaev)
+            .lte("kuupaev", reedeStr);
+        menyyTekstid = vastus.data || [];
+    } catch (err) {
+        console.error("Supabase menüü päringu viga:", err);
+    }
 
     const tekstideIndeks = {};
-    menyyTekstid?.forEach(t => {
+    menyyTekstid.forEach(t => {
         tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
     });
 
-    const aktiivsedToidud = seaded.veerud.filter(v => v.tüüp === "toit");
+    // Kontrollime, et seadete veerud oleks olemas enne filtreerimist
+    const veerudMassiiv = (seaded && seaded.veerud) ? seaded.veerud : [];
+    const aktiivsedToidud = veerudMassiiv.filter(v => v.tüüp === "toit");
 
     // =========================================================================
-    // 🥣 POOL A: PÄEVAMENÜÜ (Kuvab kõike, mis on sisestatud!)
+    // 🥣 POOL A: PÄEVAMENÜÜ
     // =========================================================================
     const paevKast = document.getElementById("paevamenyyTootedKast");
     if (paevKast) {
@@ -104,7 +122,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
     }
 
     // =========================================================================
-    // 📅 POOL B: NÄDALAMENÜÜ (🌟 DÜNAAMILINE LÜHENDAMINE!)
+    // 📅 POOL B: NÄDALAMENÜÜ
     // =========================================================================
     const nadalKast = document.getElementById("nadalamenyyTootedKast");
     if (nadalKast) {
@@ -124,8 +142,6 @@ async function LaeJaKuvaAvaleheMenyyd() {
 
             aktiivsedToidud.forEach(toode => {
                 const koodVäike = toode.nimi.toLowerCase();
-                
-                // 🌟 REEGEL: Nädalaosast lõigatakse Šnitsel, Magus ja Termo täielikult välja!
                 if (koodVäike.includes("šnitsel") || koodVäike.includes("magus") || koodVäike.includes("termo")) {
                     return; 
                 }
@@ -154,6 +170,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
         nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
     }
 }
+
 
 
 // Pane see puhas plokk avaleht.js faili KÕIGE LÕPPU:
