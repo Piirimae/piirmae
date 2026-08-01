@@ -63,55 +63,81 @@ function HangiKuuNimi(kuuStr) {
 }
 // --- 3. ANDMETE KUVAMISE JA JOONISTAMISE MOOTOR ---
 async function LaeJaKuvaAvaleheMenyyd() {
-    // 1. SEADED JA KUUPÄEVAD (Laetakse ainult siis, kui neid veel pole)
-    if (!seaded || !seaded.veerud) seaded = await laeSeaded();
-    
-    const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
-    
-    // Ajatsooni kindel esmaspäeva objekti loomine ja reede arvutamine
-    const [aasta, kuu, paev] = esmaspaevaKuupaev.split("-");
-    const esmaspaevObjekt = new Date(aasta, kuu - 1, paev);
-    const reedeStr = lisaPaevad(esmaspaevObjekt, 4);
+    console.log("KONTROLL -> Kuupäevad:", TuvastaAktiivsedKuupaevad(), "Seaded:", seaded); 
+    if (!seaded || !seaded.veerud) {
+        seaded = await laeSeaded();
+    }
 
-    // Päiste kuupäevade uuendamine
+    const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
+    const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
+
     const pOsad = paevaKuupaev.split("-");
     const eOsad = esmaspaevaKuupaev.split("-");
     const rOsad = reedeStr.split("-");
+
     const paevaKpvElement = document.getElementById("tekstPaevaKpv");
-    if (paevaKpvElement) paevaKpvElement.innerText = `${parseInt(pOsad[2], 10)}. ${HangiKuuNimi(pOsad[1])} ${pOsad[0]}`;
+    if (paevaKpvElement) {
+        paevaKpvElement.innerText = `${parseInt(pOsad[2], 10)}. ${HangiKuuNimi(pOsad[1])} ${pOsad[0]}`;
+    }
+
     const nadalaKpvElement = document.getElementById("tekstNadalaKpv");
-    if (nadalaKpvElement) nadalaKpvElement.innerText = `${eOsad[2]}.${eOsad[1]} - ${rOsad[2]}.${rOsad[1]}.${rOsad[0]}`;
+    if (nadalaKpvElement) {
+        nadalaKpvElement.innerText = `${eOsad[2]}.${eOsad[1]} - ${rOsad[2]}.${rOsad[1]}.${rOsad[0]}`;
+    }
 
-    // 2. ANDMETE LAADIMINE (Supabase)
-    const { data: menyyTekstid } = await sb.from("menyy_tekstid")
+    // 1. LAHEMME TOIDUD (menyy_tekstid)
+    const { data: menyyTekstid } = await sb
+        .from("menyy_tekstid")
         .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
-        .gte("kuupaev", esmaspaevaKuupaev).lte("kuupaev", reedeStr);
-    const { data: praegusedHinnad } = await sb.from("hinnad")
-        .select("nimi, hind").is("kehtiv_kuni", null);
+        .gte("kuupaev", esmaspaevaKuupaev)
+        .lte("kuupaev", reedeStr);
 
-    // 3. INDEKSITE KOOSTAMINE (Andmete kiireks leidmiseks)
     const tekstideIndeks = {};
-    menyyTekstid?.forEach(t => tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi);
+    menyyTekstid?.forEach(t => {
+        tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
+    });
+
+    // 2. 🌟 KRAAN LAHTI: Küsime tabelist "hinnad" praegu kehtivad hinnad!
+    const { data: praegusedHinnad } = await sb
+        .from("hinnad")
+        .select("nimi, hind")
+        .is("kehtiv_kuni", null);
+
+    // Paneme hinnad indeksisse toote nime järgi
     const hindadeIndeks = {};
-    praegusedHinnad?.forEach(h => hindadeIndeks[h.nimi] = h.hind);
+    praegusedHinnad?.forEach(h => {
+        hindadeIndeks[h.nimi] = h.hind;
+    });
 
-    const aktiivsedToidud = seaded?.veerud?.filter(v => v.tüüp === "toit") || [];
+    const veerudMassiiv = seaded?.veerud || [];
+    const aktiivsedToidud = veerudMassiiv.filter(v => v.tüüp === "toit");
 
-    // 4. HTML JOONISTAMINE (Päeva- ja nädalamenüü)
+    // =========================================================================
+    // 🥣 POOL A: PÄEVAMENÜÜ
+    // =========================================================================
     const paevKast = document.getElementById("paevamenyyTootedKast");
     if (paevKast) {
-        let paevHtml = "", lahtreidKuvatud = 0;
+        let paevHtml = "";
+        let lahtreidKuvatud = 0;
+
         aktiivsedToidud.forEach(toode => {
             const tekst = tekstideIndeks[`${paevaKuupaev}_${toode.nimi}`] || "";
             if (tekst.trim() !== "") {
+                // Võtame hinna tabelist "hinnad", kui seal pole, siis võtame seadete oma
                 const reaalneHind = hindadeIndeks[toode.nimi] !== undefined ? hindadeIndeks[toode.nimi] : toode.hind;
-                paevHtml += `<div class="toidu-rida">${tekst} - ${Number(reaalneHind).toFixed(2)} €</div>`;
+                
+                paevHtml += `
+                    <div class="toidu-rida">
+                        <span class="toidu-nimi">${tekst}</span>
+                        <span class="toidu-joon"></span>
+                        <span class="toidu-hind">${Number(reaalneHind).toFixed(2)} €</span>
+                    </div>
+                `;
                 lahtreidKuvatud++;
             }
         });
-        paevKast.innerHTML = lahtreidKuvatud > 0 ? paevHtml : "<em>Pole lõunapakkumisi.</em>";
+        paevKast.innerHTML = lahtreidKuvatud > 0 ? paevHtml : "<p style='color:#718096; font-style:italic;'>Selleks päevaks pole lõunapakkumisi sisestatud.</p>";
     }
-
     // =========================================================================
     // 📅 POOL B: NÄDALAMENÜÜ
     // =========================================================================
