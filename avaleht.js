@@ -60,7 +60,7 @@ function HangiKuuNimi(kuuStr) {
 }
 // --- 3. ANDMETE KUVAMISE JA JOONISTAMISE MOOTOR ---
 async function LaeJaKuvaAvaleheMenyyd() {
-    // Tagame seadete olemasolu
+    // 1. Tagame seadete olemasolu (Sinu tabel on seaded_veerud)
     if (!seaded || !seaded.veerud || seaded.veerud.length === 0) {
         seaded = await laeSeaded();
     }
@@ -82,6 +82,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
         nadalaKpvElement.innerText = `${eOsad[2]}.${eOsad[1]} - ${rOsad[2]}.${rOsad[1]}.${rOsad[0]}`;
     }
 
+    // Laeme toidud andmebaasist menyy_tekstid tabelist
     const { data: menyyTekstid } = await sb
         .from("menyy_tekstid")
         .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
@@ -96,7 +97,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
     const aktiivsedToidud = seaded.veerud.filter(v => v.tüüp === "toit");
 
     // =========================================================================
-    // 🥣 POOL A: PÄEVAMENÜÜ
+    // 🥣 POOL A: PÄEVAMENÜÜ (Kuvab ainult reaalselt sisestatud TOITE!)
     // =========================================================================
     const paevKast = document.getElementById("paevamenyyTootedKast");
     if (paevKast) {
@@ -140,6 +141,8 @@ async function LaeJaKuvaAvaleheMenyyd() {
 
             aktiivsedToidud.forEach(toode => {
                 const koodVäike = toode.nimi.toLowerCase();
+                
+                // REEGEL: Nädalaosast lõigatakse Šnitsel, Magus ja Termo välja
                 if (koodVäike.includes("šnitsel") || koodVäike.includes("magus") || koodVäike.includes("termo")) {
                     return; 
                 }
@@ -168,22 +171,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
         nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
     }
 
-    // =========================================================================
-    // 📢 LISATEATED AVALEHELE
-    // =========================================================================
-    const paevaTeadeTekst = tekstideIndeks[`${paevaKuupaev}_PAEVA_TEADE`] || "";
-    const paevaTeadeKast = document.getElementById("kuvaPaevaTeade");
-    if (paevaTeadeKast) {
-        paevaTeadeKast.innerText = paevaTeadeTekst;
-        paevaTeadeKast.style.display = paevaTeadeTekst ? "block" : "none";
-    }
-
-    const nadalaTeadeTekst = tekstideIndeks[`${esmaspaevaKuupaev}_NADALA_TEADE`] || "";
-    const nadalaTeadeKast = document.getElementById("kuvaNadalaTeade");
-    if (nadalaTeadeKast) {
-        nadalaTeadeKast.innerText = nadalaTeadeTekst;
-        nadalaTeadeKast.style.display = nadalaTeadeTekst ? "block" : "none";
-    }
+    // 🌟 KUSTUTATUD: Kõik vigased teadete laadimised, mis kuupäevi ja ridu varem blokeerisid!
 }
 
 
