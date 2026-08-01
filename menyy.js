@@ -158,7 +158,7 @@ async function SalvestaKoguNadalAndmebaasi() {
         .upsert(salvestatavadRead, { onConflict: "kuupaev,toode_nimi_kood" });
 
     if (!error) {
-              // 🌟 KRAAN LAHTI: Kirjutame rea Sinu olemasolevasse logide tabelisse!
+                      // 🌟 KRAAN LAHTI: Kirjutame rea Sinu olemasolevasse logide tabelisse!
         try {
             const { data: { user } } = await sb.auth.getUser();
             const kasutajaEmail = user?.email || "Teadmata";
@@ -179,6 +179,7 @@ async function SalvestaKoguNadalAndmebaasi() {
         } catch (logiViga) {
             console.error("Viga olemasolevasse logitabelisse kirjutamisel:", logiViga);
         }
+
 
 
         alert("💾 Menüü tekstid ja teated edukalt salvestatud!");
