@@ -1,6 +1,5 @@
 
-    // KÕIGE ESIMENE RIDA TESTIMISEKS:
-    console.log("KONTROLL -> Kuupäevad:", TuvastaAktiivsedKuupaevad(), "Seaded:", seaded);
+    
 
 import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
