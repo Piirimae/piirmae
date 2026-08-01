@@ -143,13 +143,13 @@ function seadistaNupudJaLukustus() {
 async function salvestaParandatudArhiiv() {
     // Teie olemasolev salvestamise loogika...
 }
-// 🌟 SÜSTEEMI AUTO-KRAAN: Kontrollib ja arhiveerib eelmise kuu automaatselt, kui see on andmebaasist puudu
+// 🌟 SÜSTEEMI AUTO-KRAAN: Kontrollib ja arhiveerib eelmise kuu täiesti iseseisvalt ja korrektselt
 async function KontrolliJaArhiveeriEelmineKuuAutomaatselt(praeguneKuuId) {
     if (!praeguneKuuId || !praeguneKuuId.includes("-")) return;
 
     // 1. Tuvastame kalendriliselt eelmise kuu ID (kujul YYYY-MM)
     const [aasta, kuu] = praeguneKuuId.split("-").map(Number);
-    let eelmiseKuuObj = new Date(aasta, kuu - 2, 1); // Liigume 1 kuu tagasi
+    let eelmiseKuuObj = new Date(aasta, kuu - 2, 1);
     const eelmiseKuuId = `${eelmiseKuuObj.getFullYear()}-${String(eelmiseKuuObj.getMonth() + 1).padStart(2, '0')}`;
 
     try {
@@ -160,7 +160,6 @@ async function KontrolliJaArhiveeriEelmineKuuAutomaatselt(praeguneKuuId) {
             .eq("kuu_id", eelmiseKuuId)
             .maybeSingle();
 
-        // Kui on juba arhiivis olemas, siis me midagi üle ei kirjuta ega puutu
         if (olemasArhiivis) return;
 
         // 3. Küsime andmebaasist eelmise kuu reaalsed kassa andmed
@@ -170,28 +169,75 @@ async function KontrolliJaArhiveeriEelmineKuuAutomaatselt(praeguneKuuId) {
             .eq("kuu_id", eelmiseKuuId)
             .order("kuupaev");
 
-        // Kui vanas kuus polnud üldse andmeid sisestatud, pole midagi arhiveerida
         if (!vanaKuuAndmed || vanaKuuAndmed.length === 0) return;
 
         console.log(`[AUTOMAATIKA] Tuvastasin sulgemata eelmise kuu: ${eelmiseKuuId}. Alustan arhiveerimist...`);
 
-        // 4. Ehitame Sinu arhiiv.js jaoks vajaliku 'state' objekti struktuuri
-        // (Et arhiiv.js suudaks seda tabelina kuvada, peab see sisaldama paise, rows, sumKogus jne)
-        const arhiiviState = {
-            paise: seaded?.veerud || [], // Võtame jooksvad veerud seadetest
-            rows: vanaKuuAndmed.map(r => ({
+        // 🌟 KRAAN LAHTI: Tagame, et seadete veerud on olemas enne tabeli struktuuri ehitamist
+        let turvalisedSeaded = window.seaded;
+        if (!turvalisedSeaded || !turvalisedSeaded.veerud || turvalisedSeaded.veerud.length === 0) {
+            try {
+                const { laeSeaded } = await import("./seaded.js");
+                turvalisedSeaded = await laeSeaded();
+            } catch (e) {
+                console.error("Viga seadete dünaamilisel laadimisel auto-arhiivis:", e);
+                return; // Ilma veerandita ei saa me vigast arhiivi luua
+            }
+        }
+
+        const jooksvadVeerud = turvalisedSeaded?.veerud || [];
+        
+        // Valmistame ette massiivid veeru andmete arvutamiseks
+        const sumKogus = jooksvadVeerud.map(() => 0);
+        const sumHind = jooksvadVeerud.map(() => 0);
+        let kuuKokkuSumma = 0;
+
+        // 4. Ehitame 'rows' andmed ja arvutame summad
+        const prinditavadRead = vanaKuuAndmed.map(r => {
+            let reaSumma = 0;
+            
+            const ridadeVeerud = jooksvadVeerud.map((v, idx) => {
+                const väärtus = Number(r[v.nimi]) || 0;
+                
+                if (väärtus > 0) {
+                    if (v.tüüp === "toit") {
+                        // Kasutame 'leiaHind' funktsiooni, kui see on olemas
+                        const hind = typeof leiaHind === "function" ? leiaHind(v.nimi, r.kuupaev) : (Number(v.hind) || 0);
+                        const tulu = väärtus * hind;
+                        
+                        reaSumma += tulu;
+                        sumKogus[idx] += väärtus;
+                        sumHind[idx] += tulu;
+                    } else if (v.tüüp === "number") {
+                        reaSumma += väärtus;
+                        sumKogus[idx] += väärtus;
+                        sumHind[idx] += väärtus;
+                    }
+                }
+                return väärtus;
+            });
+
+            kuuKokkuSumma += reaSumma;
+
+            return {
                 kuupäev: r.kuupaev && r.kuupaev.includes("T") ? r.kuupaev.split("T")[0] : r.kuupaev,
-                veerud: (seaded?.veerud || []).map(v => r[v.nimi] || 0),
-                kokku: 0 // Siia arvutab logic.js või süsteem summad ise
-            })),
-            sumKogus: [],
-            sumHind: [],
-            kuuKokku: 0
+                veerud: ridadeVeerud,
+                kokku: Number(reaSumma.toFixed(2))
+            };
+        });
+
+        // Koostame lõpliku andmestruktuuri arhiiv.js jaoks
+        const arhiiviState = {
+            paise: jooksvadVeerud,
+            rows: prinditavadRead,
+            sumKogus: sumKogus,
+            sumHind: sumHind.map(v => Number(v.toFixed(2))),
+            kuuKokku: Number(kuuKokkuSumma.toFixed(2))
         };
 
-        const uueArhiiviId = "arh_" + eelmiseKuuId + "_" + Date.now();
+        const uueArhiiviId = `arh_${eelmiseKuuId}_${Date.now()}`;
 
-        // 5. SAADAME ANDMED SINU AMETLIKKU ARHIIVI TABELISSE
+        // 5. Salvestame andmed arhiivi tabelisse
         const { error: arhiivError } = await sb
             .from("arhiiv")
             .insert({
@@ -199,29 +245,30 @@ async function KontrolliJaArhiveeriEelmineKuuAutomaatselt(praeguneKuuId) {
                 kuu_id: eelmiseKuuId,
                 salvestaja: "Süsteem auto",
                 versioon: 1,
-                paeritolu: "automaatne", // 🛠️ Sinu arhiiv.js loeb seda märgistust!
+                paeritolu: "automaatne", 
                 state: JSON.stringify(arhiiviState)
             });
 
         if (!arhiivError) {
-            // 6. 📢 KANNAME TEGEVUSE AUTOMATSELT SINU LOGID TABELISSE!
+            // 6. Logime tegevuse
             await sb.from("logid").insert({
-                user_email: "Süsteem auto", // 🛠️ Logis selge ja korrektne tunnus
+                user_email: "Süsteem auto", 
                 tegevus: "auto_kuu_arhiiv",
                 detailid: {
                     kuu: eelmiseKuuId,
                     arhiiviId: uueArhiiviId,
-                    teade: `Eelmise kuu (${eelmiseKuuId}) andmed arhiveeriti automaatselt uue kuu laadimise esimesel sekundil.`
+                    teade: `Eelmise kuu (${eelmiseKuuId}) kassa suleti ja arhiveeriti automaatselt.`
                 }
             });
-            console.log(`✅ [AUTO-LOGI] Kuu ${eelmiseKuuId} edukalt arhiveeritud ja logitud.`);
+            console.log(`✅ [AUTO-LOGI] Kuu ${eelmiseKuuId} edukalt arhiveeritud.`);
         } else {
-            console.error("Automaatse arhiivi tõrge andmebaasis:", arhiivError.message);
+            console.error("Arhiivi tõrge:", arhiivError.message);
         }
     } catch (err) {
-        console.error("Süsteemne viga automaatsel kontrollil:", err);
+        console.error("Automaatne kontroll nurjus:", err);
     }
 }
+
 
 
 
