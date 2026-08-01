@@ -153,32 +153,40 @@ async function SalvestaKoguNadalAndmebaasi() {
     if (salvestatavadRead.length === 0) return alert("Midagi pole salvestada!");
 
       // 3. SALVESTAME KÕIK ÜHE KORRAGA ANDMEBAASI
+      // 3. SALVESTAME KÕIK ÜHE KORRAGA ANDMEBAASI
     const { error } = await sb
         .from("menyy_tekstid")
-        .upsert(salvestatavadRead, { onConflict: "kuupaev,toode_nimi_kood" });
+        .upsert(salvestatavadRead, { onConflict: "kuubaev,toode_nimi_kood" });
 
     if (!error) {
-                      // 🌟 KRAAN LAHTI: Kirjutame rea Sinu olemasolevasse logide tabelisse!
+        // 🌟 KRAAN LAHTI: Kirjutame rea Sinu olemasolevasse logide tabelisse õigete veerunimedega!
         try {
             const { data: { user } } = await sb.auth.getUser();
             const kasutajaEmail = user?.email || "Teadmata";
+            const eOsad = esmaspaevStr.split("-");
 
-            // Teeme objekti tekstiks, et tavaline tekstiveerg andmebaasis veatult vastu võtaks
-            const logiAndmed = {
-                esmaspaev: esmaspaevStr,
-                teade: "Menüü tekstide ja eriteadete salvestamine"
-            };
-
+            // Saadame andmed täpselt nii, nagu Sinu logid.js neid andmebaasist loeb!
             await sb.from("logid").insert({
-                kasutaja: kasutajaEmail, 
-                tegevus: "menyy_uuendus",
-                // Kasutame JSON.stringify, et vältida tüübikonflikte (veab 400 vastu)
-                andmed: typeof logiAndmed === "object" ? JSON.stringify(logiAndmed) : logiAndmed
+                user_email: kasutajaEmail, // 🛠️ Sinu õige veerg!
+                tegevus: "menyy_uuendus",  // 🛠️ Sinu õige veerg!
+                detailid: {                // 🛠️ Sinu õige veerg!
+                    esmaspaev: esmaspaevStr,
+                    kuu: HangiKuuNimi(eOsad[1]), // Vajalik logid.js kuu dropdowni filtri jaoks!
+                    teade: "Menüü tekstide ja eriteadete salvestamine"
+                }
             });
-            console.log("[LOGI] Tegevus edukalt logitud.");
+            console.log("✅ [LOGI] Tegevus edukalt andmebaasi 'logid' kantud!");
         } catch (logiViga) {
-            console.error("Viga olemasolevasse logitabelisse kirjutamisel:", logiViga);
+            console.error("Viga logitabelisse kirjutamisel:", logiViga);
         }
+
+        alert("💾 Menüü tekstid ja teated edukalt salvestatud!");
+        SuunaTagasiPraegusesseNadalasse();
+    } else {
+        alert("Tõrge salvestamisel: " + error.message);
+    }
+}
+
 
 
 
