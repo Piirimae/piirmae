@@ -190,36 +190,46 @@ async function LaeJaKuvaAvaleheMenyyd() {
         });
         nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
         // =========================================================================
-    // 🎨 DÜNAAMILINE TERVITUSVIDIN (Fondi, suuruse ja värvi sünkroon)
-    // =========================================================================
-    const tervitusElement = document.getElementById("avalehtDynaamilineTervitus");
-    if (tervitusElement) {
-        // Otsime indeksist selle nädala tervituse teksti ja stiili (seotud esmaspäevaga)
-        const dTekst = tekstideIndeks[`${esmaspaevaKuupaev}_AVALEHT_TERVITUS_TEKST`] || "Head isu !";
-        const dStiilRaw = tekstideIndeks[`${esmaspaevaKuupaev}_AVALEHT_TERVITUS_STIIL`] || "Brush Script MT;26px/#4a5568";
-        
-        const [dFont, dSize, dColor] = dStiilRaw.split(";");
+// ... (eelnev kood)
 
-        // Rakendame admini poolt valitud disaini lennult avalehele!
-        tervitusElement.innerText = dTekst;
-        tervitusElement.style.fontFamily = dFont;
-        tervitusElement.style.fontSize = dSize;
-        tervitusElement.style.color = dColor;
+// =========================================================================
+// 🎨 DÜNAAMILINE TERVITUSVIDIN (Fondi, suuruse ja värvi sünkroon)
+// =========================================================================
+const tervitusElement = document.getElementById("avalehtDynaamilineTervitus");
+
+if (tervitusElement) {
+    // OTSING & RAKENDAMINE: Parandatud võtmed ja stiili tükeldamine
+    const dTekst = tekstideIndeks[`${esmaspaevaKuupaev}_AVALEHT_TERVITUS_TEKST`] || "Head isu !";
+    const dStiilRaw = tekstideIndeks[`${esmaspaevaKuupaev}_AVALEHT_TERVITUS_STIIL`] || "Brush Script MT;26px;#4a5568";
+    const [dFont, dSize, dColor] = dStiilRaw.split(";");
+
+    tervitusElement.innerText = dTekst;
+    tervitusElement.style.fontFamily = dFont;
+    tervitusElement.style.fontSize = dSize;
+    tervitusElement.style.color = dColor;
+}
+
+// === UUS LOOGIKA: KUVAME NÄDALA ÜLDTEATE AVALEHEL ===
+const avaleheNadalKast = document.getElementById("avalehtNadalaUldTeadeKast");
+if (avaleheNadalKast) {
+    const dNadalaTeade = tekstideIndeks[`${esmaspaevaKuupaev}_NADALA_TEADE`] || "";
+    if (dNadalaTeade.trim() !== "") {
+        avaleheNadalKast.innerHTML = `
+            <div style="margin-top: 15px; padding: 12px; background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; font-size: 14px; color: #78350f; text-align: left;">
+                📢 <strong>Nädala teadaanne:</strong> ${dNadalaTeade}
+            </div>
+        `;
     }
-} // Funktsiooni LaeJaKuvaAvaleheMenyyd täielik lõpp
+}
 
-
-
-
+} // <--- LaeJaKuvaAvaleheMenyyd LÕPP
 
 // --- 4. ALGSEADISTUS ---
 window.addEventListener("DOMContentLoaded", async () => {
-    // Laeme dünaamilised seaded hindade jaoks
     seaded = await laeSeaded();
-    
-    // Käivitame menüüde automaatse kuvamise
     await LaeJaKuvaAvaleheMenyyd();
 });
+
 
 
 
