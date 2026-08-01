@@ -60,56 +60,63 @@ function HangiKuuNimi(kuuStr) {
 }
 // --- 3. ANDMETE KUVAMISE JA JOONISTAMISE MOOTOR ---
 async function LaeJaKuvaAvaleheMenyyd() {
-    // 1. Tagame seadete olemasolu (Sinu tabel on seaded_veerud)
-    if (!seaded || !seaded.veerud || seaded.veerud.length === 0) {
+    // 🌟 KRAAN LAHTI: Kui seaded pole veel kohale jõudnud, ootame nad siin ära
+    if (!seaded || !seaded.veerud) {
         seaded = await laeSeaded();
     }
 
     const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
     const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
 
-    const pOsad = paevaKuupaev.split("-");
-    const eOsad = esmaspaevaKuupaev.split("-");
-    const rOsad = reedeStr.split("-");
+    // Kindlustame, et kuupäevad on tekstina, et split ei lajataks viga
+    const pStr = String(paevaKuupaev);
+    const eStr = String(esmaspaevaKuupaev);
+    const rStr = String(reedeStr);
+
+    const pOsad = pStr.split("-");
+    const eOsad = eStr.split("-");
+    const rOsad = rStr.split("-");
 
     const paevaKpvElement = document.getElementById("tekstPaevaKpv");
-    if (paevaKpvElement) {
+    if (paevaKpvElement && pOsad.length === 3) {
         paevaKpvElement.innerText = `${parseInt(pOsad[2], 10)}. ${HangiKuuNimi(pOsad[1])} ${pOsad[0]}`;
     }
 
     const nadalaKpvElement = document.getElementById("tekstNadalaKpv");
-    if (nadalaKpvElement) {
+    if (nadalaKpvElement && eOsad.length === 3 && rOsad.length === 3) {
         nadalaKpvElement.innerText = `${eOsad[2]}.${eOsad[1]} - ${rOsad[2]}.${rOsad[1]}.${rOsad[0]}`;
     }
 
-    // Laeme toidud andmebaasist menyy_tekstid tabelist
-    const { data: menyyTekstid } = await sb
+    // Supabase päring
+    const { data: menyyTekstid, error: dbError } = await sb
         .from("menyy_tekstid")
         .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
         .gte("kuupaev", esmaspaevaKuupaev)
         .lte("kuupaev", reedeStr);
 
+    if (dbError) {
+        console.error("Supabase viga:", dbError);
+    }
+
     const tekstideIndeks = {};
     menyyTekstid?.forEach(t => {
-        // Muudame tootekoodi igal juhul väikeseks täheks, et vältida kirjavigu
-        const koodVäike = String(t.toode_nimi_kood).toLowerCase().trim();
-        tekstideIndeks[`${t.kuupaev}_${koodVäike}`] = t.reaalne_toidu_nimi;
+        tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
     });
 
-    const aktiivsedToidud = seaded.veerud.filter(v => v.tüüp === "toit");
+    // Võtame veerud otse seadetest turvaliselt
+    const veerudMassiiv = seaded?.veerud || [];
+    const aktiivsedToidud = veerudMassiiv.filter(v => v.tüüp === "toit");
 
     // =========================================================================
-    // 🥣 POOL A: PÄEVAMENÜÜ (Kuvab ainult reaalselt sisestatud TOITE!)
+    // 🥣 POOL A: PÄEVAMENÜÜ
     // =========================================================================
-   const paevKast = document.getElementById("paevamenyyTootedKast");
+    const paevKast = document.getElementById("paevamenyyTootedKast");
     if (paevKast) {
         let paevHtml = "";
         let lahtreidKuvatud = 0;
 
         aktiivsedToidud.forEach(toode => {
-            const toodeKoodVäike = String(toode.nimi).toLowerCase().trim();
-            const tekst = tekstideIndeks[`${paevaKuupaev}_${toodeKoodVäike}`] || "";
-            
+            const tekst = tekstideIndeks[`${paevaKuupaev}_${toode.nimi}`] || "";
             if (tekst.trim() !== "") {
                 paevHtml += `
                     <div class="toidu-rida">
@@ -146,7 +153,6 @@ async function LaeJaKuvaAvaleheMenyyd() {
             aktiivsedToidud.forEach(toode => {
                 const koodVäike = toode.nimi.toLowerCase();
                 
-                // REEGEL: Nädalaosast lõigatakse Šnitsel, Magus ja Termo välja
                 if (koodVäike.includes("šnitsel") || koodVäike.includes("magus") || koodVäike.includes("termo")) {
                     return; 
                 }
@@ -174,9 +180,8 @@ async function LaeJaKuvaAvaleheMenyyd() {
         });
         nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
     }
-
-    // 🌟 KUSTUTATUD: Kõik vigased teadete laadimised, mis kuupäevi ja ridu varem blokeerisid!
 }
+
 
 
 // --- 4. ALGSEADISTUS ---
