@@ -189,8 +189,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
             }
         });
         nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
-        // =========================================================================
-// ... (eelnev kood)
+}
 
 // =========================================================================
 // 🎨 DÜNAAMILINE TERVITUSVIDIN (Fondi, suuruse ja värvi sünkroon)
