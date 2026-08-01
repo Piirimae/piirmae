@@ -14,39 +14,44 @@ function lisaPaevad(algKpv, paevadeArv) {
 function TuvastaAktiivsedKuupaevad() {
     const nüüd = new Date();
     const praeguneTund = nüüd.getHours();
-    const nädalapäev = nüüd.getDay(); // 0 = pühapäev, 1 = esmaspäev, ..., 5 = reede, 6 = laupäev
+    const nädalapäev = nüüd.getDay(); // 0 = pühapäev, 1 = esmaspäev, ..., 6 = laupäev
 
-    let paevaKuupaev = nüüd.toISOString().split('T')[0];
-    let esmaspaevaKuupaev = null;
+    // Abifunktsioon kohaliku kuupäeva saamiseks ilma ISO ajatsooni nihketa (YYYY-MM-DD)
+    const saaKohalikKpvStr = (kpvObj) => {
+        const aasta = kpvObj.getFullYear();
+        const kuu = String(kpvObj.getMonth() + 1).padStart(2, '0');
+        const paev = String(kpvObj.getDate()).padStart(2, '0');
+        return `${aasta}-${kuu}-${paev}`;
+    };
 
-    // A. PÄEVAMENÜÜ NIHE (Kell 18:00 hüppab ise järgmise päeva peale!) [1.1]
+    // A. PÄEVAMENÜÜ NIHE (Kell 18:00 hüppab järgmise päeva peale)
+    let paevaKuupaevObj = new Date(nüüd);
     if (praeguneTund >= 18) {
-        const homme = new Date();
-        homme.setDate(homme.getDate() + 1);
-        paevaKuupaev = homme.toISOString().split('T')[0];
+        paevaKuupaevObj.setDate(paevaKuupaevObj.getDate() + 1);
     }
+    const paevaKuupaev = saaKohalikKpvStr(paevaKuupaevObj);
 
-    // B. NÄDALAMENÜÜ NIHE (Pärast reede 18:00 või nädalavahetusel näitab tulevat nädalat) [1.1]
-    const testPäev = new Date();
+    // B. NÄDALAMENÜÜ NIHE (Sinu algne loogika)
+    const testPäev = new Date(nüüd);
     if (praeguneTund >= 18 && nädalapäev === 5) {
-        // Reede õhtu -> nihutame testpäeva esmaspäevaks (+3 päeva)
         testPäev.setDate(testPäev.getDate() + 3);
     } else if (nädalapäev === 6) {
-        // Laupäev -> nihutame esmaspäevaks (+2 päeva)
         testPäev.setDate(testPäev.getDate() + 2);
     } else if (nädalapäev === 0) {
-        // Pühapäev -> nihutame esmaspäevaks (+1 päev)
         testPäev.setDate(testPäev.getDate() + 1);
     }
 
-    // Arvutame leitud testpäeva baasil selle nädala esmaspäeva
+    // Arvutame leitud testpäeva põhjal esmaspäeva puhta kohaliku aja baasil
     const d = new Date(testPäev);
-    const day = d.getDay();
-    const nihe = d.getDate() - day + (day === 0 ? -6 : 1);
-    esmaspaevaKuupaev = new Date(d.setDate(nihe)).toISOString().split('T')[0];
+    const tPaev = d.getDay();
+    const nihe = d.getDate() - tPaev + (tPaev === 0 ? -6 : 1);
+    
+    const esmaspaevaObj = new Date(d.setDate(nihe));
+    const esmaspaevaKuupaev = saaKohalikKpvStr(esmaspaevaObj);
 
     return { paevaKuupaev, esmaspaevaKuupaev };
 }
+
 
 function HangiKuuNimi(kuuStr) {
     const kuud = ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"];
@@ -55,7 +60,7 @@ function HangiKuuNimi(kuuStr) {
 }
 // --- 3. ANDMETE KUVAMISE JA JOONISTAMISE MOOTOR ---
 async function LaeJaKuvaAvaleheMenyyd() {
-    // 1. Tagame seadete olemasolu
+    // Tagame seadete olemasolu
     if (!seaded || !seaded.veerud || seaded.veerud.length === 0) {
         seaded = await laeSeaded();
     }
@@ -63,24 +68,20 @@ async function LaeJaKuvaAvaleheMenyyd() {
     const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
     const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
 
-    // Tükeldame kuupäevad massiiviks: [0]=aasta, [1]=kuu, [2]=päev
     const pOsad = paevaKuupaev.split("-");
     const eOsad = esmaspaevaKuupaev.split("-");
     const rOsad = reedeStr.split("-");
 
-    // Päeva kuupäev (nt "1. august 2026")
     const paevaKpvElement = document.getElementById("tekstPaevaKpv");
     if (paevaKpvElement) {
         paevaKpvElement.innerText = `${parseInt(pOsad[2], 10)}. ${HangiKuuNimi(pOsad[1])} ${pOsad[0]}`;
     }
 
-    // Nädala vahemik (nt "03.08 - 07.08.2026")
     const nadalaKpvElement = document.getElementById("tekstNadalaKpv");
     if (nadalaKpvElement) {
         nadalaKpvElement.innerText = `${eOsad[2]}.${eOsad[1]} - ${rOsad[2]}.${rOsad[1]}.${rOsad[0]}`;
     }
 
-    // Andmebaasi päring
     const { data: menyyTekstid } = await sb
         .from("menyy_tekstid")
         .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
@@ -167,7 +168,9 @@ async function LaeJaKuvaAvaleheMenyyd() {
         nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
     }
 
-    // 📢 LISATEATED: Kuvame lisateated, kui nad on andmebaasi salvestatud
+    // =========================================================================
+    // 📢 LISATEATED AVALEHELE
+    // =========================================================================
     const paevaTeadeTekst = tekstideIndeks[`${paevaKuupaev}_PAEVA_TEADE`] || "";
     const paevaTeadeKast = document.getElementById("kuvaPaevaTeade");
     if (paevaTeadeKast) {
