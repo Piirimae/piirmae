@@ -156,7 +156,7 @@ async function SalvestaKoguNadalAndmebaasi() {
       // 3. SALVESTAME KÕIK ÜHE KORRAGA ANDMEBAASI
     const { error } = await sb
         .from("menyy_tekstid")
-        .upsert(salvestatavadRead, { onConflict: "kuubaev,toode_nimi_kood" });
+        .upsert(salvestatavadRead, { onConflict: "kuupaev,toode_nimi_kood" });
 
     if (!error) {
         // 🌟 KRAAN LAHTI: Kirjutame rea Sinu olemasolevasse logide tabelisse õigete veerunimedega!
