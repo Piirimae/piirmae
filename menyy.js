@@ -185,7 +185,7 @@ async function SalvestaKoguNadalAndmebaasi() {
     } else {
         alert("Tõrge salvestamisel: " + error.message);
     }
-}
+
 
 
 
