@@ -146,7 +146,7 @@ async function EhitaMenyySisestusBlankett() {
     `;
 
     blankettKonteiner.innerHTML = html;
-}
+
 
 
     // C. 🌟 LAEME NÄDALA ÜLDTEATE LAHTRI (Seotud alati valitud nädala esmaspäevaga)
