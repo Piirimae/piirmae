@@ -198,6 +198,13 @@ function AvaPrindiAkenNadal() {
         
         let toidudRiad = "";
         aktiivsedToiduKoodid.forEach(toode => {
+            // 🌟 Sinu uus reegel läheb SIIT algusest käima:
+            const koodVäike = toode.nimi.toLowerCase();
+            if (koodVäike.includes("šnitsel") || koodVäike.includes("magus") || koodVäike.includes("termo")) {
+                return; // Hüppab üle ja ei pane seda toitu nädala prindilehtedele!
+            }
+
+            // Siit edasi läheb Sinu algne kood täiesti muutmata kujul:
             const inputId = `input-${kpvStr}-${toode.nimi}`;
             const nimi = document.getElementById(inputId)?.value || "";
             if (nimi.trim() !== "") {
@@ -209,6 +216,7 @@ function AvaPrindiAkenNadal() {
                 `;
             }
         });
+
 
         if (toidudRiad !== "") {
             paevadHtml += `
