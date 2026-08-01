@@ -190,11 +190,7 @@ async function SalvestaKoguNadalAndmebaasi() {
 
 
 
-        alert("💾 Menüü tekstid ja teated edukalt salvestatud!");
-        SuunaTagasiPraegusesseNadalasse();
-    } else {
-        alert("Tõrge salvestamisel: " + error.message);
-    }
+     
 } // 🌟 SEE SULG OLI PUUDU! See sulgeb funktsiooni SalvestaKoguNadalAndmebaasi
 
 
