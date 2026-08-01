@@ -91,8 +91,63 @@ async function EhitaMenyySisestusBlankett() {
         html += `</td>`;
     });
 
+        // ... [Sinu tabeli HTML-i genereerimise lõpp] ...
     html += `</tr></tbody></table>`;
+
+    // 🌟 UUS: LAEME ANDMEBAASIST TERVITUSVIDINA TEKSTI JA STIILI
+    // (esmaspaevStr seob selle tervituse konkreetse nädalaga, et see püsiks andmebaasis)
+    const vanaTervitusTekst = tekstideIndeks[`${esmaspaevStr}_AVALEHT_TERVITUS_TEKST`] || "Head isu !";
+    const vanaTervitusStiilRaw = tekstideIndeks[`${esmaspaevStr}_AVALEHT_TERVITUS_STIIL`] || "Brush Script MT;26px;#4a5568";
+    
+    // Tükeldame salvestatud stiili: font, suurus, värv
+    const [sFont, sSize, sColor] = vanaTervitusStiilRaw.split(";");
+
+    // Lisame tabeli alla ilusa eraldatud halduskasti adminidele
+    html += `
+        <div class="tervitus-vidin-haldus" style="margin-top: 25px; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; text-align: left;">
+            <div style="font-weight: bold; color: #1e293b; margin-bottom: 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">🎨 Avalehe tervitusteksti ja vidina disain</div>
+            
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+                <!-- 1. Teksti sisestus -->
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Tervituse või sõnumi tekst:</label>
+                    <input type="text" id="inputTervitusTekst" value="${vanaTervitusTekst}" class="menyy-sisend" style="width: 100%;" placeholder="nt. Head isu !">
+                </div>
+                
+                <!-- 2. Fondi valik -->
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Kirja font:</label>
+                    <select id="inputTervitusFont" class="menyy-sisend" style="padding: 6px; min-width: 130px;">
+                        <option value="Brush Script MT" ${sFont === "Brush Script MT" ? "selected" : ""}>Brush Script (Käsikiri)</option>
+                        <option value="'Comic Sans MS', cursive" ${sFont === "'Comic Sans MS', cursive" ? "selected" : ""}>Comic Sans</option>
+                        <option value="Arial, sans-serif" ${sFont === "Arial, sans-serif" ? "selected" : ""}>Arial (Tavaline)</option>
+                        <option value="'Times New Roman', serif" ${sFont === "'Times New Roman', serif" ? "selected" : ""}>Times (Klassikaline)</option>
+                    </select>
+                </div>
+
+                <!-- 3. Suuruse valik -->
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Teksti suurus:</label>
+                    <select id="inputTervitusSuurus" class="menyy-sisend" style="padding: 6px; min-width: 80px;">
+                        <option value="20px" ${sSize === "20px" ? "selected" : ""}>20px</option>
+                        <option value="26px" ${sSize === "26px" ? "selected" : ""}>26px (Standard)</option>
+                        <option value="32px" ${sSize === "32px" ? "selected" : ""}>32px</option>
+                        <option value="40px" ${sSize === "40px" ? "selected" : ""}>40px</option>
+                    </select>
+                </div>
+
+                <!-- 4. Värvi valik -->
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Teksti värv:</label>
+                    <input type="color" id="inputTervitusVarv" value="${sColor || "#4a5568"}" style="width: 50px; height: 34px; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer; padding:0;">
+                </div>
+            </div>
+        </div>
+    `;
+
     blankettKonteiner.innerHTML = html;
+}
+
 
     // C. 🌟 LAEME NÄDALA ÜLDTEATE LAHTRI (Seotud alati valitud nädala esmaspäevaga)
     const vanaNadalaTeade = tekstideIndeks[`${esmaspaevStr}_NADALA_TEADE`] || "";
@@ -150,7 +205,33 @@ async function SalvestaKoguNadalAndmebaasi() {
         });
     }
 
+       // ... [Päeva- ja nädalateadete korjamise kood] ...
+
+    // 🌟 UUS: Korjame tervitusteksti ja stiili seaded andmebaasi jaoks kokku
+    const tTekst = document.getElementById("inputTervitusTekst")?.value || "Head isu !";
+    const tFont = document.getElementById("inputTervitusFont")?.value || "Brush Script MT";
+    const tSuurus = document.getElementById("inputTervitusSuurus")?.value || "26px";
+    const tVarv = document.getElementById("inputTervitusVarv")?.value || "#4a5568";
+
+    // Paneme stiilid üheks looks kokku eraldades semikooloniga: "Brush Script MT;26px;#4a5568"
+    const tStiilKombineeritud = `${tFont};${tSuurus};${tVarv}`;
+
+    // Lisame mõlemad read salvestamise massiivi (seotud esmaspäeva kuupäevaga)
+    salvestatavadRead.push({
+        kuupaev: esmaspaevStr,
+        toode_nimi_kood: "AVALEHT_TERVITUS_TEKST",
+        reaalne_toidu_nimi: tTekst.trim()
+    });
+
+    salvestatavadRead.push({
+        kuupaev: esmaspaevStr,
+        toode_nimi_kood: "AVALEHT_TERVITUS_STIIL",
+        reaalne_toidu_nimi: tStiilKombineeritud
+    });
+
+    // Sinu algne kontroll läheb siit edasi:
     if (salvestatavadRead.length === 0) return alert("Midagi pole salvestada!");
+
 
       // 3. SALVESTAME KÕIK ÜHE KORRAGA ANDMEBAASI
       // 3. SALVESTAME KÕIK ÜHE KORRAGA ANDMEBAASI
