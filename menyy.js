@@ -158,24 +158,28 @@ async function SalvestaKoguNadalAndmebaasi() {
         .upsert(salvestatavadRead, { onConflict: "kuupaev,toode_nimi_kood" });
 
     if (!error) {
-        // 🌟 KRAAN LAHTI: Kirjutame rea Sinu olemasolevasse logide tabelisse!
+              // 🌟 KRAAN LAHTI: Kirjutame rea Sinu olemasolevasse logide tabelisse!
         try {
-            // Küsime sisselogitud kasutaja emaili
             const { data: { user } } = await sb.auth.getUser();
             const kasutajaEmail = user?.email || "Teadmata";
 
-            // Saadame rea Sinu tabelisse "logid" täpselt Sinu struktuuri järgi
+            // Teeme objekti tekstiks, et tavaline tekstiveerg andmebaasis veatult vastu võtaks
+            const logiAndmed = {
+                esmaspaev: esmaspaevStr,
+                teade: "Menüü tekstide ja eriteadete salvestamine"
+            };
+
             await sb.from("logid").insert({
-                kasutaja: kasutajaEmail, // 🛠️ Kannab meili, mitte "admin"
+                kasutaja: kasutajaEmail, 
                 tegevus: "menyy_uuendus",
-                andmed: {
-                    esmaspaev: esmaspaevStr,
-                    teade: "Menüü tekstide ja eriteadete salvestamine"
-                }
+                // Kasutame JSON.stringify, et vältida tüübikonflikte (veab 400 vastu)
+                andmed: typeof logiAndmed === "object" ? JSON.stringify(logiAndmed) : logiAndmed
             });
+            console.log("[LOGI] Tegevus edukalt logitud.");
         } catch (logiViga) {
             console.error("Viga olemasolevasse logitabelisse kirjutamisel:", logiViga);
         }
+
 
         alert("💾 Menüü tekstid ja teated edukalt salvestatud!");
         SuunaTagasiPraegusesseNadalasse();
