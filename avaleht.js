@@ -85,7 +85,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
     // 2. ANDMETE LAADIMINE (Supabase)
     const { data: menyyTekstid } = await sb.from("menyy_tekstid")
         .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
-        .gte("kuupaev", esmaspaevaKuupev).lte("kuupaev", reedeStr);
+        .gte("kuupaev", esmaspaevaKuupaev).lte("kuupaev", reedeStr);
     const { data: praegusedHinnad } = await sb.from("hinnad")
         .select("nimi, hind").is("kehtiv_kuni", null);
 
