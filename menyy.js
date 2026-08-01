@@ -94,8 +94,13 @@ async function SalvestaKoguNadalAndmebaasi() {
     if (!valitudEsmaspaev) return alert("Blankett pole laetud!");
 
     const salvestatavadRead = [];
+    const esmaspaevStr = lisaPaevad(valitudEsmaspaev, 0);
+
+    // 1. KORJAME TOIDUD JA PÄEVA ERITEATED
     TOOPAEVAD.forEach(p => {
         const kpvStr = lisaPaevad(valitudEsmaspaev, p.nihe);
+        
+        // A. Korjame tavalised toidud (Sinu algne loogika)
         aktiivsedToiduKoodid.forEach(toode => {
             const inputId = `input-${kpvStr}-${toode.nimi}`;
             const lahtriVaartus = document.getElementById(inputId)?.value || "";
@@ -108,21 +113,43 @@ async function SalvestaKoguNadalAndmebaasi() {
                 });
             }
         });
+
+        // B. 📢 UUS: Korjame selle päeva erisõnumi/teate lahtri sisu
+        const paevaTeadeSisend = document.getElementById(`teade-${kpvStr}`)?.value || "";
+        if (paevaTeadeSisend.trim() !== "") {
+            salvestatavadRead.push({
+                kuupaev: kpvStr,
+                toode_nimi_kood: "PAEVA_TEADE", // Unikaalne kood, et hoida andmebaas puhtana
+                reaalne_toidu_nimi: paevaTeadeSisend.trim()
+            });
+        }
     });
+
+    // 2. 📢 UUS: Korjame nädala üldteate lahtri sisu ja seome selle nädala esmaspäevaga
+    const nadalaTeadeSisend = document.getElementById("inputNadalUldTeade")?.value || "";
+    if (nadalaTeadeSisend.trim() !== "") {
+        salvestatavadRead.push({
+            kuupaev: esmaspaevStr, // Alati esmaspäeva kuupäev
+            toode_nimi_kood: "NADALA_TEADE", // Unikaalne kood nädala teatele
+            reaalne_toidu_nimi: nadalaTeadeSisend.trim()
+        });
+    }
 
     if (salvestatavadRead.length === 0) return alert("Midagi pole salvestada!");
 
+    // 3. SALVESTAME KÕIK ÜHE KORRAGA ANDMEBAASI
     const { error } = await sb
         .from("menyy_tekstid")
         .upsert(salvestatavadRead, { onConflict: "kuupaev,toode_nimi_kood" });
 
     if (!error) {
-        alert("💾 Menüü tekstid edukalt salvestatud!");
+        alert("💾 Menüü tekstid ja teated edukalt salvestatud!");
         SuunaTagasiPraegusesseNadalasse();
     } else {
         alert("Tõrge salvestamisel: " + error.message);
     }
 }
+
 
 // =========================================================================
 // 🖨️ ERALDI SEISVATELE PRINDIAKNATE GENEREERIMISE MOOTORID (A4 FORMAT) [1.1]
