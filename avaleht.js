@@ -91,7 +91,9 @@ async function LaeJaKuvaAvaleheMenyyd() {
 
     const tekstideIndeks = {};
     menyyTekstid?.forEach(t => {
-        tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
+        // Muudame tootekoodi igal juhul väikeseks täheks, et vältida kirjavigu
+        const koodVäike = String(t.toode_nimi_kood).toLowerCase().trim();
+        tekstideIndeks[`${t.kuupaev}_${koodVäike}`] = t.reaalne_toidu_nimi;
     });
 
     const aktiivsedToidud = seaded.veerud.filter(v => v.tüüp === "toit");
@@ -99,13 +101,15 @@ async function LaeJaKuvaAvaleheMenyyd() {
     // =========================================================================
     // 🥣 POOL A: PÄEVAMENÜÜ (Kuvab ainult reaalselt sisestatud TOITE!)
     // =========================================================================
-    const paevKast = document.getElementById("paevamenyyTootedKast");
+   const paevKast = document.getElementById("paevamenyyTootedKast");
     if (paevKast) {
         let paevHtml = "";
         let lahtreidKuvatud = 0;
 
         aktiivsedToidud.forEach(toode => {
-            const tekst = tekstideIndeks[`${paevaKuupaev}_${toode.nimi}`] || "";
+            const toodeKoodVäike = String(toode.nimi).toLowerCase().trim();
+            const tekst = tekstideIndeks[`${paevaKuupaev}_${toodeKoodVäike}`] || "";
+            
             if (tekst.trim() !== "") {
                 paevHtml += `
                     <div class="toidu-rida">
