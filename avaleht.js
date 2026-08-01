@@ -189,8 +189,25 @@ async function LaeJaKuvaAvaleheMenyyd() {
             }
         });
         nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
+        // =========================================================================
+    // 🎨 DÜNAAMILINE TERVITUSVIDIN (Fondi, suuruse ja värvi sünkroon)
+    // =========================================================================
+    const tervitusElement = document.getElementById("avalehtDynaamilineTervitus");
+    if (tervitusElement) {
+        // Otsime indeksist selle nädala tervituse teksti ja stiili (seotud esmaspäevaga)
+        const dTekst = tekstideIndeks[`${esmaspaevaKuupaev}_AVALEHT_TERVITUS_TEKST`] || "Head isu !";
+        const dStiilRaw = tekstideIndeks[`${esmaspaevaKuupaev}_AVALEHT_TERVITUS_STIIL`] || "Brush Script MT;26px/#4a5568";
+        
+        const [dFont, dSize, dColor] = dStiilRaw.split(";");
+
+        // Rakendame admini poolt valitud disaini lennult avalehele!
+        tervitusElement.innerText = dTekst;
+        tervitusElement.style.fontFamily = dFont;
+        tervitusElement.style.fontSize = dSize;
+        tervitusElement.style.color = dColor;
     }
-}
+} // Funktsiooni LaeJaKuvaAvaleheMenyyd täielik lõpp
+
 
 
 
