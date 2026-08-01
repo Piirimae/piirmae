@@ -286,6 +286,7 @@ function GenerreeriKombineeritudGraafik() {
     });
 }
 // --- KAST 2: Tark koondinfo arvutus (PÄEVATÄPNE NIMEPÕHINE SUMMEERIMINE) ---
+// --- KAST 2: Tark koondinfo arvutus (GRUPIPÕHINE JA KASSAPÕHISELT JÄRJESTATUD SUMMEERIMINE) ---
 async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
     if (laetudKassaAndmed.length === 0) return;
 
@@ -298,20 +299,18 @@ async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
     const algusKpv = laetudKassaAndmed[0].kuupaev;
     const loppKpv = laetudKassaAndmed[laetudKassaAndmed.length - 1].kuupaev;
     
-    // Küsime andmebaasist tekstid täpselt selle kassa ajavahemiku kohta (kas 1 päev või 30 päeva)
     const { data: menyyAndmed } = await sb
         .from("menyy_tekstid")
         .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
         .gte("kuupaev", algusKpv)
         .lte("kuupaev", loppKpv);
 
-    // Loome kiire otsinguindeksi: "2026-07-30_supp" -> "Hernesupp"
     const menyyIndeks = {};
     menyyAndmed?.forEach(m => {
         menyyIndeks[`${m.kuupaev}_${m.toode_nimi_kood}`] = m.reaalne_toidu_nimi;
     });
 
-    // 2. NIMEPÕHINE ANDMEPAKK: Kogub andmed kokku toidu reaalsete tekstide järgi
+    // 2. ANDMEPAKK: Kogub andmed kokku hoides meeles ka algset veeru koodi (tootegruppi)
     const reaalseteToitudesKoond = {};
 
     laetudKassaAndmed.forEach(r => {
@@ -333,12 +332,14 @@ async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
                 koguArtikleid += kogus;
                 
                 if (kogus > 0) {
-                    // Otsime indeksist selle päeva ja selle koodi reaalset nime
                     const reaalneToiduTekst = menyyIndeks[`${r.kuupaev}_${v.nimi}`] || v.pealkiri;
 
-                    // 🌟 LIITMINE: Kui tekst kordub vahemikus (või ongi 1 päev), summeeritakse siia ritta!
                     if (!reaalseteToitudesKoond[reaalneToiduTekst]) {
-                        reaalseteToitudesKoond[reaalneToiduTekst] = { kogus: 0, tulu: 0 };
+                        reaalseteToitudesKoond[reaalneToiduTekst] = { 
+                            kogus: 0, 
+                            tulu: 0,
+                            tootegruppKood: v.nimi // Salvestame siia grupi koodi (nt. 'supp', 'praad1' jne)
+                        };
                     }
                     reaalseteToitudesKoond[reaalneToiduTekst].kogus += kogus;
                     reaalseteToitudesKoond[reaalneToiduTekst].tulu += tulu;
@@ -355,24 +356,47 @@ async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
         if (muutusSellelPaeval) esinesHinnamuutusi = true;
     });
 
-    // 3. JOONISTAME KASTI 2 PUHTA JA LOETAVA TEKSTILOENDI
+    // 3. 🌟 TARK JÄRJESTAMINE JA GRUPEERIMINE
     const loendKonteiner = document.getElementById("toodeteTekstLoend");
     let loendHtml = "";
     let raportiTekstRidad = [];
 
-    // Sorteerime nimed tähestiku järjekorda
-    Object.keys(reaalseteToitudesKoond).sort().forEach(nimi => {
-        const t = reaalseteToitudesKoond[nimi];
-        const rida = `${nimi} ${t.kogus} tk / ${t.tulu.toFixed(2)} €`;
-        loendHtml += `<div style="padding: 3px 0; border-bottom: 1px solid #edf2f7;">• ${rida}</div>`;
-        raportiTekstRidad.push(rida);
+    // Filtreerime välja ainult need veerud, mis on "toit", hoides nende andmebaasi järjekorda
+    const toiduVeerudJarjestus = seaded.veerud.filter(v => v.tüüp === "toit");
+
+    // Käime kõik tootegrupid läbi täpselt seadete järjekorras (supp -> praad1 -> praad2 jne)
+    toiduVeerudJarjestus.forEach(grupp => {
+        // Otsime koondandmetest tooted, mis kuuluvad sellesse konkreetsesse gruppi
+        const grupiTooted = [];
+        Object.keys(reaalseteToitudesKoond).forEach(nimi => {
+            if (reaalseteToitudesKoond[nimi].tootegruppKood === grupp.nimi) {
+                grupiTooted.push({ nimi: nimi, ...reaalseteToitudesKoond[nimi] });
+            }
+        });
+
+        // 🌟 Sorteerime grupi sees tooted suurema kassa (tulu) põhjal ettepoole!
+        grupiTooted.sort((a, b) => b.tulu - a.tulu);
+
+        // Kui selles grupis oli vaadeldaval perioodil müüki, joonistame selle välja
+        if (grupiTooted.length > 0) {
+            // Lisame loendisse visuaalse grupi pealkirja (nt. "--- SUPP ---" või "--- PRAAD 1 ---")
+            loendHtml += `<div style="font-weight: bold; color: #2b6cb0; margin-top: 10px; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px;">■ ${grupp.pealkiri}</div>`;
+            raportiTekstRidad.push(`\n[${grupp.pealkiri.toUpperCase()}]`);
+
+            // Lisame tooted, mis on nüüd õiges kassa-järjekorras
+            grupiTooted.forEach(t => {
+                const rida = `${t.nimi} ${t.kogus} tk / ${t.tulu.toFixed(2)} €`;
+                loendHtml += `<div style="padding: 4px 0 4px 10px; border-bottom: 1px solid #f7fafc; font-size: 13px;">• ${rida}</div>`;
+                raportiTekstRidad.push(rida);
+            });
+        }
     });
 
     if (loendKonteiner) {
         loendKonteiner.innerHTML = loendHtml || "<div style='color:#718096;'>Valitud päeval/vahemikus andmed puuduvad.</div>";
     }
 
-    // Uuendame tekstilahtrid ekraanil (Täidab ja lapib lennult mõlemad HTML versioonid) [1.1]
+    // Uuendame tekstilahtrid ekraanil
     const kuvaElement = (id, tekst) => {
         const el = document.getElementById(id);
         if (el) el.innerText = tekst;
@@ -394,14 +418,16 @@ async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
         hoiatusHinnad.style.display = esinesHinnamuutusi ? "block" : "none";
     }
 
-    // 🌟 GLOBAALNE KOOPREERITAV RAPORT MEILI JAOKS
+    // 🌟 GLOBAALNE KOOPREERITAV RAPORT MEILI JAOKS (Sünkroonis uue loogilise struktuuriga!)
     window.viimanePulssKoondraportTekst = `📊 PIIRIMÄE PULSSI KOONDARUANNE\n` +
         `Vaadeldav periood: ${laetudKassaAndmed.length} kalendripäeva\n` +
         `Müügiga päevi kokku: ${myugigaPaevi} päeva\n` +
         `Kogu perioodi tulu: ${koguKäive.toFixed(2)} €\n` +
-        `Müüdud artikleid kokku: ${koguArtikleid} tk\n\n` +
-        `TOODETE DETAILNE JAOTUS REAALSETE NIMEDE JÄRGI:\n` + raportiTekstRidad.map(r => `- ${r}`).join("\n");
+        `Müüdud artikleid kokku: ${koguArtikleid} tk\n` +
+        `_____________________________________\n` +
+        raportiTekstRidad.map(r => r.startsWith("\n") || r.startsWith("[") ? r : `- ${r}`).join("\n");
 }
+
 
 // --- KAST 1: Uuenda koondsektorit globaalselt (Kogu valitud perioodi tootejaotus) ---
 function UuendaGrupiSektoritGlobaalselt() {
