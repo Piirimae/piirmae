@@ -60,7 +60,6 @@ function HangiKuuNimi(kuuStr) {
 }
 // --- 3. ANDMETE KUVAMISE JA JOONISTAMISE MOOTOR ---
 async function LaeJaKuvaAvaleheMenyyd() {
-    // 🌟 KRAAN LAHTI: Kui seaded pole veel kohale jõudnud, ootame nad siin ära
     if (!seaded || !seaded.veerud) {
         seaded = await laeSeaded();
     }
@@ -68,42 +67,44 @@ async function LaeJaKuvaAvaleheMenyyd() {
     const { paevaKuupaev, esmaspaevaKuupaev } = TuvastaAktiivsedKuupaevad();
     const reedeStr = lisaPaevad(new Date(esmaspaevaKuupaev), 4);
 
-    // Kindlustame, et kuupäevad on tekstina, et split ei lajataks viga
-    const pStr = String(paevaKuupaev);
-    const eStr = String(esmaspaevaKuupaev);
-    const rStr = String(reedeStr);
-
-    const pOsad = pStr.split("-");
-    const eOsad = eStr.split("-");
-    const rOsad = rStr.split("-");
+    const pOsad = paevaKuupaev.split("-");
+    const eOsad = esmaspaevaKuupaev.split("-");
+    const rOsad = reedeStr.split("-");
 
     const paevaKpvElement = document.getElementById("tekstPaevaKpv");
-    if (paevaKpvElement && pOsad.length === 3) {
+    if (paevaKpvElement) {
         paevaKpvElement.innerText = `${parseInt(pOsad[2], 10)}. ${HangiKuuNimi(pOsad[1])} ${pOsad[0]}`;
     }
 
     const nadalaKpvElement = document.getElementById("tekstNadalaKpv");
-    if (nadalaKpvElement && eOsad.length === 3 && rOsad.length === 3) {
+    if (nadalaKpvElement) {
         nadalaKpvElement.innerText = `${eOsad[2]}.${eOsad[1]} - ${rOsad[2]}.${rOsad[1]}.${rOsad[0]}`;
     }
 
-    // Supabase päring
-    const { data: menyyTekstid, error: dbError } = await sb
+    // 1. LAHEMME TOIDUD (menyy_tekstid)
+    const { data: menyyTekstid } = await sb
         .from("menyy_tekstid")
         .select("kuupaev, toode_nimi_kood, reaalne_toidu_nimi")
         .gte("kuupaev", esmaspaevaKuupaev)
         .lte("kuupaev", reedeStr);
-
-    if (dbError) {
-        console.error("Supabase viga:", dbError);
-    }
 
     const tekstideIndeks = {};
     menyyTekstid?.forEach(t => {
         tekstideIndeks[`${t.kuupaev}_${t.toode_nimi_kood}`] = t.reaalne_toidu_nimi;
     });
 
-    // Võtame veerud otse seadetest turvaliselt
+    // 2. 🌟 KRAAN LAHTI: Küsime tabelist "hinnad" praegu kehtivad hinnad!
+    const { data: praegusedHinnad } = await sb
+        .from("hinnad")
+        .select("nimi, hind")
+        .is("kehtiv_kuni", null);
+
+    // Paneme hinnad indeksisse toote nime järgi
+    const hindadeIndeks = {};
+    praegusedHinnad?.forEach(h => {
+        hindadeIndeks[h.nimi] = h.hind;
+    });
+
     const veerudMassiiv = seaded?.veerud || [];
     const aktiivsedToidud = veerudMassiiv.filter(v => v.tüüp === "toit");
 
@@ -118,11 +119,14 @@ async function LaeJaKuvaAvaleheMenyyd() {
         aktiivsedToidud.forEach(toode => {
             const tekst = tekstideIndeks[`${paevaKuupaev}_${toode.nimi}`] || "";
             if (tekst.trim() !== "") {
+                // Võtame hinna tabelist "hinnad", kui seal pole, siis võtame seadete oma
+                const reaalneHind = hindadeIndeks[toode.nimi] !== undefined ? hindadeIndeks[toode.nimi] : toode.hind;
+                
                 paevHtml += `
                     <div class="toidu-rida">
                         <span class="toidu-nimi">${tekst}</span>
                         <span class="toidu-joon"></span>
-                        <span class="toidu-hind">${Number(toode.hind).toFixed(2)} €</span>
+                        <span class="toidu-hind">${Number(reaalneHind).toFixed(2)} €</span>
                     </div>
                 `;
                 lahtreidKuvatud++;
@@ -152,18 +156,20 @@ async function LaeJaKuvaAvaleheMenyyd() {
 
             aktiivsedToidud.forEach(toode => {
                 const koodVäike = toode.nimi.toLowerCase();
-                
                 if (koodVäike.includes("šnitsel") || koodVäike.includes("magus") || koodVäike.includes("termo")) {
                     return; 
                 }
 
                 const tekst = tekstideIndeks[`${kpvStr}_${toode.nimi}`] || "";
                 if (tekst.trim() !== "") {
+                    // Võtame hinna tabelist "hinnad"
+                    const reaalneHind = hindadeIndeks[toode.nimi] !== undefined ? hindadeIndeks[toode.nimi] : toode.hind;
+
                     paevaToidudRiad += `
                         <div class="toidu-rida" style="font-size:13px; margin-bottom:8px;">
                             <span class="toidu-nimi">${tekst}</span>
                             <span class="toidu-joon"></span>
-                            <span class="toidu-hind">${Number(toode.hind).toFixed(2)} €</span>
+                            <span class="toidu-hind">${Number(reaalneHind).toFixed(2)} €</span>
                         </div>
                     `;
                 }
@@ -181,6 +187,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
         nadalKast.innerHTML = nadalHtml !== "" ? nadalHtml : "<p style='color:#718096; font-style:italic; text-align:center;'>Menüüd pole sisestatud.</p>";
     }
 }
+
 
 
 
