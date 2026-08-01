@@ -64,6 +64,7 @@ function HangiKuuNimi(kuuStr) {
 }
 // --- 3. ANDMETE KUVAMISE JA JOONISTAMISE MOOTOR ---
 async function LaeJaKuvaAvaleheMenyyd() {
+    console.log("KONTROLL -> Kuupäevad:", TuvastaAktiivsedKuupaevad(), "Seaded:", seaded); 
     if (!seaded || !seaded.veerud) {
         seaded = await laeSeaded();
     }
