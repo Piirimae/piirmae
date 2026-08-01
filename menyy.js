@@ -63,6 +63,7 @@ async function EhitaMenyySisestusBlankett() {
         const kpvStr = lisaPaevad(valitudEsmaspaev, p.nihe);
         html += `<td class="paeva-veerg">`;
 
+        // A. Laeme tavalised toidud lahtritesse
         aktiivsedToiduKoodid.forEach(toode => {
             const vanaTekst = tekstideIndeks[`${kpvStr}_${toode.nimi}`] || "";
             const inputId = `input-${kpvStr}-${toode.nimi}`;
@@ -75,11 +76,15 @@ async function EhitaMenyySisestusBlankett() {
             `;
         });
 
-        // 🌟 JOKSVA PÄEVA ERITEATE LAHTER (Tabeli all päevade kaupa, ei salvestu andmebaasi)
+        // B. 🌟 LAEME PÄEVA ERITEATE LAHTRI (Võtab andmebaasist "PAEVA_TEADE" rea)
+        const vanaPaevaTeade = tekstideIndeks[`${kpvStr}_PAEVA_TEADE`] || "";
+        // Kui teade on olemas, anname lahtrile helekollase tausta, aga muuta saab ikka!
+        const paevaTaustastiil = vanaPaevaTeade.trim() !== "" ? "background-color: #fef3c7;" : "";
+
         html += `
             <div style="margin-top:15px; border-top:1px dashed #cbd5e1; padding-top:10px;">
                 <label style="font-size:11px; font-weight:bold; color:#dd6b20; display:block; margin-bottom:2px;">✨ Päeva erisõnum/teade:</label>
-                <input type="text" id="teade-${kpvStr}" class="menyy-teade-input" placeholder="nt. Täna kook + kohv soodsalt!...">
+                <input type="text" id="teade-${kpvStr}" value="${vanaPaevaTeade}" style="${paevaTaustastiil}" class="menyy-teade-input" placeholder="nt. Täna kook + kohv soodsalt!...">
             </div>
         `;
 
@@ -88,7 +93,17 @@ async function EhitaMenyySisestusBlankett() {
 
     html += `</tr></tbody></table>`;
     blankettKonteiner.innerHTML = html;
+
+    // C. 🌟 LAEME NÄDALA ÜLDTEATE LAHTRI (Seotud alati valitud nädala esmaspäevaga)
+    const vanaNadalaTeade = tekstideIndeks[`${esmaspaevStr}_NADALA_TEADE`] || "";
+    const nadalaTeadeLahter = document.getElementById("inputNadalUldTeade");
+    if (nadalaTeadeLahter) {
+        nadalaTeadeLahter.value = vanaNadalaTeade;
+        // Kui nädala teade on andmebaasis olemas, teeme ka selle kollakaks
+        nadalaTeadeLahter.style.backgroundColor = vanaNadalaTeade.trim() !== "" ? "#fef3c7" : "";
+    }
 }
+
 
 async function SalvestaKoguNadalAndmebaasi() {
     if (!valitudEsmaspaev) return alert("Blankett pole laetud!");
