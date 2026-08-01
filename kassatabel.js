@@ -34,7 +34,9 @@ export async function laeAndmedJaLukustus() {
     } else {
         praeguneKuu = kuuValik ? kuuValik.value : "";
     }
-
+if (!onParandusRez && praeguneKuu) {
+        await KontrolliJaArhiveeriEelmineKuuAutomaatselt(praeguneKuu);
+    }
     // 2. Laeme andmed Supabasest valitud kuu kohta
     const andmed = await laeKuuAndmedSupabasest(praeguneKuu);
     console.log("KASSATABEL: Supabasest laetud andmed:", andmed);
@@ -141,7 +143,85 @@ function seadistaNupudJaLukustus() {
 async function salvestaParandatudArhiiv() {
     // Teie olemasolev salvestamise loogika...
 }
+// 🌟 SÜSTEEMI AUTO-KRAAN: Kontrollib ja arhiveerib eelmise kuu automaatselt, kui see on andmebaasist puudu
+async function KontrolliJaArhiveeriEelmineKuuAutomaatselt(praeguneKuuId) {
+    if (!praeguneKuuId || !praeguneKuuId.includes("-")) return;
 
+    // 1. Tuvastame kalendriliselt eelmise kuu ID (kujul YYYY-MM)
+    const [aasta, kuu] = praeguneKuuId.split("-").map(Number);
+    let eelmiseKuuObj = new Date(aasta, kuu - 2, 1); // Liigume 1 kuu tagasi
+    const eelmiseKuuId = `${eelmiseKuuObj.getFullYear()}-${String(eelmiseKuuObj.getMonth() + 1).padStart(2, '0')}`;
+
+    try {
+        // 2. Kontrollime, kas see eelmine kuu on Sinu 'arhiiv' tabelis juba olemas
+        const { data: olemasArhiivis } = await sb
+            .from("arhiiv")
+            .select("arhiiviId")
+            .eq("kuu_id", eelmiseKuuId)
+            .maybeSingle();
+
+        // Kui on juba arhiivis olemas, siis me midagi üle ei kirjuta ega puutu
+        if (olemasArhiivis) return;
+
+        // 3. Küsime andmebaasist eelmise kuu reaalsed kassa andmed
+        const { data: vanaKuuAndmed } = await sb
+            .from("kassatabel")
+            .select("*")
+            .eq("kuu_id", eelmiseKuuId)
+            .order("kuupaev");
+
+        // Kui vanas kuus polnud üldse andmeid sisestatud, pole midagi arhiveerida
+        if (!vanaKuuAndmed || vanaKuuAndmed.length === 0) return;
+
+        console.log(`[AUTOMAATIKA] Tuvastasin sulgemata eelmise kuu: ${eelmiseKuuId}. Alustan arhiveerimist...`);
+
+        // 4. Ehitame Sinu arhiiv.js jaoks vajaliku 'state' objekti struktuuri
+        // (Et arhiiv.js suudaks seda tabelina kuvada, peab see sisaldama paise, rows, sumKogus jne)
+        const arhiiviState = {
+            paise: seaded?.veerud || [], // Võtame jooksvad veerud seadetest
+            rows: vanaKuuAndmed.map(r => ({
+                kuupäev: r.kuupaev && r.kuupaev.includes("T") ? r.kuupaev.split("T")[0] : r.kuupaev,
+                veerud: (seaded?.veerud || []).map(v => r[v.nimi] || 0),
+                kokku: 0 // Siia arvutab logic.js või süsteem summad ise
+            })),
+            sumKogus: [],
+            sumHind: [],
+            kuuKokku: 0
+        };
+
+        const uueArhiiviId = "arh_" + eelmiseKuuId + "_" + Date.now();
+
+        // 5. SAADAME ANDMED SINU AMETLIKKU ARHIIVI TABELISSE
+        const { error: arhiivError } = await sb
+            .from("arhiiv")
+            .insert({
+                arhiiviId: uueArhiiviId,
+                kuu_id: eelmiseKuuId,
+                salvestaja: "Süsteem auto",
+                versioon: 1,
+                paeritolu: "automaatne", // 🛠️ Sinu arhiiv.js loeb seda märgistust!
+                state: JSON.stringify(arhiiviState)
+            });
+
+        if (!arhiivError) {
+            // 6. 📢 KANNAME TEGEVUSE AUTOMATSELT SINU LOGID TABELISSE!
+            await sb.from("logid").insert({
+                user_email: "Süsteem auto", // 🛠️ Logis selge ja korrektne tunnus
+                tegevus: "auto_kuu_arhiiv",
+                detailid: {
+                    kuu: eelmiseKuuId,
+                    arhiiviId: uueArhiiviId,
+                    teade: `Eelmise kuu (${eelmiseKuuId}) andmed arhiveeriti automaatselt uue kuu laadimise esimesel sekundil.`
+                }
+            });
+            console.log(`✅ [AUTO-LOGI] Kuu ${eelmiseKuuId} edukalt arhiveeritud ja logitud.`);
+        } else {
+            console.error("Automaatse arhiivi tõrge andmebaasis:", arhiivError.message);
+        }
+    } catch (err) {
+        console.error("Süsteemne viga automaatsel kontrollil:", err);
+    }
+}
 
 
 
