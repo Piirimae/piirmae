@@ -153,17 +153,37 @@ async function SalvestaKoguNadalAndmebaasi() {
     if (salvestatavadRead.length === 0) return alert("Midagi pole salvestada!");
 
     // 3. SALVESTAME KÕIK ÜHE KORRAGA ANDMEBAASI
+        // 1. Salvestame tekstid andmebaasi (Sinu kood)
     const { error } = await sb
         .from("menyy_tekstid")
         .upsert(salvestatavadRead, { onConflict: "kuupaev,toode_nimi_kood" });
 
     if (!error) {
+        // 🌟 KRAAN LAHTI: Kirjutame rea Sinu olemasolevasse logide tabelisse!
+        try {
+            // Küsime sisselogitud kasutaja emaili
+            const { data: { user } } = await sb.auth.getUser();
+            const kasutajaEmail = user?.email || "Teadmata";
+
+            // Saadame rea Sinu tabelisse "logid" täpselt Sinu struktuuri järgi
+            await sb.from("logid").insert({
+                kasutaja: kasutajaEmail, // 🛠️ Kannab meili, mitte umbmäärase "admini"
+                tegevus: "menyy_uuendus",
+                andmed: {
+                    esmaspaev: esmaspaevStr,
+                    teade: "Menüü tekstide ja eriteadete salvestamine"
+                }
+            });
+        } catch (logiViga) {
+            console.error("Viga olemasolevasse logitabelisse kirjutamisel:", logiViga);
+        }
+
         alert("💾 Menüü tekstid ja teated edukalt salvestatud!");
         SuunaTagasiPraegusesseNadalasse();
     } else {
         alert("Tõrge salvestamisel: " + error.message);
     }
-}
+
 
 
 // =========================================================================
