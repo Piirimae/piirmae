@@ -286,7 +286,7 @@ function GenerreeriKombineeritudGraafik() {
     });
 }
 // --- KAST 2: Tark koondinfo arvutus (PÄEVATÄPNE NIMEPÕHINE SUMMEERIMINE) ---
-// --- KAST 2: Tark koondinfo arvutus (GRUPIPÕHINE JA KASSAPÕHISELT JÄRJESTATUD SUMMEERIMINE) ---
+// --- KAST 2: Tark koondinfo arvutus (TOOTEGRUPPIDE SUMMEERIMISEGA RAPORT) ---
 async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
     if (laetudKassaAndmed.length === 0) return;
 
@@ -310,7 +310,7 @@ async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
         menyyIndeks[`${m.kuupaev}_${m.toode_nimi_kood}`] = m.reaalne_toidu_nimi;
     });
 
-    // 2. ANDMEPAKK: Kogub andmed kokku hoides meeles ka algset veeru koodi (tootegruppi)
+    // 2. ANDMEPAKK: Kogub andmed kokku hoides meeles ka algset veeru koodi
     const reaalseteToitudesKoond = {};
 
     laetudKassaAndmed.forEach(r => {
@@ -338,7 +338,7 @@ async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
                         reaalseteToitudesKoond[reaalneToiduTekst] = { 
                             kogus: 0, 
                             tulu: 0,
-                            tootegruppKood: v.nimi // Salvestame siia grupi koodi (nt. 'supp', 'praad1' jne)
+                            tootegruppKood: v.nimi 
                         };
                     }
                     reaalseteToitudesKoond[reaalneToiduTekst].kogus += kogus;
@@ -356,39 +356,52 @@ async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
         if (muutusSellelPaeval) esinesHinnamuutusi = true;
     });
 
-    // 3. 🌟 TARK JÄRJESTAMINE JA GRUPEERIMINE
+    // 3. 🌟 TARK JÄRJESTAMINE, GRUPEERIMINE JA KOKKUVÕTTED
     const loendKonteiner = document.getElementById("toodeteTekstLoend");
     let loendHtml = "";
     let raportiTekstRidad = [];
 
-    // Filtreerime välja ainult need veerud, mis on "toit", hoides nende andmebaasi järjekorda
     const toiduVeerudJarjestus = seaded.veerud.filter(v => v.tüüp === "toit");
 
-    // Käime kõik tootegrupid läbi täpselt seadete järjekorras (supp -> praad1 -> praad2 jne)
+    // Käime kõik tootegrupid läbi täpselt seadete järjekorras (supp -> praad1 -> šnitsel jne)
     toiduVeerudJarjestus.forEach(grupp => {
-        // Otsime koondandmetest tooted, mis kuuluvad sellesse konkreetsesse gruppi
         const grupiTooted = [];
+        let grupiKogusKokku = 0;
+        let grupiTuluKokku = 0;
+
         Object.keys(reaalseteToitudesKoond).forEach(nimi => {
             if (reaalseteToitudesKoond[nimi].tootegruppKood === grupp.nimi) {
                 grupiTooted.push({ nimi: nimi, ...reaalseteToitudesKoond[nimi] });
+                // Liidame jooksvalt grupi koondsummasid
+                grupiKogusKokku += reaalseteToitudesKoond[nimi].kogus;
+                grupiTuluKokku += reaalseteToitudesKoond[nimi].tulu;
             }
         });
 
-        // 🌟 Sorteerime grupi sees tooted suurema kassa (tulu) põhjal ettepoole!
+        // Sorteerime grupi sees tooted suurema kassa (tulu) põhjal ettepoole
         grupiTooted.sort((a, b) => b.tulu - a.tulu);
 
-        // Kui selles grupis oli vaadeldaval perioodil müüki, joonistame selle välja
         if (grupiTooted.length > 0) {
-            // Lisame loendisse visuaalse grupi pealkirja (nt. "--- SUPP ---" või "--- PRAAD 1 ---")
-            loendHtml += `<div style="font-weight: bold; color: #2b6cb0; margin-top: 10px; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px;">■ ${grupp.pealkiri}</div>`;
+            // Grupi visuaalne pealkiri
+            loendHtml += `<div style="font-weight: bold; color: #2b6cb0; margin-top: 14px; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px;">■ ${grupp.pealkiri}</div>`;
             raportiTekstRidad.push(`\n[${grupp.pealkiri.toUpperCase()}]`);
 
-            // Lisame tooted, mis on nüüd õiges kassa-järjekorras
+            // Grupi üksikud tooted õiges kassa-järjekorras
             grupiTooted.forEach(t => {
                 const rida = `${t.nimi} ${t.kogus} tk / ${t.tulu.toFixed(2)} €`;
-                loendHtml += `<div style="padding: 4px 0 4px 10px; border-bottom: 1px solid #f7fafc; font-size: 13px;">• ${rida}</div>`;
+                loendHtml += `<div style="padding: 3px 0 3px 12px; border-bottom: 1px solid #f7fafc; font-size: 13px; color: #2d3748;">• ${rida}</div>`;
                 raportiTekstRidad.push(rida);
             });
+
+            // 🌟 UUS LAHENDUS: Lisame grupi lõppu paksu kokkuvõtte rea ja väikese vahemaha
+            const koondRidaTekst = `KOKKU ${grupp.pealkiri}: ${grupiKogusKokku} tk / ${grupiTuluKokku.toFixed(2)} €`;
+            
+            loendHtml += `
+                <div style="padding: 5px 0 5px 12px; font-weight: bold; color: #1a202c; font-size: 13px; background-color: #edf2f7; margin-top: 4px; margin-bottom: 12px; border-radius: 4px;">
+                    📊 ${koondRidaTekst}
+                </div>
+            `;
+            raportiTekstRidad.push(`> ${koondRidaTekst.toUpperCase()}`);
         }
     });
 
@@ -418,15 +431,16 @@ async function ArvutaJaKuvaPerioodiInfo(ajaTyyp) {
         hoiatusHinnad.style.display = esinesHinnamuutusi ? "block" : "none";
     }
 
-    // 🌟 GLOBAALNE KOOPREERITAV RAPORT MEILI JAOKS (Sünkroonis uue loogilise struktuuriga!)
+    // 🌟 GLOBAALNE KOOPREERITAV RAPORT MEILI JAOKS
     window.viimanePulssKoondraportTekst = `📊 PIIRIMÄE PULSSI KOONDARUANNE\n` +
         `Vaadeldav periood: ${laetudKassaAndmed.length} kalendripäeva\n` +
         `Müügiga päevi kokku: ${myugigaPaevi} päeva\n` +
         `Kogu perioodi tulu: ${koguKäive.toFixed(2)} €\n` +
         `Müüdud artikleid kokku: ${koguArtikleid} tk\n` +
         `_____________________________________\n` +
-        raportiTekstRidad.map(r => r.startsWith("\n") || r.startsWith("[") ? r : `- ${r}`).join("\n");
+        raportiTekstRidad.map(r => r.startsWith("\n") || r.startsWith("[") || r.startsWith(">") ? r : `- ${r}`).join("\n");
 }
+
 
 
 // --- KAST 1: Uuenda koondsektorit globaalselt (Kogu valitud perioodi tootejaotus) ---
