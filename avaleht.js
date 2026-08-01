@@ -1,4 +1,4 @@
-async function LaeJaKuvaAvaleheMenyyd() {
+
     // KÕIGE ESIMENE RIDA TESTIMISEKS:
     console.log("KONTROLL -> Kuupäevad:", TuvastaAktiivsedKuupaevad(), "Seaded:", seaded);
 
