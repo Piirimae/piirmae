@@ -71,14 +71,14 @@ button:hover {
 }
 
 .room-card {
-    background: rgba(255, 255, 255, 0.4) !important; /* Jätame õrna valguskumaga klaasi */
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
+    background: rgba(0, 0, 0, 0.08) !important; /* Jätame õrna valguskumaga klaasi */
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
     
     padding: 15px 10px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     
     cursor: pointer;
     text-align: center;
