@@ -667,22 +667,7 @@ button.delete-btn:hover {
     }
 }
 
-/* === SISSELOGIMISE KASTI KESKNE DISAIN === */
-.login-card, .login-card-tiiv {
-    /* 1. LISAME PILDI (Kaotab valge tausta) */
-    background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
-                url('jaam.jpg') no-repeat center center !important;
-    background-size: cover !important;
-    
-    /* 2. HOIAME SINU ALGSET SUURUST (Ei lase kastil laiaks minna) */
-    width: auto !important;
-    max-width: fit-content !important;
-    
-    /* 3. LÄBIPAISTEV DISAIN JA SÕBRALIKUD NURGAD */
-    border-radius: 12px !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
-}
+
 
 
 
