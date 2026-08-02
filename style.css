@@ -61,22 +61,42 @@ button:hover {
 
 .room-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
+    /* Muudame minimaalse laiuse 180px peale, et nupud oleksid kompaktsemad */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    /* Piirame terve ruudustiku laiust ja tsentreerime selle ekraanil */
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 .room-card {
-    background: white;
-    padding: 20px;
+    /* Muudame tausta läbipaistvaks valgeks (70% tihedus) */
+    background: rgba(255, 255, 255, 0.7);
+    /* 🌟 SEE RIDA TEB TAUSTA MÕNUSALT HÄGUSEKS (Klaasi efekt) */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    
+    padding: 15px 10px; /* Vähendame kasti sise-padi, et kast oleks madalam */
     border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    /* Teeme raami ja varju pehmemaks, et see sulanduks taustapildiga */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    
     cursor: pointer;
-    transition: transform .2s;
+    text-align: center; /* Paneme teksti ja ikooni kasti keskele */
+    font-weight: 500;
+    color: #1e293b;
+    transition: all 0.2s ease-in-out;
 }
 
+/* Efekt, kui hiirega nupule peale liigud */
 .room-card:hover {
-    transform: scale(1.03);
+    transform: translateY(-3px); /* Tõuseb veidi ülespoole, mitte lihtsalt ei suurene */
+    background: rgba(255, 255, 255, 0.9); /* Muutub fookuses olles teravamaks/valgemaks */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
+
 
 /* ===========================
    KASSATABELI TÖÖRIISTAD
