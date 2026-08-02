@@ -45,7 +45,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         toad.innerHTML = `
             <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
             <div class="room-card" onclick="location='pulss.html'">📈 Piirimäe Pulss</div>
-            <div class="room-card" onclick="location='menyy.html'" style="background: #2c3e50; color: white;">🍽️ Menüüde Juhtpaneel</div> <!-- 🌟 UUS -->
+            <div class="room-card" onclick="location='menyy.html'">🍽️ Menüüde Juhtpaneel</div> 
             <div class="room-card" onclick="location='arhiiv.html'">📁 Arhiiv</div>
             <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
             <div class="room-card" onclick="location='seaded.html'">🔧 Seaded</div>
@@ -55,7 +55,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         toad.innerHTML = `
             <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
             <div class="room-card" onclick="location='pulss.html'">📈 Piirimäe Pulss</div>
-            <div class="room-card" onclick="location='menyy.html'" style="background: #2c3e50; color: white;">🍽️ Menüüde Juhtpaneel</div> <!-- 🌟 UUS -->
+            <div class="room-card" onclick="location='menyy.html'">🍽️ Menüüde Juhtpaneel</div> 
             <div class="room-card" onclick="location='arhiiv.html'">📁 Arhiiv</div>
             <div class="room-card" onclick="location='logid.html'">🧾 Logid</div>
             <div class="room-card" onclick="location='seaded.html'">🔧 Seaded</div>
@@ -64,7 +64,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         toad.innerHTML = `
             <div class="room-card" onclick="location='kassatabel.html'">📊 Kassatabel</div>
             <div class="room-card" onclick="location='pulss.html'">📈 Piirimäe Pulss</div>
-            <div class="room-card" onclick="location='logid.html'">🧾 Logid</div> <!-- ✅ SISSESTAJA NÄEB LOGISID -->
+            <div class="room-card" onclick="location='logid.html'">🧾 Logid</div> 
         `;
     } else {
         toad.innerHTML = `
