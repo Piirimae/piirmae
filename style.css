@@ -437,6 +437,9 @@ button.delete-btn:hover {
 .page-kasutajad {
     background-image: url("bg-kasutajad.jpg");
 }
+.page-menyy {
+    background-image: url("bg-menyy.jpg");
+}
 
 /* --- PÄISE MENÜÜ --- */
 
