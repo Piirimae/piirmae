@@ -383,14 +383,14 @@ button.delete-btn:hover {
 .logitabel th {
   background-color: #f0f0f0;
 }
-/* LEHTEDE KUJUNDUS */
+
 
 .page-esileht {
     background-image: url("talvine.jpg");
 }
 
 .page-fuajee {
-    background-image: url("bg-fuajee.jpg");
+    background-image: url("fuajee.jpg");
 }
 
 .page-kassatabel {
