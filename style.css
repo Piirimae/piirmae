@@ -71,32 +71,27 @@ button:hover {
 }
 
 .room-card {
-    /* 🌟 KEERASIME LÄBIPAISTVUSE MAKSIMUMI: Taust on nüüd vaid 8% tihedusega must */
-    background: rgba(0, 0, 0, 0.08) !important;
-    
-    /* Muudame hägususe kergemaks (12px -> 5px), et taustapilt paistaks paremini läbi */
-    backdrop-filter: blur(5px) !important;
-    -webkit-backdrop-filter: blur(5px) !important;
+    background: rgba(0, 0, 0, 0.12) !important; /* Õrn tume klaas */
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
     
     padding: 15px 10px;
     border-radius: 12px;
-    
-    /* Õrn helendav raam, mis hoiab nupu piirjooned heledal taustal nähtavana */
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     
     cursor: pointer;
     text-align: center;
-    font-weight: 500;
-    
-    /* Tekst püsib valge, et see oleks tumedalt klaasilt hästi loetav */
+    font-weight: 600; /* 🌟 Teeme kirja veidi paksemaks */
     color: #ffffff !important; 
     
-    /* Teksti vari aitab tähtedel heleda taustapildi peal esile tõusta */
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    /* 🌟 TUGEVDATUD TOPELTVARI: Esimene rida teeb ääred teravaks, teine teeb laia pehme udu */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 
+                 0 2px 8px rgba(0, 0, 0, 0.4);
     
     transition: all 0.2s ease-in-out;
 }
+
 
 /* Efekt, kui hiirega nupule peale liigud */
 .room-card:hover {
