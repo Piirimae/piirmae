@@ -71,26 +71,29 @@ button:hover {
 }
 
 .room-card {
-    /* 🌟 MUUDAME TAUSTA TUMEDAKS KLAASIKS (must 25% tihedusega), et see eristuks heledast taustast */
-    background: rgba(0, 0, 0, 0.25) !important;
+    /* 🌟 KEERASIME LÄBIPAISTVUSE MAKSIMUMI: Taust on nüüd vaid 8% tihedusega must */
+    background: rgba(0, 0, 0, 0.08) !important;
     
-    /* Tugevdame hägusust, et taustapildi detailsus loetavust ei segaks */
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+    /* Muudame hägususe kergemaks (12px -> 5px), et taustapilt paistaks paremini läbi */
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
     
     padding: 15px 10px;
     border-radius: 12px;
     
-    /* Õrn valge raam ümber nupu, mis tekitab klaasi serva läike */
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    /* Õrn helendav raam, mis hoiab nupu piirjooned heledal taustal nähtavana */
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     
     cursor: pointer;
     text-align: center;
     font-weight: 500;
     
-    /* 🌟 KUNA TAUST ON TUME, TEEME TEKSTI VALGEKS */
+    /* Tekst püsib valge, et see oleks tumedalt klaasilt hästi loetav */
     color: #ffffff !important; 
+    
+    /* Teksti vari aitab tähtedel heleda taustapildi peal esile tõusta */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     
     transition: all 0.2s ease-in-out;
 }
@@ -98,9 +101,11 @@ button:hover {
 /* Efekt, kui hiirega nupule peale liigud */
 .room-card:hover {
     transform: translateY(-3px) !important;
-    background: rgba(0, 0, 0, 0.4) !important; /* Muutub fookuses olles veidi tumedamaks/teravamaks */
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    /* Hiirega peale minnes muutub nupp vaid õrnalt toonitumaks */
+    background: rgba(0, 0, 0, 0.18) !important; 
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
+
 
 
 
