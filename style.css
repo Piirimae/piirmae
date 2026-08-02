@@ -71,35 +71,34 @@ button:hover {
 }
 
 .room-card {
-    background: rgba(0, 0, 0, 0.12) !important; /* Õrn tume klaas */
-    backdrop-filter: blur(6px) !important;
-    -webkit-backdrop-filter: blur(6px) !important;
+    background: rgba(255, 255, 255, 0.4) !important; /* Jätame õrna valguskumaga klaasi */
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
     
     padding: 15px 10px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
     
     cursor: pointer;
     text-align: center;
-    font-weight: 600; /* 🌟 Teeme kirja veidi paksemaks */
-    color: #ffffff !important; 
+    font-weight: 600; /* 🌟 Teeme kirja veidi paksemaks, et oleks paremini näha */
     
-    /* 🌟 TUGEVDATUD TOPELTVARI: Esimene rida teeb ääred teravaks, teine teeb laia pehme udu */
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 
-                 0 2px 8px rgba(0, 0, 0, 0.4);
+    /* 🌟 MUUDAME TEKSTI TUMEDAKS (sügav põlevkivihall) */
+    color: #2d3748 !important; 
+    
+    /* 🌟 Lisame õrna valge varju tähtede taha, mis eraldab tumeda teksti taustast */
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
     
     transition: all 0.2s ease-in-out;
 }
 
-
-/* Efekt, kui hiirega nupule peale liigud */
 .room-card:hover {
     transform: translateY(-3px) !important;
-    /* Hiirega peale minnes muutub nupp vaid õrnalt toonitumaks */
-    background: rgba(0, 0, 0, 0.18) !important; 
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.6) !important; /* Muutub peale minnes veidi valgemaks */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
+
 
 
 
