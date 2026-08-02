@@ -111,7 +111,7 @@ async function EhitaMenyySisestusBlankett() {
                 <!-- 1. Teksti sisestus -->
                 <div style="flex: 1; min-width: 200px;">
                     <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Tervituse või sõnumi tekst:</label>
-                    <input type="text" id="inputTervitusTekst" value="${vanaTervitusTekst}" class="menyy-sisend" style="width: 100%;" placeholder="nt. Head isu !">
+                    <input type="text" id="inputTervitusTekst" value="${vanaTervitusTekst}" class="menyy-sisend" style="width: 100%;" placeholder="nt. Jätku leiba !">
                 </div>
                 
                 <!-- 2. Fondi valik -->
@@ -208,10 +208,10 @@ async function SalvestaKoguNadalAndmebaasi() {
        // ... [Päeva- ja nädalateadete korjamise kood] ...
 
     // 🌟 UUS: Korjame tervitusteksti ja stiili seaded andmebaasi jaoks kokku
-    const tTekst = document.getElementById("inputTervitusTekst")?.value || "Head isu !";
-    const tFont = document.getElementById("inputTervitusFont")?.value || "Brush Script MT";
-    const tSuurus = document.getElementById("inputTervitusSuurus")?.value || "26px";
-    const tVarv = document.getElementById("inputTervitusVarv")?.value || "#4a5568";
+    const tTekst = document.getElementById("inputTervitusTekst")?.value || "Jätku leiba !";
+    const tFont = document.getElementById("inputTervitusFont")?.value || "Comic Sans";
+    const tSuurus = document.getElementById("inputTervitusSuurus")?.value || "40px";
+    const tVarv = document.getElementById("inputTervitusVarv")?.value || "#c22e24";
 
     // Paneme stiilid üheks looks kokku eraldades semikooloniga: "Brush Script MT;26px;#4a5568"
     const tStiilKombineeritud = `${tFont};${tSuurus};${tVarv}`;
@@ -327,7 +327,7 @@ function AvaPrindiAkenPaev() {
                 <h1 style="font-size:32px; text-transform:uppercase; margin-bottom:5px; letter-spacing:2px;">Tänased Lõunapakkumised</h1>
                 <h3 style="font-size:18px; font-style:italic; color:#4a5568; margin-bottom:40px; border-bottom:1px solid #cbd5e1; padding-bottom:10px;">${kpvOsad[2]}. ${HangiKuuNimi(kpvOsad[1])} ${kpvOsad[0]}</h3>
                 <div style="margin:40px 0;">${toidudHtml}</div>
-                <div style="font-family:'Brush Script MT', cursive; font-size:28px; margin-top:40px; color:#4a5568;">Head isu !</div>
+                <div style="font-family:'Brush Script MT', cursive; font-size:40px; margin-top:40px; color:#c22e24;">Head isu !</div>
                 ${teadeHtml}
             </div>
             <script>window.onload = function() { window.print(); window.close(); }</script>
