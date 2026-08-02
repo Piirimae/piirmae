@@ -667,6 +667,24 @@ button.delete-btn:hover {
     }
 }
 
+/* === SISSELOGIMISE KASTI KESKNE DISAIN === */
+.login-card, .login-card-tiiv {
+    /* 1. TAUSTAPILT (Eemaldab vana valge kasti) */
+    background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
+                url('jaam.jpg') no-repeat center center !important;
+    background-size: cover !important;
+    
+    /* 2. MÕÕDUD JA PAIGUTUS */
+    width: 100% !important;
+    max-width: 380px !important;
+    padding: 30px 25px !important;
+    border-radius: 12px !important;
+    text-align: center !important;
+    
+    /* 3. LÄBIPAISTEV RAAM JA PEHME VARI */
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
 
 
 
