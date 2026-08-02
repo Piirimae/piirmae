@@ -671,7 +671,7 @@ button.delete-btn:hover {
 .login-card, .login-card-tiiv {
     /* 1. LISAME PILDI (Kaotab valge tausta) */
     background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), 
-                url('fuajee.jpg') no-repeat center center !important;
+                url('jaam.jpg') no-repeat center center !important;
     background-size: cover !important;
     
     /* 2. HOIAME SINU ALGSET SUURUST (Ei lase kastil laiaks minna) */
