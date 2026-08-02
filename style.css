@@ -451,8 +451,11 @@ button.delete-btn:hover {
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background: #f7f7f7;
-    border-bottom: 2px solid #ddd;
+    
+    /* 🌟 KAOTAME VALGE TAUSTA JA JOONE, AGA JÄTAME ASUKOHA SAMAKS */
+    background: transparent !important;
+    border-bottom: none !important;
+    
     position: sticky;
     top: 0;
     z-index: 10;
@@ -463,6 +466,15 @@ button.delete-btn:hover {
     align-items: center;
     gap: 12px;
     font-weight: bold;
+    
+    /* 🌟 TEKST VALGEKS JA LOETAVAKS */
+    color: #ffffff !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Kui kasutajanime div-il on eraldi id, tagame ka sellele valge värvi */
+#kasutajaNimi {
+    color: #ffffff !important;
 }
 
 .top-menu {
@@ -473,16 +485,23 @@ button.delete-btn:hover {
 .top-menu a {
     text-decoration: none;
     font-weight: 600;
-    color: #333;
+    
+    /* 🌟 MUUDAME LINGID VALGEKS JA LISAME VARJU */
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    
     padding: 6px 10px;
     border-radius: 6px;
     transition: 0.2s;
 }
 
+/* 🌟 KUI HIIREGA LINGILE PEALE LIIKUDA */
 .top-menu a:hover {
-    background: #ffe28a;
-    color: #000;
+    background: #ffe28a !important;
+    color: #000000 !important;
+    text-shadow: none !important; /* Eemaldame varju, kui taust läheb kollaseks */
 }
+
 /* --- ARHIIVI TABEL --- */
 
 .arhiivi-tabel {
