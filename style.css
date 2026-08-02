@@ -43,7 +43,7 @@ button {
     border-radius: 6px;
     border: 1px solid #ccc;
     cursor: pointer;
-    background: #fff9d6;
+    background: #2A4D8F;
     transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
@@ -52,7 +52,7 @@ button:hover {
 }
 
 .btn-small {
-    background: #fff9d6;
+    background: #2A4D8F;
     padding: 6px 12px;
     border-radius: 6px;
     border: 1px solid #ccc;
