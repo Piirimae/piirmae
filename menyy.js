@@ -96,8 +96,8 @@ async function EhitaMenyySisestusBlankett() {
 
     // 🌟 UUS: LAEME ANDMEBAASIST TERVITUSVIDINA TEKSTI JA STIILI
     // (esmaspaevStr seob selle tervituse konkreetse nädalaga, et see püsiks andmebaasis)
-    const vanaTervitusTekst = tekstideIndeks[`${esmaspaevStr}_AVALEHT_TERVITUS_TEKST`] || "Head isu !";
-    const vanaTervitusStiilRaw = tekstideIndeks[`${esmaspaevStr}_AVALEHT_TERVITUS_STIIL`] || "Brush Script MT;26px;#4a5568";
+    const vanaTervitusTekst = tekstideIndeks[`${esmaspaevStr}_AVALEHT_TERVITUS_TEKST`] || "Jätku leiba !";
+    const vanaTervitusStiilRaw = tekstideIndeks[`${esmaspaevStr}_AVALEHT_TERVITUS_STIIL`] || "Comic Sans;40px;#ED072A";
     
     // Tükeldame salvestatud stiili: font, suurus, värv
     const [sFont, sSize, sColor] = vanaTervitusStiilRaw.split(";");
