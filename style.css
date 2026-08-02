@@ -419,7 +419,7 @@ button.delete-btn:hover {
 }
 
 .page-kassatabel {
-    background-image: url("bg-kassatabel.jpg");
+    background-image: url("bg-kassaleht.jpg");
 }
 
 .page-arhiiv {
@@ -445,6 +445,9 @@ button.delete-btn:hover {
 }
 .page-syvaanalyys {
     background-image: url("bg-syvaanalyys.jpg");
+}
+.page-parandus {
+    background-image: url("bg-parandus.jpg");
 }
 
 /* --- PÄISE MENÜÜ --- */
