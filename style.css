@@ -71,31 +71,37 @@ button:hover {
 }
 
 .room-card {
-    /* Muudame tausta läbipaistvaks valgeks (70% tihedus) */
-    background: rgba(255, 255, 255, 0.7);
-    /* 🌟 SEE RIDA TEB TAUSTA MÕNUSALT HÄGUSEKS (Klaasi efekt) */
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    /* 🌟 MUUDAME TAUSTA TUMEDAKS KLAASIKS (must 25% tihedusega), et see eristuks heledast taustast */
+    background: rgba(0, 0, 0, 0.25) !important;
     
-    padding: 15px 10px; /* Vähendame kasti sise-padi, et kast oleks madalam */
+    /* Tugevdame hägusust, et taustapildi detailsus loetavust ei segaks */
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    
+    padding: 15px 10px;
     border-radius: 12px;
-    /* Teeme raami ja varju pehmemaks, et see sulanduks taustapildiga */
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    
+    /* Õrn valge raam ümber nupu, mis tekitab klaasi serva läike */
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     
     cursor: pointer;
-    text-align: center; /* Paneme teksti ja ikooni kasti keskele */
+    text-align: center;
     font-weight: 500;
-    color: #1e293b;
+    
+    /* 🌟 KUNA TAUST ON TUME, TEEME TEKSTI VALGEKS */
+    color: #ffffff !important; 
+    
     transition: all 0.2s ease-in-out;
 }
 
 /* Efekt, kui hiirega nupule peale liigud */
 .room-card:hover {
-    transform: translateY(-3px); /* Tõuseb veidi ülespoole, mitte lihtsalt ei suurene */
-    background: rgba(255, 255, 255, 0.9); /* Muutub fookuses olles teravamaks/valgemaks */
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px) !important;
+    background: rgba(0, 0, 0, 0.4) !important; /* Muutub fookuses olles veidi tumedamaks/teravamaks */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
+
 
 
 /* ===========================
