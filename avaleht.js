@@ -198,7 +198,7 @@ const tervitusElement = document.getElementById("avalehtDynaamilineTervitus");
 if (tervitusElement) {
     // OTSING & RAKENDAMINE: Parandatud võtmed ja stiili tükeldamine
     const dTekst = tekstideIndeks[`${esmaspaevaKuupaev}_AVALEHT_TERVITUS_TEKST`] || "Head isu !";
-    const dStiilRaw = tekstideIndeks[`${esmaspaevaKuupaev}_AVALEHT_TERVITUS_STIIL`] || "Comic Sans;26px;#c22e24";
+    const dStiilRaw = tekstideIndeks[`${esmaspaevaKuupaev}_AVALEHT_TERVITUS_STIIL`] || "Comic Sans;40px;#c22e24";
     const [dFont, dSize, dColor] = dStiilRaw.split(";");
 
     tervitusElement.innerText = dTekst;
