@@ -711,7 +711,7 @@ button.delete-btn:hover {
     position: relative;
     z-index: 1; 
 }
-.puha-lipp .menyy-tiitel { color: #0072CE !important; }
+.menyy-tiitel { color: #0072CE !important; }
 .puha-lipp .menyy-teade-input { color: #0072CE !important; border-left-color: #0072CE !important; }
 
 
