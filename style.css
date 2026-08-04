@@ -677,7 +677,7 @@ button.delete-btn:hover {
 
 /* 2. Suur, laia ekraaniga ja tõusuga Eesti lipu vesipilt menüü taustaks */
 .menyy-blankett.paev-taust::before {
-    content: "𖠰𐂂𖣂𖢔𖠋𓍄𓇥𓋜𓐬⋆⁺₊❅.";
+    content: "";
     position: absolute;
     
     /* Nihutame üles tiitli kohale vabasse ruumi ja laiendame üle blanketikasti */
