@@ -137,7 +137,22 @@ async function LaeJaKuvaAvaleheMenyyd() {
             }
         });
         paevKast.innerHTML = lahtreidKuvatud > 0 ? paevHtml : "<p style='color:#718096; font-style:italic;'>Selleks päevaks pole lõunapakkumisi sisestatud.</p>";
+    // ---  Päeva Teade ---
+    const kuvaTeadeDiv = document.getElementById("kuvaPaevaTeade");
+    if (kuvaTeadeDiv) {
+        // Otsime teadet kasutades õiget kuupäeva muutujat 'paevaKuupaev'
+        const teateTekst = tekstideIndeks[`${paevaKuupaev}_PAEVA_TEADE`] || "";
+
+        if (teateTekst.trim() !== "") {
+            kuvaTeadeDiv.innerText = teateTekst;
+            kuvaTeadeDiv.style.display = "block"; // Toome kasti nähtavale
+        } else {
+            kuvaTeadeDiv.innerText = "";
+            kuvaTeadeDiv.style.display = "none";  // Peidame kasti, kui teade puudub
+        }
     }
+    // -------------------------------------------------------------
+}
     // =========================================================================
     // 📅 POOL B: NÄDALAMENÜÜ
     // =========================================================================
