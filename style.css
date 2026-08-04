@@ -685,7 +685,13 @@ button.delete-btn:hover {
     left: -10%;
     width: 120%;
     height: 130%;
-    
+    font-size: 350px;
+   display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    pointer-events: none;
+    transform: rotate(-12deg);
     /* Sinu koostatud Eesti lipu gradient */
     background: linear-gradient(to bottom, 
         rgba(0, 114, 206, 0.08) 0%, rgba(0, 114, 206, 0.08) 33.3%,    /* Sinine */
