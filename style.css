@@ -684,8 +684,8 @@ button.delete-btn:hover {
     top: -30px;         
     left: -10%;
     width: 120%;
-    height: 130%;
-    font-size: 350px;
+    height: 100%;
+    font-size: 200px;
    display: flex;
     justify-content: center;
     align-items: center;
