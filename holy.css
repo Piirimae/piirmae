@@ -45,15 +45,15 @@
 
 /* 🌻 KUI ON TAVALINE AUGUSTIKUU */
 body.kuu-august {
-  --t-font: 300 15px 'font-august', sans-serif;
+  --t-font: 600 26px 'font-august', sans-serif;
   --t-color: #d4af37;
   --t-border: #f3e5ab;
 
-  --k-font: italic 400 14px 'font-august', sans-serif;
+  --k-font: italic 400 22px 'font-august', sans-serif;
   --k-color: #2c7a7b;
   --k-border: #9ae6b4;
 
-  --v-font: 700 24px 'font-august', cursive;
+  --v-font: 700 26px 'font-august', cursive;
   --v-color: #b7791f;
   --v-border: #fbd38d;
 }
