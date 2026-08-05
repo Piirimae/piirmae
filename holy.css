@@ -1,13 +1,10 @@
-
 /* =========================================================================
    1. FONDI SISSETOOMINE (fonts kaustast)
    ========================================================================= */
 @font-face {
     font-family: 'PühaEriFont';
-    src: url('fonts/valentin.woff2') format('woff2'); /* Kontrolli failinime */
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+    src: url('fonts/valentin.woff2') format('woff2');
+    font-weight: normal; font-style: normal; font-display: swap;
 }
 @font-face {
     font-family: 'font-august';
@@ -15,127 +12,96 @@
     font-display: swap;
 }
 @font-face {
-    font-family: 'font-taasiseseisvumine';
+    font-family: 'font-taasiseseisvumine'; /* 🔴 Baasnimi parandatud */
     src: url('fonts/20august.woff2') format('woff2');
     font-display: swap;
 }
+
 /* =========================================================================
-   2. Üldine seadistus kolme pealkirja fontide jaoks
+   2. ÜLDINE SEADISTUS (Võtab index.html-ilt võimu üle)
    =========================================================================*/
-  /* 1. PEALKIRI */
 .menyy-tiitel { 
-    font: var(--t-font, bold 15px sans-serif); 
-    color: var(--t-color, #ef081f); 
-    border-bottom: 1px solid var(--t-border, #ebc6f6); 
+    font: var(--t-font, bold 15px sans-serif) !important; 
+    color: var(--t-color, #ef081f) !important; 
+    border-bottom: 1px solid var(--t-border, #ebc6f6) !important; 
     margin-bottom: 20px; padding-bottom: 10px; text-align: center; position: relative; z-index: 1; margin-top: 50px;
 }
-
-/* 2. KUUPÄEV */
 .menyy-kpv { 
-    font: var(--k-font, italic 15px sans-serif); 
-    color: var(--k-color, #087cef); 
-    border-bottom: 1px solid var(--k-border, #b2e614); 
+    font: var(--k-font, italic 15px sans-serif) !important; 
+    color: var(--k-color, #087cef) !important; 
+    border-bottom: 1px solid var(--k-border, #b2e614) !important; 
     margin-bottom: 20px; padding-bottom: 10px; text-align: center; position: relative; z-index: 1; margin-top: 50px;
 }
-
-/* 3. PÄEVATEADE */
 .menyy-teade-input { 
-    font: var(--v-font, normal 26px cursive); 
-    color: var(--v-color, #087cef); 
-    border-bottom: 1px solid var(--v-border, #ebc6f6); 
+    font: var(--v-font, normal 26px cursive) !important; 
+    color: var(--v-color, #087cef) !important; 
+    border-bottom: 1px solid var(--v-border, #ebc6f6) !important; 
     margin-bottom: 20px; padding-bottom: 10px; text-align: center; position: relative; z-index: 1; margin-top: 50px;
 }
 
-
 /* =========================================================================
-   3. FONTIDE PAKSUSED KORRAGA (300 peen, 500 keskmine, 900 väga paks)
+   3. FONTIDE JA VÄRVIDE LÜLITAMINE PÜHADE KAUPA
    ========================================================================= */
 
-/* 🌻 KUI ON AUGUST: Kirjutame index.html-i väärtused tugevama klassiga üle */
-body.kuu-august .menyy-tiitel { 
-  font: 300 15px 'font-august', sans-serif !important;
-  color: #d4af37 !important;
-  border-bottom: 1px solid #f3e5ab !important;
+/* 🌻 KUI ON TAVALINE AUGUSTIKUU */
+body.kuu-august {
+  --t-font: 300 15px 'font-august', sans-serif;
+  --t-color: #d4af37;
+  --t-border: #f3e5ab;
+
+  --k-font: italic 400 14px 'font-august', sans-serif;
+  --k-color: #2c7a7b;
+  --k-border: #9ae6b4;
+
+  --v-font: 700 24px 'font-august', cursive;
+  --v-color: #b7791f;
+  --v-border: #fbd38d;
 }
 
-body.kuu-august .menyy-kpv { 
-  font: italic 400 14px 'font-august', sans-serif !important;
-  color: #2c7a7b !important;
-  border-bottom: 1px solid #9ae6b4 !important;
-}
-
-body.kuu-august .menyy-teade-input { 
-  font: 700 24px 'font-august', cursive !important;
-  color: #b7791f !important;
-  border-bottom: 1px solid #fbd38d !important;
-}
-
-
-/* =========================================================================
-   🇪🇪 20. AUGUST (Pidulik ja range riiklik disain)
-   ========================================================================= */
+/* 🇪🇪 KUI ON 20. AUGUST (Taasiseseisvumispäev) */
+/* 🔴 PARANDATUD: Kasutab nüüd õiget fondi nime ja lõpus on nõutud kirja tüüp (serif) */
 body.puha-taasiseseisvumine { 
-  /* Tiitel: paksus 900 (ülipaks), suurus 18px, pidulik must ja rukkisinine joon */
-  --t-font: 900 18px 'font-20august', serif;
+  --t-font: 900 18px 'font-taasiseseisvumine', serif;
   --t-color: #000000;
   --t-border: #002f6c;
 
-  /* Kuupäev: paksus 300 (elegantne peen), suurus 16px, hallikas-must */
-  --k-font: 300 16px 'font-20august', serif;
+  --k-font: 300 16px 'font-taasiseseisvumine', serif;
   --k-color: #4a5568;
   --k-border: #cbd5e0;
 
-  /* Päevateade: paksus 600, suurus 28px, sügavasinine tekst */
-  --v-font: 600 28px 'font-20august', serif;
+  --v-font: 600 28px 'font-taasiseseisvumine', serif;
   --v-color: #002f6c;
   --v-border: #002f6c;
 }
 
 /* =========================================================================
-   4. BLANKETTIDE ETTEVALMISTUS LOORI JAOKS
+   4. BLANKETTIDE ETTEVALMISTUS LOORI JAOKS JA AUGUSTI VESIPILT
    ========================================================================= */
 .menyy-blankett {
-    position: relative; /* Hädavajalik, et loor püsiks kasti sees */
-    overflow: hidden;    /* Hoiab ära suure sümboli äärte väljavenimise */
+    position: relative;
+    overflow: hidden;
 }
 
 /* Kõikide pühade ja kuude looride universaalne baasstiil */
 .menyy-blankett::before {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none; /* Et vesipilt ei segaks klikatavust ega suurendamist */
-    z-index: 0;           /* Hoiab sümboli toidutekstide taga */
-    font-size: 380px;     /* Suur sümbol üle terve blanketi */
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    pointer-events: none;
+    z-index: 0;
     transition: all 0.3s ease;
 }
-/* =========================================================================
-   AUGUSTIKUU VAIKIMISI LOOR (Kuvatakse taustapildi peal, kui püha pole)
-   ========================================================================= */
+
+/* Augustikuu vaikimisi loor */
 body.kuu-august .menyy-blankett.paev-taust::before {
-    content: "🌻🌾"; /* Viljapea sümbol (alternatiivina võid proovida ka "🌻" või "☀️") */
+    content: "🌻🌾"; 
     position: absolute; 
-    top: -20px; 
-    left: 0; 
-    width: 100%; 
-    height: 100%;
-    
-    /* Disain, suurus ja mahe suvine kuldne/kollakas toon */
+    top: -20px; left: 0; width: 100%; height: 100%;
     font-size: 200px;
-    color: rgba(212, 175, 55, 0.09); /* 6% nähtavusega mahe kuldne loor */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    z-index: 0; 
-    pointer-events: none; 
-    
-    /* VÄIKE KALLE (Täpselt nagu sõbrapäeval) */
+    color: rgba(212, 175, 55, 0.09);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 0; pointer-events: none; 
     transform: rotate(-10deg);
     transform-origin: center;
 }
+
