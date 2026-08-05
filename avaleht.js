@@ -294,7 +294,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
     if (leitudPüha) {
         // Kui on püha, lisame püha klassi (nt puha-sober)
         document.body.classList.add(`puha-${leitudPüha.id}`);
-        
+    }    
         // Kui see on riiklik püha (punane ruut), lisame ka ühise abi-klassi
         if (leitudPüha.isRiiklik) {
             document.body.classList.add("riiklik-puha");
@@ -385,8 +385,7 @@ if (avaleheNadalKast) {
         avaleheNadalKast.innerHTML = `
             <div style="margin-top: 15px; padding: 12px; background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; font-size: 14px; color: #78350f; text-align: left;">
                 📢 <strong>Nädala teadaanne:</strong> ${dNadalaTeade}
-            </div>
-        `;
+            </div>`;
     }
 }
 
