@@ -298,7 +298,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
         // Kui see on riiklik püha (punane ruut), lisame ka ühise abi-klassi
         if (leitudPüha.isRiiklik) {
             document.body.classList.add("riiklik-puha");
-        }
+        
         console.log(`Aktiivne disain -> PÜHA: puha-${leitudPüha.id}`);
     } else {
         // Kui püha pole, rakendame tavalise kuu vesipildi/stiili (nt kuu-veebruar)
