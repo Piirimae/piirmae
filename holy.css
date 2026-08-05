@@ -46,7 +46,7 @@ body.kuu-august .menyy-blankett.paev-taust::before {
     
     /* Disain, suurus ja mahe suvine kuldne/kollakas toon */
     font-size: 200px;
-    color: rgba(212, 175, 55, 0.06); /* 6% nähtavusega mahe kuldne loor */
+    color: rgba(212, 175, 55, 0.09); /* 6% nähtavusega mahe kuldne loor */
     display: flex;
     justify-content: center;
     align-items: center;
