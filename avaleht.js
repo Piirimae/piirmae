@@ -294,7 +294,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
     if (leitudPüha) {
         // Kui on püha, lisame püha klassi (nt puha-sober)
         document.body.classList.add(`puha-${leitudPüha.id}`);
-    }    
+       
         // Kui see on riiklik püha (punane ruut), lisame ka ühise abi-klassi
         if (leitudPüha.isRiiklik) {
             document.body.classList.add("riiklik-puha");
