@@ -272,7 +272,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
             kuvaTeadeDiv.style.display = "none";
         }
     }
-
+} 
     // =========================================================================
     // 🌟 AUTOMAATNE PÜHADE TUVASTAMINE JA CSS DISAINI LÜLITAMINE
     // =========================================================================
