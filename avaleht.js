@@ -272,7 +272,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
             kuvaTeadeDiv.style.display = "none";
         }
     }
-} 
+ 
     // =========================================================================
     // 🌟 AUTOMAATNE PÜHADE TUVASTAMINE JA CSS DISAINI LÜLITAMINE
     // =========================================================================
@@ -387,7 +387,7 @@ if (avaleheNadalKast) {
                 📢 <strong>Nädala teadaanne:</strong> ${dNadalaTeade}
             </div>`;
     }
-
+ }
 
 } // <--- LaeJaKuvaAvaleheMenyyd LÕPP
 
