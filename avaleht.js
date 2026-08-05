@@ -305,7 +305,7 @@ async function LaeJaKuvaAvaleheMenyyd() {
         document.body.classList.add(praeguseKuuKlass);
         console.log(`Aktiivne disain -> KUU: ${praeguseKuuKlass}`);
     }
-}
+
 
 
     // =========================================================================
