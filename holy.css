@@ -46,27 +46,30 @@
     margin-bottom: 20px; padding-bottom: 10px; text-align: center; position: relative; z-index: 1; margin-top: 50px;
 }
 
-}
+
 /* =========================================================================
    3. FONTIDE PAKSUSED KORRAGA (300 peen, 500 keskmine, 900 väga paks)
    ========================================================================= */
 
-body.kuu-august { 
-  /* Tiitel: paksus 300 (peen), suurus 15px, tumekollane */
-  --t-font: 300 15px 'font-august', sans-serif;
-  --t-color: #d4af37;
-  --t-border: #f3e5ab;
-
-  /* Kuupäev: paksus 400, suurus 14px, mahe rohekas-sinine */
-  --k-font: italic 400 14px 'font-august', sans-serif;
-  --k-color: #2c7a7b;
-  --k-border: #9ae6b4;
-
-  /* Päevateade: paksus 700 (paks), suurus 24px, kuldne vadin */
-  --v-font: 700 24px 'font-august', cursive;
-  --v-color: #b7791f;
-  --v-border: #fbd38d;
+/* 🌻 KUI ON AUGUST: Kirjutame index.html-i väärtused tugevama klassiga üle */
+body.kuu-august .menyy-tiitel { 
+  font: 300 15px 'font-august', sans-serif !important;
+  color: #d4af37 !important;
+  border-bottom: 1px solid #f3e5ab !important;
 }
+
+body.kuu-august .menyy-kpv { 
+  font: italic 400 14px 'font-august', sans-serif !important;
+  color: #2c7a7b !important;
+  border-bottom: 1px solid #9ae6b4 !important;
+}
+
+body.kuu-august .menyy-teade-input { 
+  font: 700 24px 'font-august', cursive !important;
+  color: #b7791f !important;
+  border-bottom: 1px solid #fbd38d !important;
+}
+
 
 /* =========================================================================
    🇪🇪 20. AUGUST (Pidulik ja range riiklik disain)
