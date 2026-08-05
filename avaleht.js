@@ -387,7 +387,7 @@ if (avaleheNadalKast) {
                 📢 <strong>Nädala teadaanne:</strong> ${dNadalaTeade}
             </div>`;
     }
-}
+
 
 } // <--- LaeJaKuvaAvaleheMenyyd LÕPP
 
