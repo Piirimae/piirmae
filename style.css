@@ -668,57 +668,7 @@ button.delete-btn:hover {
 }
 
 
-/* Terve ekraani taustaks mõeldud lipu seadistus */
-/* 1. Tagame, et menüüblankett lubab taustal sissepoole laieneda */
-.menyy-blankett.paev-taust {
-    position: relative;
-    overflow: hidden; /* Hoiab ära lipu äärte kastist välja jooksmise */
-}
 
-/* 2. Suur, laia ekraaniga ja tõusuga Eesti lipu vesipilt menüü taustaks */
-.menyy-blankett.paev-taust::before {
-    content: "";
-    position: absolute;
-    
-    /* Nihutame üles tiitli kohale vabasse ruumi ja laiendame üle blanketikasti */
-    top: -30px;         
-    left: -10%;
-    width: 120%;
-    height: 100%;
-    font-size: 200px;
-   display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
-    pointer-events: none;
-    transform: rotate(-12deg);
-    /* Sinu koostatud Eesti lipu gradient */
-    background: linear-gradient(to bottom, 
-        rgba(0, 114, 206, 0.08) 0%, rgba(0, 114, 206, 0.08) 33.3%,    /* Sinine */
-        rgba(0, 0, 0, 0.07) 33.3%, rgba(0, 0, 0, 0.07) 66.6%,         /* Must */
-        rgba(255, 255, 255, 0.2) 66.6%, rgba(255, 255, 255, 0.2) 100% /* Valge */
-    );
-    
-    z-index: 0;          /* Viib lipu blanketi sees teksti taha */
-    pointer-events: none; /* Ei sega klikkimist ega MuudaSuurendust funktsiooni */
-
-    /* VÄIKE TÕUS / KALLE */
-    /* Pöörab ainult lippu kasti sees 3 kraadi vasakult paremale üles */
-    transform: rotate(-3deg); 
-    transform-origin: top center;
-}
-
-/* 3. Tõstame menüü sisu lipust ettepoole, et tekstid oleksid puhtalt loetavad */
-.menyy-tiitel, 
-.menyy-kpv, 
-#paevamenyyTootedKast, 
-#avalehtDynaamilineTervitus, 
-#kuvaPaevaTeade {
-    position: relative;
-    z-index: 1; 
-}
-.menyy-tiitel { color: #0072CE !important; }
-.puha-lipp .menyy-teade-input { color: #0072CE !important; border-left-color: #0072CE !important; }
 
 
 
