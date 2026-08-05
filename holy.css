@@ -1,0 +1,60 @@
+
+/* =========================================================================
+   1. FONDI SISSETOOMINE (fonts kaustast)
+   ========================================================================= */
+@font-face {
+    font-family: 'PühaEriFont';
+    src: url('fonts/valentin.woff2') format('woff2'); /* Kontrolli failinime */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* =========================================================================
+   2. BLANKETTIDE ETTEVALMISTUS LOORI JAOKS
+   ========================================================================= */
+.menyy-blankett {
+    position: relative; /* Hädavajalik, et loor püsiks kasti sees */
+    overflow: hidden;    /* Hoiab ära suure sümboli äärte väljavenimise */
+}
+
+/* Kõikide pühade ja kuude looride universaalne baasstiil */
+.menyy-blankett::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none; /* Et vesipilt ei segaks klikatavust ega suurendamist */
+    z-index: 0;           /* Hoiab sümboli toidutekstide taga */
+    font-size: 380px;     /* Suur sümbol üle terve blanketi */
+    transition: all 0.3s ease;
+}
+/* =========================================================================
+   AUGUSTIKUU VAIKIMISI LOOR (Kuvatakse taustapildi peal, kui püha pole)
+   ========================================================================= */
+body.kuu-august .menyy-blankett.paev-taust::before {
+    content: "🌾🌻"; /* Viljapea sümbol (alternatiivina võid proovida ka "🌻" või "☀️") */
+    position: absolute; 
+    top: -20px; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    
+    /* Disain, suurus ja mahe suvine kuldne/kollakas toon */
+    font-size: 400px;
+    color: rgba(212, 175, 55, 0.06); /* 6% nähtavusega mahe kuldne loor */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    z-index: 0; 
+    pointer-events: none; 
+    
+    /* VÄIKE KALLE (Täpselt nagu sõbrapäeval) */
+    transform: rotate(-10deg);
+    transform-origin: center;
+}
