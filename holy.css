@@ -43,78 +43,79 @@
    3. FONTIDE JA VÄRVIDE LÜLITAMINE PÜHADE KAUPA
    ========================================================================= */
 
-/* 🌻 KUI ON TAVALINE AUGUSTIKUU */
-body.kuu-august {
-  --t-font: 600 26px 'font-august', sans-serif;
-  --t-color: #d4af37;
-  --t-border: #f3e5ab;
 
-  --k-font: italic 400 22px 'font-august', sans-serif;
-  --k-color: #2c7a7b;
-  --k-border: #9ae6b4;
 
-  --v-font: 700 26px 'font-august', cursive;
-  --v-color: #b7791f;
-  --v-border: #fbd38d;
-}
-
-/* 🇪🇪 KUI ON 20. AUGUST (Taasiseseisvumispäev) */
-/* 🔴 PARANDATUD: Kasutab nüüd õiget fondi nime ja lõpus on nõutud kirja tüüp (serif) */
-body.puha-taasiseseisvumine { 
-  --t-font: 900 18px 'font-taasiseseisvumine', serif;
-  --t-color: #000000;
-  --t-border: #002f6c;
-
-  --k-font: 300 16px 'font-taasiseseisvumine', serif;
-  --k-color: #4a5568;
-  --k-border: #cbd5e0;
-
-  --v-font: 600 28px 'font-taasiseseisvumine', serif;
-  --v-color: #002f6c;
-  --v-border: #002f6c;
-}
 
 /* =========================================================================
-   4. BLANKETTIDE ETTEVALMISTUS LOORI JAOKS JA VESIPILDID
+   4. BLANKETTIDE ETTEVALMISTUS JA NUTIKAS TAUSTA JUHTIMINE
    ========================================================================= */
 .menyy-blankett {
     position: relative;
     overflow: hidden;
+    z-index: 1; /* TAUSTAPILDI PEAL */
 }
 
-/* Kõikide pühade ja kuude looride universaalne baasstiil */
+/* Toiduridade konteiner ja tekstid tõstetud kõige ette igaksjuhuks*/
+#paevamenyyTootedKast, .menyy-tiitel, .menyy-kpv, .menyy-teade-input {
+    position: relative;
+    z-index: 2 !important; 
+}
+
+/* Universaalne ja tark vesipildi raam */
 .menyy-blankett::before {
-    content: ""; /* Tagab, et enne pildi laadimist on element olemas */
+    /* Võtab sisu (emojid) või taustapildi (SVG) otse juhtpuldist */
+    content: var(--bg-content, ""); 
+    background-image: var(--bg-image, none);
+    
+    /* Võtab suuruse, asukoha ja kalde otse juhtpuldist (vaikimisi seaded on olemas) */
+    background-size: var(--bg-size, auto 85%);
+    background-position: var(--bg-pos, center center);
+    font-size: var(--bg-font-size, 200px);
+    color: var(--bg-color, rgba(0, 0, 0, 0.05));
+    transform: rotate(var(--bg-rotate, 0deg));
+    
+    /* Need asjad on alati samad ja neid me enam EI MUUDA */
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     display: flex; justify-content: center; align-items: center;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1 !important; /* Toob kindlalt indexi taustapildi peale */
+    background-repeat: no-repeat;
+    transform-origin: center;
     transition: all 0.3s ease;
 }
+/* =================================================================== */
 
-/* 🌻 AUGUSTIKUU VAIKIMISI LOOR */
-/* 🔴 PARANDATUD: Lisatud tühik pärast body.kuu-august klassi! */
-body.kuu-august .menyy-blankett.paev-taust::before {
-    content: "🌻🌾"; 
-    position: absolute; 
-    top: -20px; left: 0; width: 100%; height: 100%;
-    font-size: 200px;
-    color: rgba(212, 175, 55, 0.09);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 0; pointer-events: none; 
-    transform: rotate(-10deg);
-    transform-origin: center;
+/* =========================================================================
+   🌻 TAVALINE AUGUSTIKUU (Tekstipõhised emojid, viltu keeratud)
+   ========================================================================= */
+body.kuu-august {
+  /* Tekstide seaded (Eilsest) */
+  --t-font: 600 26px 'font-august', sans-serif; --t-color: #d4af37; --t-border: #f3e5ab;
+  --k-font: italic 400 22px 'font-august', sans-serif; --k-color: #2c7a7b; --k-border: #9ae6b4;
+  --v-font: 700 26px 'font-august', cursive; --v-color: #b7791f; --v-border: #fbd38d;
+
+  /* 🌟 TAUSTA TIMMIMINE: Emojid, kollane toon, suurus ja -10 kraadi kalle */
+  --bg-content: "🌻🌾";
+  --bg-font-size: 200px;
+  --bg-color: rgba(212, 175, 55, 0.09);
+  --bg-rotate: -10deg;
 }
 
-/* 🇪🇪 20. AUGUST (Taasiseseisvumispäev) */
-body.puha-taasiseseisvumine .menyy-blankett.paev-taust::before { 
-   content: ""; 
-   display: block;
-   z-index: 1;
-   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150' fill='none' stroke='rgba(0, 47, 108, 0.25)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='50' y1='5' x2='50' y2='40' stroke='rgba(0, 47, 108, 0.3)' stroke-width='2'/%3E%3Cpath d='M50 7C56 7 60 5 66 7L66 12C60 10 56 12 50 12Z' fill='rgb(0,114,206)' stroke='none'/%3E%3Cpath d='M50 12C56 12 60 10 66 12L66 17C60 15 56 17 50 17Z' fill='rgb(0,0,0)' stroke='none'/%3E%3Cpath d='M50 17C56 17 60 15 66 17L66 22C60 20 56 22 50 22Z' fill='rgb(255,255,255)' stroke='rgba(0,0,0,0.15)' stroke-width='0.5'/%3E%3Cpath d='M35 40H65V45H61V42H57V45H53V42H49V45H45V42H41V45H37V42H35Z' fill='rgba(0,0,0,0.02)'/%3E%3Cpath d='M35 45L38 55H62L65 45Z'/%3E%3Cpath d='M38 55L40 145H60L62 55'/%3E%3Crect x='48' y='65' width='4' height='8' rx='1'/%3E%3Crect x='48' y='85' width='4' height='8' rx='1'/%3E%3Crect x='48' y='105' width='4' height='8' rx='1'/%3E%3Cpath d='M15 110H40M60 125H85' stroke-dasharray='1 4' stroke-width='1'/%3E%3C/svg%3E"); 
-   background-repeat: no-repeat; 
-   background-position: center center; 
-   background-size: auto 90%; 
+/* =========================================================================
+   🇪🇪 20. AUGUST (Taasiseseisvumispäev - SVG pilt, sirgelt keskel ja suur)
+   ========================================================================= */
+body.puha-taasiseseisvumine { 
+  /* Tekstide seaded (Eilsest) */
+  --t-font: 900 18px 'font-taasiseseisvumine', serif; --t-color: #000000; --t-border: #002f6c;
+  --k-font: 300 16px 'font-taasiseseisvumine', serif; --k-color: #4a5568; --k-border: #cbd5e0;
+  --v-font: 600 28px 'font-taasiseseisvumine', serif; --v-color: #002f6c; --v-border: #002f6c;
+
+  /* 🌟 TAUSTA TIMMIMINE: Puhastame sisu tekstist, söödame SVG ja paneme suuruseks 90% ja sirgeks (0deg) */
+  --bg-content: ""; 
+  --bg-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' viewBox='0 0 100 150' fill='none' stroke='rgba(0, 47, 108, 0.25)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='50' y1='5' x2='50' y2='40' stroke='rgba(0, 47, 108, 0.3)' stroke-width='2'/%3E%3Cpath d='M50 7C56 7 60 5 66 7L66 12C60 10 56 12 50 12Z' fill='rgb(0,114,206)' stroke='none'/%3E%3Cpath d='M50 12C56 12 60 10 66 12L66 17C60 15 56 17 50 17Z' fill='rgb(0,0,0)' stroke='none'/%3E%3Cpath d='M50 17C56 17 60 15 66 17L66 22C60 20 56 22 50 22Z' fill='rgb(255,255,255)' stroke='rgba(0,0,0,0.15)' stroke-width='0.5'/%3E%3Cpath d='M35 40H65V45H61V42H57V45H53V42H49V45H45V42H41V45H37V42H35Z' fill='rgba(0,0,0,0.02)'/%3E%3Cpath d='M35 45L38 55H62L65 45Z'/%3E%3Cpath d='M38 55L40 145H60L62 55'/%3E%3Crect x='48' y='65' width='4' height='8' rx='1'/%3E%3Crect x='48' y='85' width='4' height='8' rx='1'/%3E%3Crect x='48' y='105' width='4' height='8' rx='1'/%3E%3Cpath d='M15 110H40M60 125H85' stroke-dasharray='1 4' stroke-width='1'/%3E%3C/svg%3E");
+  --bg-size: auto 90%;
+  --bg-rotate: 0deg;
 }
+
 
