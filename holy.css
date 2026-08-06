@@ -174,13 +174,4 @@ body.kuu-oktoober .menyy-blankett.paev-taust::before {
     transform: rotate(-10deg);
     transform-origin: center;
 }
-/* 🇪🇪 1. OKTOOBER (Omavalitsustepäev) */
-body.puha-omavalitsus .menyy-blankett.paev-taust::before {
-    content: ""; /* Eemaldab augustikuu vaikimisi tekstiloori (🌻🌾) */
-    background-image: url("vapp.jpg"); /* Kirjuta siia oma vapi faili nimi või veebilink */
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain; /* Skaaleerub täisekraani/kasti järgi parajaks */
-    opacity: 0.15; /* Täisvärvides PNG puhul hoiab teksti ilusti loetavana */
-    transform: none; /* Tühistab augustikuu viltuse pöörde */
-}
+
