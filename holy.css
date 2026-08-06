@@ -116,7 +116,7 @@ body.puha-taasiseseisvumine {
   --bg-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' viewBox='0 0 100 150' fill='none' stroke='rgba(0, 47, 108, 0.25)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='50' y1='5' x2='50' y2='40' stroke='rgba(0, 47, 108, 0.3)' stroke-width='2'/%3E%3Cpath d='M50 7C56 7 60 5 66 7L66 12C60 10 56 12 50 12Z' fill='rgb(0,114,206)' stroke='none'/%3E%3Cpath d='M50 12C56 12 60 10 66 12L66 17C60 15 56 17 50 17Z' fill='rgb(0,0,0)' stroke='none'/%3E%3Cpath d='M50 17C56 17 60 15 66 17L66 22C60 20 56 22 50 22Z' fill='rgb(255,255,255)' stroke='rgba(0,0,0,0.15)' stroke-width='0.5'/%3E%3Cpath d='M35 40H65V45H61V42H57V45H53V42H49V45H45V42H41V45H37V42H35Z' fill='rgba(0,0,0,0.02)'/%3E%3Cpath d='M35 45L38 55H62L65 45Z'/%3E%3Cpath d='M38 55L40 145H60L62 55'/%3E%3Crect x='48' y='65' width='4' height='8' rx='1'/%3E%3Crect x='48' y='85' width='4' height='8' rx='1'/%3E%3Crect x='48' y='105' width='4' height='8' rx='1'/%3E%3Cpath d='M15 110H40M60 125H85' stroke-dasharray='1 4' stroke-width='1'/%3E%3C/svg%3E");
   --bg-size: auto 90%;
   --bg-rotate: 0deg;
-  --bg-opacity: 0.30
+  
 }
 /* =========================================================================
    🎒1. September (Teadmistepäev)
