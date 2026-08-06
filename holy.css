@@ -94,7 +94,7 @@ body.puha-taasiseseisvumine {
 }
 
 /* 🌻 AUGUSTIKUU VAIKIMISI LOOR */
-/* 🔴 PARANDATUD: Lisatud tühik pärast body.kuu-august klassi! */
+
 body.kuu-august .menyy-blankett.paev-taust::before {
     content: "🌻🌾"; 
     position: absolute; 
@@ -108,11 +108,19 @@ body.kuu-august .menyy-blankett.paev-taust::before {
 }
 
 /* 🇪🇪 20. AUGUST (Taasiseseisvumispäev) */
-/* 🔴 PARANDATUD: Lisatud tühik pärast body.puha-taasiseseisvumine klassi! */
+
 body.puha-taasiseseisvumine .menyy-blankett.paev-taust::before { 
    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150' fill='none' stroke='rgba(0, 47, 108, 0.25)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='50' y1='5' x2='50' y2='40' stroke='rgba(0, 47, 108, 0.3)' stroke-width='2'/%3E%3Cpath d='M50 7C56 7 60 5 66 7L66 12C60 10 56 12 50 12Z' fill='rgb(0,114,206)' stroke='none'/%3E%3Cpath d='M50 12C56 12 60 10 66 12L66 17C60 15 56 17 50 17Z' fill='rgb(0,0,0)' stroke='none'/%3E%3Cpath d='M50 17C56 17 60 15 66 17L66 22C60 20 56 22 50 22Z' fill='rgb(255,255,255)' stroke='rgba(0,0,0,0.15)' stroke-width='0.5'/%3E%3Cpath d='M35 40H65V45H61V42H57V45H53V42H49V45H45V42H41V45H37V42H35Z' fill='rgba(0,0,0,0.02)'/%3E%3Cpath d='M35 45L38 55H62L65 45Z'/%3E%3Cpath d='M38 55L40 145H60L62 55'/%3E%3Crect x='48' y='65' width='4' height='8' rx='1'/%3E%3Crect x='48' y='85' width='4' height='8' rx='1'/%3E%3Crect x='48' y='105' width='4' height='8' rx='1'/%3E%3Cpath d='M15 110H40M60 125H85' stroke-dasharray='1 4' stroke-width='1'/%3E%3C/svg%3E"); 
    background-repeat: no-repeat; 
    background-position: center center; 
    background-size: auto 90%; 
 }
-
+/* 🇪🇪 1. SEPTEMBER (Teadmistepäev) */
+.menyy-blankett.paev-taust.puha-teadmistepaev::before {
+  opacity: 0.40; 
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 550'%3E%3Cg id='vahtraleht-vasakul-yleval' transform='translate(20, 20) scale(0.9)'%3E%3Cpath d='M 40 10 C 45 30, 35 45, 20 40 C 25 55, 15 65, 0 60 C 15 75, 20 90, 10 105 C 30 100, 45 110, 50 130 C 55 110, 70 100, 90 105 C 80 90, 85 75, 100 60 C 85 65, 75 55, 80 40 C 65 45, 55 30, 60 10 C 55 25, 45 25, 40 10 Z' fill='%23daa520'/%3E%3Cpath d='M 50 130 L 50 150' stroke='%238b4513' stroke-width='2' stroke-linecap='round'/%3E%3C/g%3E%3Cg id='tammetorud-paremal-yleval' transform='translate(310, 30) scale(0.8)'%3E%3Cpath d='M 30 20 Q 20 50 40 70 Q 60 50 50 20 Z' fill='%23cd853f'/%3E%3Cpath d='M 25 22 Q 40 5 55 22 Z' fill='%238b4513'/%3E%3Cpath d='M 45 40 Q 30 70 50 90 Q 70 70 65 40 Z' fill='%23cd853f' transform='rotate(-20 45 40)'/%3E%3Cpath d='M 40 42 Q 55 27 70 42 Z' fill='%238b4513' transform='rotate(-20 45 40)'/%3E%3Cpath d='M 40 10 Q 35 0 20 5' fill='none' stroke='%238b4513' stroke-width='2'/%3E%3C/g%3E%3Cg id='kastanimunad-all-vasakul' transform='translate(30, 440) scale(0.85)'%3E%3Ccircle cx='40' cy='40' r='25' fill='%23556b2f'/%3E%3Cpath d='M 40 15 L 40 10 M 40 65 L 40 70 M 15 40 L 10 40 M 65 40 L 70 40 M 22 22 L 18 18 M 58 58 L 62 62 M 22 58 L 18 62 M 58 22 L 62 18' stroke='%233f5b1b' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='65' cy='55' r='18' fill='%238b4513'/%3E%3Cpath d='M 52 45 Q 65 38 78 48 Z' fill='%23d2b48c'/%3E%3C/g%3E%3Cg id='vahtraleht-all-paremal' transform='translate(290, 430) scale(0.95) rotate(-15 50 50)'%3E%3Cpath d='M 40 10 C 45 30, 35 45, 20 40 C 25 55, 15 65, 0 60 C 15 75, 20 90, 10 105 C 30 100, 45 110, 50 130 C 55 110, 70 100, 90 105 C 80 90, 85 75, 100 60 C 85 65, 75 55, 80 40 C 65 45, 55 30, 60 10 Z' fill='%23d2691e'/%3E%3Cpath d='M 50 130 L 50 155' stroke='%238b4513' stroke-width='2'/%3E%3C/g%3E%3Cg id='langevad-lehed-keskel-servas' opacity='0.7'%3E%3Cpath d='M 30 250 C 35 260, 30 270, 20 265 C 23 275, 15 280, 5 275 C 15 285, 15 295, 8 305 C 20 300, 30 305, 33 315 C 38 305, 48 300, 60 305 C 53 295, 55 285, 65 275 C 55 280, 48 275, 50 265 C 40 270, 35 260, 40 250 Z' fill='%23b8860b' transform='rotate(30 30 250) scale(0.5)'/%3E%3Cpath d='M 360 280 C 365 290, 360 300, 350 295 C 353 305, 345 310, 335 305 C 345 315, 345 325, 338 335 C 350 330, 360 335, 363 345 C 368 335, 378 330, 390 335 C 383 325, 385 315, 395 305 C 385 310, 378 305, 380 295 C 370 300, 365 290, 370 280 Z' fill='%23cd853f' transform='rotate(-20 360 280) scale(0.6)'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: auto 80%;
+  transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
