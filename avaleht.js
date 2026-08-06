@@ -109,7 +109,7 @@ function ArvutaEestiPühad(aasta) {
         [`${aasta}-07-10`]: { id: "seitsmevenna", nimi: "Seitsmevennapäev" },
         
         // August
-        [`${aasta}-08-20`]: { id: "taasiseseisvumine", nimi: "Taasiseseisvumispäev", isRiiklik: true },
+        [`${aasta}-08-06`]: { id: "taasiseseisvumine", nimi: "Taasiseseisvumispäev", isRiiklik: true },
         
         // September
         [`${aasta}-09-01`]: { id: "teadmistepaev", nimi: "Teadmistepäev" },
