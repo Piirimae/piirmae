@@ -65,6 +65,7 @@ function ArvutaEestiPühad(aasta) {
     let isadapaev = new Date(aasta, 10, 1);
     while (isadapaev.getDay() !== 0) isadapaev.setDate(isadapaev.getDate() + 1);
     isadapaev.setDate(isadapaev.getDate() + 7);
+    
 
     // --- 3. Kogu pühade register (Riiklikud tähistatud 'isRiiklik: true') ---
     return {
@@ -277,39 +278,66 @@ async function LaeJaKuvaAvaleheMenyyd() {
         }
     }
  
-    // =========================================================================
-    // 🌟 AUTOMAATNE PÜHADE TUVASTAMINE JA CSS DISAINI LÜLITAMINE
-    // =========================================================================
-   
-    const praeguneAasta = parseInt(pOsad[0], 10);
-    const pühadeRegister = ArvutaEestiPühad(praeguneAasta);
-    
-    // Tuvastame kuu nime massiivist klassi nime jaoks
-    const kuudeKlassid = ["jaanuar", "veebruar", "marts", "aprill", "mai", "juuni", "juuli", "august", "september", "oktoober", "november", "detsember"];
-    const kuuIndex = parseInt(pOsad[1], 10) - 1;
-    const praeguseKuuKlass = `kuu-${kuudeKlassid[kuuIndex]}`;
+ // =========================================================================
+// 🌟 AUTOMAATNE PÜHADE TUVASTAMINE JA CSS DISAINI LÜLITAMINE
+// =========================================================================
 
-    // 1. Puhastame body kõigist dünaamilistest klassidest
-    document.body.className = document.body.className.replace(/\b(puha-|kuu-|riiklik-)\S+/g, '').trim();
+const praeguneAasta = parseInt(pOsad[0], 10);
+const pühadeRegister = ArvutaEestiPühad(praeguneAasta);
 
-    // 2. Vaatame, kas tänaseks on määratud spetsiifiline püha
-    const leitudPüha = pühadeRegister[paevaKuupaev];
+// Tuvastame kuu nime massiivist klassi nime jaoks
+const kuudeKlassid = [
+    "jaanuar", "veebruar", "marts", "aprill",
+    "mai", "juuni", "juuli", "august",
+    "september", "oktoober", "november", "detsember"
+];
 
-    if (leitudPüha) {
-        // Kui on püha, lisame püha klassi (nt puha-sober)
-        document.body.classList.add(`puha-${leitudPüha.id}`);
-       
-        // Kui see on riiklik püha (punane ruut), lisame ka ühise abi-klassi
-        if (leitudPüha.isRiiklik) {
-            document.body.classList.add("riiklik-puha");
-         }
-        console.log(`Aktiivne disain -> PÜHA: puha-${leitudPüha.id}`);
-    } else {
-        // Kui püha pole, rakendame tavalise kuu vesipildi/stiili (nt kuu-veebruar)
-        document.body.classList.add(praeguseKuuKlass);
-        console.log(`Aktiivne disain -> KUU: ${praeguseKuuKlass}`);
+const kuuIndex = parseInt(pOsad[1], 10) - 1;
+const praeguseKuuKlass = `kuu-${kuudeKlassid[kuuIndex]}`;
+
+// 1. Puhastame body dünaamilistest klassidest
+document.body.className = document.body.className
+    .replace(/\b(puha-|kuu-|riiklik-)\S+/g, '')
+    .trim();
+
+// 2. Vaatame, kas tänaseks on määratud püha
+const leitudPüha = pühadeRegister[paevaKuupaev];
+
+if (leitudPüha) {
+
+    // Aktiivse püha kujundus
+    document.body.classList.add(`puha-${leitudPüha.id}`);
+
+    // Riiklik püha saab lisaks ühise CSS-klassi
+    if (leitudPüha.isRiiklik === true) {
+        document.body.classList.add("riiklik-puha");
     }
 
+    console.log(
+        `Aktiivne disain -> PÜHA: puha-${leitudPüha.id}` +
+        (leitudPüha.isRiiklik ? " [RIIKLIK]" : "")
+    );
+
+} else {
+
+    // Tavaline kuu kujundus
+    document.body.classList.add(praeguseKuuKlass);
+
+    console.log(`Aktiivne disain -> KUU: ${praeguseKuuKlass}`);
+}
+function lisaPyha(register, kuupaev, pyha) {
+    const olemasolev = register[kuupaev];
+
+    if (!olemasolev) {
+        register[kuupaev] = pyha;
+        return;
+    }
+
+    // RIIKLIK PÜHA DOMINEERIB
+    if (pyha.isRiiklik === true && olemasolev.isRiiklik !== true) {
+        register[kuupaev] = pyha;
+    }
+}
 
 
     // =========================================================================
