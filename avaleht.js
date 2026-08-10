@@ -83,7 +83,9 @@ function ArvutaEestiPühad(aasta) {
         [`${aasta}-02-24`]: { id: "iseseisvuspaev", nimi: "Eesti Vabariigi aastapäev", isRiiklik: true },
         
         // Märts
+        [`${aasta}-03-08`]: { id: "naistepaev", nimi: "Naistepäev" },
         [`${aasta}-03-14`]: { id: "emakeel", nimi: "Emakeelepäev" },
+        [`${aasta}-03-27`]: { id: "teatripaev", nimi: "Rahvusvaheline teatripäev" },
         
         // Aprill
         [`${aasta}-04-01`]: { id: "naljapaev", nimi: "Naljapäev" },
@@ -91,6 +93,7 @@ function ArvutaEestiPühad(aasta) {
         [kpvStr(ylestousmisPyha)]: { id: "ylestousmispyhad", nimi: "Ülestõusmispühade 1. püha", isRiiklik: true },
         [`${aasta}-04-14`]: { id: "kunnipaev", nimi: "Künnipäev" },
         [`${aasta}-04-23`]: { id: "juripaev", nimi: "Jüripäev / Veteranipäev" },
+        [`${aasta}-04-30`]: { id: "volber", nimi: "Volbriöö" },
         
         // Mai
         [`${aasta}-05-01`]: { id: "kevadpyha", nimi: "Kevadpüha / Volbripäev", isRiiklik: true },
@@ -120,6 +123,7 @@ function ArvutaEestiPühad(aasta) {
         // Oktoober
         [`${aasta}-10-01`]: { id: "omavalitsus", nimi: "Omavalitsuspäev" },
         [kpvStr(hoimupaev)]: { id: "hoimupaev", nimi: "Hõimupäev" },
+        [`${aasta}-10-31`]: { id: "halloween", nimi: "Halloween" }
         
         // November
         [`${aasta}-11-02`]: { id: "hingedepaev", nimi: "Hingedepäev" },
