@@ -38,7 +38,17 @@
     border-bottom: 1px solid var(--v-border, #ebc6f6) !important; 
     margin-bottom: 20px; padding-bottom: 10px; text-align: center; position: relative; z-index: 1; margin-top: 50px;
 }
-
+/* ========================================================
+   2.1  RIIKLIKE PÜHADE KIRJADE ÜMBER HALO ENDA VÄRVIGA */
+   ======================================================== */
+.riiklik-pyha .menyy-tiitel,
+.riiklik-pyha .menyy-kpv,
+.riiklik-pyha .menyy-teade-input {
+    text-shadow:
+        0 0 8px rgba(255, 255, 255, 1),
+        0 0 18px rgba(255, 180, 180, 0.8),
+        0 0 32px rgba(255, 180, 180, 0.6);
+}
 /* =========================================================================
    3. FONTIDE JA VÄRVIDE LÜLITAMINE PÜHADE KAUPA
    ========================================================================= */
