@@ -41,9 +41,9 @@
 /* ========================================================
    2.1  RIIKLIKE PÜHADE KIRJADE ÜMBER HALO ENDA VÄRVIGA 
    ======================================================== */
-.riiklik-pyha .menyy-tiitel,
-.riiklik-pyha .menyy-kpv,
-.riiklik-pyha .menyy-teade-input {
+body.riiklik-puha .menyy-tiitel,
+body.riiklik-puha .menyy-kpv,
+body.riiklik-puha .menyy-teade-input {
     text-shadow:
         0 0 8px rgba(255, 255, 255, 1),
         0 0 18px rgba(255, 180, 180, 0.8),
