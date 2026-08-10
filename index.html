@@ -130,7 +130,20 @@
 
     <div class="avaleht-töölaud">
         
-        <!-- SAMMAS 1: Päevamenüü blankett -->
+     
+
+        <!-- SAMMAS 1: Nädalamenüü blankett -->
+        <div class="menyy-blankett nadal-taust" id="nadalamenyyKonteiner" onclick="MuudaSuurendust(this)">
+            <div class="menyy-tiitel">Nädalamenüü</div>
+            <div class="menyy-kpv" id="tekstNadalaKpv">Laen nädala vahemikku...</div>
+            
+            <div id="nadalamenyyTootedKast">
+                <p style="color:#718096; font-style:italic;">Laen nädala menüüd...</p>
+            </div>
+            
+            <div id="inputNadalUldTeade" class="menyy-teade-input" style="display: none;"></div>
+        </div>
+   <!-- SAMMAS 2: Päevamenüü blankett -->
     
         <div class="menyy-blankett paev-taust" id="paevamenyyKonteiner" onclick="MuudaSuurendust(this)">
             <div class="menyy-tiitel">Tänased Lõunapakkumised</div>
@@ -143,19 +156,6 @@
 
             <div id="kuvaPaevaTeade" class="menyy-teade-input" style="display: none;"></div>
         </div>
-
-        <!-- SAMMAS 2: Nädalamenüü blankett -->
-        <div class="menyy-blankett nadal-taust" id="nadalamenyyKonteiner" onclick="MuudaSuurendust(this)">
-            <div class="menyy-tiitel">Nädalamenüü</div>
-            <div class="menyy-kpv" id="tekstNadalaKpv">Laen nädala vahemikku...</div>
-            
-            <div id="nadalamenyyTootedKast">
-                <p style="color:#718096; font-style:italic;">Laen nädala menüüd...</p>
-            </div>
-            
-            <div id="inputNadalUldTeade" class="menyy-teade-input" style="display: none;"></div>
-        </div>
-
         <!-- SAMMAS 3: Alati avatud sisselogimise kaart -->
 <div class="card login-card login-card-tiiv" style="background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('jaam.jpg') no-repeat center center; background-size: cover;">
     <!-- Muutsime värvi valgeks (#ffffff) ja lisasime varju, et pildil silma paistaks -->
