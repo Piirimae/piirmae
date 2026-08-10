@@ -123,7 +123,7 @@ function ArvutaEestiPühad(aasta) {
         // Oktoober
         [`${aasta}-10-01`]: { id: "omavalitsus", nimi: "Omavalitsuspäev" },
         [kpvStr(hoimupaev)]: { id: "hoimupaev", nimi: "Hõimupäev" },
-        [`${aasta}-10-31`]: { id: "halloween", nimi: "Halloween" }
+        [`${aasta}-10-31`]: { id: "halloween", nimi: "Halloween" },
         
         // November
         [`${aasta}-11-02`]: { id: "hingedepaev", nimi: "Hingedepäev" },
