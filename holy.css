@@ -1,42 +1,364 @@
 /* =========================================================================
-   1. FONDI SISSETOOMINE (fonts kaustast)
+   1. FONDID kaustast fondid ja .jpg kaustast pot
    ========================================================================= */
 @font-face {
     font-family: 'PühaEriFont';
     src: url('fonts/valentin.woff2') format('woff2');
-    font-weight: normal; font-style: normal; font-display: swap;
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
     font-family: 'font-august';
     src: url('fonts/august.woff2') format('woff2');
     font-display: swap;
 }
+
 @font-face {
-    font-family: 'font-taasiseseisvumine'; /* 🔴 Baasnimi parandatud */
+    font-family: 'font-taasiseseisvumine';
     src: url('fonts/20august.woff2') format('woff2');
     font-display: swap;
 }
+@font-face {
+    font-family: 'font-september';
+    src: url('fonts/september.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-teadmistepaev';
+    src: url('fonts/teadmistepaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-vanavanemad';
+    src: url('fonts/vanavanemad.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-madisepaev';
+    src: url('fonts/madisepaev.woff2') format('woff2');
+    font-display: swap;
+}
 
+@font-face {
+    font-family: 'font-mihklipaev';
+    src: url('fonts/mihklipaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-oktoober';
+    src: url('fonts/oktoober.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-omavalitsus';
+    src: url('fonts/omavalitsus.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-hoimupaev';
+    src: url('fonts/hoimupaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-halloween';
+    src: url('fonts/halloween.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-november';
+    src: url('fonts/november.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-hingedepaev';
+    src: url('fonts/hingedepaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-isadapaev';
+    src: url('fonts/isadapaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-mardipaev';
+    src: url('fonts/mardipaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-taassund';
+    src: url('fonts/taassund.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-lati-vabariik';
+    src: url('fonts/lati-vabariik.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-kadripaev';
+    src: url('fonts/kadripaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-detsember';
+    src: url('fonts/detsember.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-soome-iseseisvus';
+    src: url('fonts/soome-iseseisvus.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-luutsipaev';
+    src: url('fonts/luutsipaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-jouluohtu';
+    src: url('fonts/jouluohtu.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-joulupaha1';
+    src: url('fonts/joulupaha1.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-joulupaha2';
+    src: url('fonts/joulupaha2.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-naarid';
+    src: url('fonts/naarid.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-jaanuar';
+    src: url('fonts/jaanuar.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-uusaasta';
+    src: url('fonts/uusaasta.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-vabadussoda';
+    src: url('fonts/vabadussoda.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-kolmekuningas';
+    src: url('fonts/kolmekuningas.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-kirjanduspaev';
+    src: url('fonts/kirjanduspaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-veebruar';
+    src: url('fonts/veebruar.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-tarturahul';
+    src: url('fonts/tarturahul.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-luuvalu';
+    src: url('fonts/lUUvalu.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-valentin';
+    src: url('fonts/valentin.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-leedu-vabariik';
+    src: url('fonts/leedu-vabariik.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-vastlapaev';
+    src: url('fonts/vastlapaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-iseseisvuspaev';
+    src: url('fonts/iseseisvuspaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-marts';
+    src: url('fonts/marts.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-naistepaev';
+    src: url('fonts/naistepaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-emakeel';
+    src: url('fonts/emakeel.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-teatripaev';
+    src: url('fonts/teatripaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-aprill';
+    src: url('fonts/aprill.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-uusaasta';
+    src: url('fonts/uusaasta.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-naljapaev';
+    src: url('fonts/naljapaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-suur-reede';
+    src: url('fonts/suur-reede.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-ylestousmispyhad';
+    src: url('fonts/ylestousmispyhad.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-kunnipaev';
+    src: url('fonts/kunnipaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-juripaev';
+    src: url('fonts/juripaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-volber';
+    src: url('fonts/volber.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-mai';
+    src: url('fonts/mai.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-kevadpyha';
+    src: url('fonts/kevadpyha.woff2') format('woff2');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'font-euroopa-paev';
+    src: url('fonts/euroopa-paev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-emadapaev';
+    src: url('fonts/emadapaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-nelipyhad';
+    src: url('fonts/nelipyhad.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-juuni';
+    src: url('fonts/juuni.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-lastekaitse';
+    src: url('fonts/lastekaitse.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-lipupaev';
+    src: url('fonts/lipupaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-leinapaev';
+    src: url('fonts/leinapaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-voidupyha';
+    src: url('fonts/voidupyha.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-jaanipaev';
+    src: url('fonts/jaanipaev.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-juuli';
+    src: url('fonts/juuli.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'font-seitsmevenna';
+    src: url('fonts/seitsmevenna.woff2') format('woff2');
+    font-display: swap;
+}
 /* =========================================================================
    2. ÜLDINE SEADISTUS (Võtab index.html-ilt võimu üle)
    =========================================================================*/
-.menyy-tiitel { 
-    font: var(--t-font, bold 15px sans-serif) !important; 
-    color: var(--t-color, #ef081f) !important; 
-    border-bottom: 1px solid var(--t-border, #ebc6f6) !important; 
-    margin-bottom: 20px; padding-bottom: 10px; text-align: center; position: relative; z-index: 1; margin-top: 50px;
+.menyy-tiitel {
+    font: var(--t-font, bold 15px sans-serif) !important;
+    color: var(--t-color, #ef081f) !important;
+    border-bottom: 1px solid var(--t-border, #ebc6f6) !important;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    margin-top: 50px;
 }
-.menyy-kpv { 
-    font: var(--k-font, italic 15px sans-serif) !important; 
-    color: var(--k-color, #087cef) !important; 
-    border-bottom: 1px solid var(--k-border, #b2e614) !important; 
-    margin-bottom: 20px; padding-bottom: 10px; text-align: center; position: relative; z-index: 1; margin-top: 50px;
+
+.menyy-kpv {
+    font: var(--k-font, italic 15px sans-serif) !important;
+    color: var(--k-color, #087cef) !important;
+    border-bottom: 1px solid var(--k-border, #b2e614) !important;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    margin-top: 50px;
 }
-.menyy-teade-input { 
-    font: var(--v-font, normal 26px cursive) !important; 
-    color: var(--v-color, #087cef) !important; 
-    border-bottom: 1px solid var(--v-border, #ebc6f6) !important; 
-    margin-bottom: 20px; padding-bottom: 10px; text-align: center; position: relative; z-index: 1; margin-top: 50px;
+
+.menyy-teade-input {
+    font: var(--v-font, normal 26px cursive) !important;
+    color: var(--v-color, #087cef) !important;
+    border-bottom: 1px solid var(--v-border, #ebc6f6) !important;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    margin-top: 50px;
 }
 /* ========================================================
    2.1  RIIKLIKE PÜHADE KIRJADE ÜMBER HALO ENDA VÄRVIGA 
@@ -49,41 +371,794 @@ body.riiklik-puha .menyy-teade-input {
         0 0 18px rgba(247, 95, 95, 0.9),
         0 0 32px rgba(251, 4, 4, 0.6);
 }
+
 /* =========================================================================
    3. FONTIDE JA VÄRVIDE LÜLITAMINE PÜHADE KAUPA
    ========================================================================= */
 
 /* 🌻 KUI ON TAVALINE AUGUSTIKUU */
 body.kuu-august {
-  --t-font: 600 26px 'font-august', sans-serif;
-  --t-color: #d4af37;
-  --t-border: #f3e5ab;
+    --t-font: 600 26px 'font-august', sans-serif;
+    --t-color: #d4af37;
+    --t-border: #f3e5ab;
 
-  --k-font: italic 400 22px 'font-august', sans-serif;
-  --k-color: #2c7a7b;
-  --k-border: #9ae6b4;
+    --k-font: italic 400 22px 'font-august', sans-serif;
+    --k-color: #2c7a7b;
+    --k-border: #9ae6b4;
 
-  --v-font: 700 26px 'font-august', cursive;
-  --v-color: #b7791f;
-  --v-border: #fbd38d;
+    --v-font: 700 26px 'font-august', cursive;
+    --v-color: #b7791f;
+    --v-border: #fbd38d;
 }
 
 /* 🇪🇪 KUI ON 20. AUGUST (Taasiseseisvumispäev) */
 /* 🔴 PARANDATUD: Kasutab nüüd õiget fondi nime ja lõpus on nõutud kirja tüüp (serif) */
-body.puha-taasiseseisvumine { 
-  --t-font: 900 18px 'font-taasiseseisvumine', serif;
-  --t-color: #000000;
-  --t-border: #002f6c;
+body.puha-taasiseseisvumine {
+    --t-font: 900 18px 'font-taasiseseisvumine', serif;
+    --t-color: #000000;
+    --t-border: #002f6c;
 
-  --k-font: 300 16px 'font-taasiseseisvumine', serif;
-  --k-color: #4a5568;
-  --k-border: #cbd5e0;
+    --k-font: 300 16px 'font-taasiseseisvumine', serif;
+    --k-color: #4a5568;
+    --k-border: #cbd5e0;
 
-  --v-font: 600 28px 'font-taasiseseisvumine', serif;
-  --v-color: #002f6c;
-  --v-border: #002f6c;
+    --v-font: 600 28px 'font-taasiseseisvumine', serif;
+    --v-color: #002f6c;
+    --v-border: #a5b6cd;
+}
+body.kuu-september {
+    --t-font: 600 26px 'font-september', sans-serif;
+    --t-color: #033e26;
+    --t-border: #aaef98;
+
+    --k-font: italic 400 22px 'font-september', sans-serif;
+    --k-color: #2b5f03;
+    --k-border: #9ae6b4;
+
+    --v-font: 700 26px 'font-september', cursive;
+    --v-color: #18f703;
+    --v-border: #748d63;
+}
+body.kuu-oktoober {
+    --t-font: 600 26px 'font-oktoober', sans-serif;
+    --t-color: #f60485;
+    --t-border: #dfabf3;
+
+    --k-font: italic 400 22px 'font-oktoober', sans-serif;
+    --k-color: #321329;
+    --k-border: #e69ace;
+
+    --v-font: 700 26px 'font-oktoober', cursive;
+    --v-color: #f506dd;
+    --v-border: #9e95a1;
+}
+body.kuu-november {
+    --t-font: 600 26px 'font-november', sans-serif;
+    --t-color: #082f65;
+    --t-border: #abf3ee;
+
+    --k-font: italic 400 22px 'font-november', sans-serif;
+    --k-color: #0b0c11;
+    --k-border: #ad9ae6;
+
+    --v-font: 700 26px 'font-november', cursive;
+    --v-color: #060af4;
+    --v-border: #6a9eae;
+}
+body.kuu-detsember {
+    --t-font: 600 26px 'font-detsember', sans-serif;
+    --t-color: #f65606;
+    --t-border: #f3e5ab;
+
+    --k-font: italic 400 22px 'font-detsember', sans-serif;
+    --k-color: #f6852e;
+    --k-border: #9ae6b4;
+
+    --v-font: 700 26px 'font-detsember', cursive;
+    --v-color: #b7791f;
+    --v-border: #fbd38d;
+}
+body.kuu-jaanuar {
+    --t-font: 600 26px 'font-jaanuar', sans-serif;
+    --t-color: #420303;
+    --t-border: #f3bcab;
+
+    --k-font: italic 400 22px 'font-jaanuar', sans-serif;
+    --k-color: #311010;
+    --k-border: #eaa678;
+
+    --v-font: 700 26px 'font-jaanuar', cursive;
+    --v-color: #fc3e3e;
+    --v-border: #fb8db2;
+}
+body.kuu-veebruar {
+    --t-font: 600 26px 'font-veebruar', sans-serif;
+    --t-color: #200423;
+    --t-border: #f3abee;
+
+    --k-font: italic 400 22px 'font-veebruar', sans-serif;
+    --k-color: #8d0461;
+    --k-border: #9a8aa3;
+
+    --v-font: 700 26px 'font-veebruar', cursive;
+    --v-color: #f60491;
+    --v-border: #54415a;
+}
+body.kuu-märts {
+    --t-font: 600 26px 'font-märts', sans-serif;
+    --t-color: #13074a;
+    --t-border: #abe0f3;
+
+    --k-font: italic 400 22px 'font-märts', sans-serif;
+    --k-color: #0b0d20;
+    --k-border: #9ad7e6;
+
+    --v-font: 700 26px 'font-märts', cursive;
+    --v-color: #0317f4;
+    --v-border: #b0ebe7;
+}
+body.kuu-aprill {
+    --t-font: 600 26px 'font-aprill', sans-serif;
+    --t-color: #f0790b;
+    --t-border: #f3e5ab;
+
+    --k-font: italic 400 22px 'font-aprill', sans-serif;
+    --k-color: #f44206;
+    --k-border: #ffe2ac;
+
+    --v-font: 700 26px 'font-aprill', cursive;
+    --v-color: #d30505;
+    --v-border: #fbf98d;
+}
+body.kuu-mai {
+    --t-font: 600 26px 'font-mai', sans-serif;
+    --t-color: #122d0f;
+    --t-border: #aacd95;
+
+    --k-font: italic 400 22px 'font-mai', sans-serif;
+    --k-color: #20c025;
+    --k-border: #9ae6b4;
+
+    --vfont: 700 26px 'font-mai', cursive;
+    --v-color: #35f505;
+    --v-border: #e3fb8d;
 }
 
+body.kuu-juuni {
+    --t-font: 600 26px 'font-juuni', sans-serif;
+    --t-color: #e31285;
+    --t-border: #ceabd3;
+
+    --k-font: italic 400 22px 'font-juuni', sans-serif;
+    --k-color: #3a034b;
+    --k-border: #b68ab0;
+
+    --v-font: 700 26px 'font-juuni', cursive;
+    --v-color: #71064a;
+    --v-border: #321e32;
+}
+body.kuu-juuli {
+    --t-font: 600 26px 'font-juuli', sans-serif;
+    --t-color: #0df14e;
+    --t-border: #c6ea91;
+
+    --k-font: italic 400 22px 'font-juuli', sans-serif;
+    --k-color: #033d3e;
+    --k-border: #f5ec9b;
+
+    --v-font: 700 26px 'font-juuli', cursive;
+    --v-color: #585851;
+    --v-border: #fbd38d;
+}
+body.puha-teadmistepaev {
+    --t-font: 900 18px 'font-teadmistepaev', serif;
+    --t-color: #d10909;
+    --t-border: #f0aab2;
+
+    --k-font: 300 16px 'font-teadmistepaev', serif;
+    --k-color: #111927;
+    --k-border: #5c6270;
+
+    --v-font: 600 28px 'font-teadmistepaev', serif;
+    --v-color: #fb07b6;
+    --v-border: #f7c1e2;
+}
+body.puha-vanavanemad {
+    --t-font: 900 18px 'font-vanavanemad', serif;
+    --t-color: #073d02;
+    --t-border: #def6ef;
+
+    --k-font: 300 16px 'font-vanavanemad', serif;
+    --k-color: #23090a;
+    --k-border: #fbc2f3;
+
+    --v-font: 600 28px 'font-vanavanemad', serif;
+    --v-color: #ed05ed;
+    --v-border: #dbe3ee;
+}
+body.puha-madisepaev {
+    --t-font: 900 18px 'font-madisepaev', serif;
+    --t-color: #0cf4f8;
+    --t-border: #d3e0f2;
+
+    --k-font: 300 16px 'font-madisepaev', serif;
+    --k-color: #0c015a;
+    --k-border: #a8caee;
+
+    --v-font: 600 28px 'font-madisepaev', serif;
+    --v-color: #f87007;
+    --v-border: #f4ce96;
+}
+body.puha-mihklipaev {
+    --t-font: 900 18px 'font-mihklipaev', serif;
+    --t-color: #fa09e6;
+    --t-border: #bed8fb;
+
+    --k-font: 300 16px 'font-mihklipaev', serif;
+    --k-color: #cd0436;
+    --k-border: #ed78d2;
+
+    --v-font: 600 28px 'font-mihklipaev', serif;
+    --v-color: #fa1111;
+    --v-border: #f88ace;
+}
+body.puha-omavalitsus {
+    --t-font: 900 18px 'font-omavalitsus', serif;
+    --t-color: #104d1f;
+    --t-border: #c7f6ba;
+
+    --k-font: 300 16px 'font-omavalitsus', serif;
+    --k-color: #fb6c07;
+    --k-border: #fcca8d;
+
+    --v-font: 600 28px 'font-omavalitsus', serif;
+    --v-color: #d60bf5;
+    --v-border: #f9f4fa;
+}
+body.puha-hoimupaev {
+    --t-font: 900 18px 'font-hoimupaev', serif;
+    --t-color: #2efa06;
+    --t-border: #8ef3de;
+
+    --k-font: 300 16px 'font-hoimupaev', serif;
+    --k-color: #09280a;
+    --k-border: #82f9d9;
+
+    --v-font: 600 28px 'font-hoimupaev', serif;
+    --v-color: #51fb08;
+    --v-border: #adf7e0;
+}
+body.puha-halloween {
+    --t-font: 900 18px 'font-halloween', serif;
+    --t-color: #f40b0b;
+    --t-border: #f66666;
+
+    --k-font: 300 16px 'font-halloween', serif;
+    --k-color: #fb7007;
+    --k-border: #efdf9f;
+
+    --v-font: 600 28px 'font-halloween', serif;
+    --v-color: #470339;
+    --v-border: #e6bff5;
+}
+body.puha-hingedepaev {
+    --t-font: 900 18px 'font-hingedepaev', serif;
+    --t-color: #0896f5;
+    --t-border: #b0e8f3;
+
+    --k-font: 300 16px 'font-hingedepaev', serif;
+    --k-color: #010813;
+    --k-border: #cbd5e0;
+
+    --v-font: 600 28px 'font-hingedepaev', serif;
+    --v-color: #03342a;
+    --v-border: #acf3e9;
+}
+body.puha-isadapaev {
+    --t-font: 900 18px 'font-isadapaev', serif;
+    --t-color: #f906b4;
+    --t-border: #f7adf1;
+
+    --k-font: 300 16px 'font-isadapaev', serif;
+    --k-color: #371c35;
+    --k-border: #fee9c9;
+
+    --v-font: 600 28px 'font-isadapaev', serif;
+    --v-color: #081f3d;
+    --v-border: #a5b6cd;
+}
+body.puha-mardipaev {
+    --t-font: 900 18px 'font-mardipaev', serif;
+    --t-color: #e90808;
+    --t-border: #f4d8b1;
+
+    --k-font: 300 16px 'font-mardipaev', serif;
+    --k-color: #1b0202;
+    --k-border: #cbd5e0;
+
+    --v-font: 600 28px 'font-mardipaev', serif;
+    --v-color: #f20b0b;
+    --v-border: #f9f4f5;
+}body.puha-taassund {
+    --t-font: 900 18px 'font-taassund', serif;
+    --t-color: #000000;
+    --t-border: #b0cbee;
+
+    --k-font: 300 16px 'font-taassund', serif;
+    --k-color: #010f28;
+    --k-border: #c0ddfd;
+
+    --v-font: 600 28px 'font-taassund', serif;
+    --v-color: #040c17;
+    --v-border: #b6d3fb;
+}
+body.puha-lati-vabariik {
+    --t-font: 900 18px 'font-lati-vabariik', serif;
+    --t-color: #fb0a0a;
+    --t-border: #f3b0b0;
+
+    --k-font: 300 16px 'font-lati-vabariik', serif;
+    --k-color: #9d0505;
+    --k-border: #f1a5a5;
+
+    --v-font: 600 28px 'font-lati-vabariik', serif;
+    --v-color: #0a0202;
+    --v-border: #a5b6cd;
+}
+body.puha-kadripaev {
+    --t-font: 900 18px 'font-kadripaev', serif;
+    --t-color: #d409fd;
+    --t-border: #e5d0f6;
+
+    --k-font: 300 16px 'font-kadripaev', serif;
+    --k-color: #140614;
+    --k-border: #e67dfe;
+
+    --v-font: 600 28px 'font-kadripaev', serif;
+    --v-color: #ef068a;
+    --v-border: #dc90fa;
+}
+body.puha-soome-iseseisvus {
+    --t-font: 900 18px 'font-soome-iseseisvus', serif;
+    --t-color: #0c08f7;
+    --t-border: #c2a1f9;
+
+    --k-font: 300 16px 'font-soome-iseseisvus', serif;
+    --k-color: #170331;
+    --k-border: #73b1f4;
+
+    --v-font: 600 28px 'font-soome-iseseisvus', serif;
+    --v-color: #f00582;
+    --v-border: #f6baf5;
+}
+body.puha-luutsipaev {
+    --t-font: 900 18px 'font-luutsipaev', serif;
+    --t-color: #67f707;
+    --t-border: #f8f2ae;
+
+    --k-font: 300 16px 'font-luutsipaev', serif;
+    --k-color: #073224;
+    --k-border: #89f5e3;
+
+    --v-font: 600 28px 'font-luutsipaev', serif;
+    --v-color: #131313;
+    --v-border: #cdf9e2;
+}
+body.puha-jouluohtu {
+    --t-font: 900 18px 'font-jouluohtu', serif;
+    --t-color: #f52222;
+    --t-border: #faccc0;
+
+    --k-font: 300 16px 'font-jouluohtu', serif;
+    --k-color: #fa06ee;
+    --k-border: #eed2fc;
+
+    --v-font: 600 28px 'font-jouluohtu', serif;
+    --v-color: #04065a;
+    --v-border: #c4f7f9;
+}
+body.puha-joulupaha1 {
+    --t-font: 900 18px 'font-joulupaha1', serif;
+    --t-color: #0a06f9;
+    --t-border: #bef7fb;
+
+    --k-font: 300 16px 'font-joulupaha1', serif;
+    --k-color: #f90404;
+    --k-border: #ffc4c4;
+
+    --v-font: 600 28px 'font-joulupaha1', serif;
+    --v-color: #fc4108;
+    --v-border: #fae3b7;
+}
+body.puha-joulupaha2 {
+    --t-font: 900 18px 'font-joulupaha2', serif;
+    --t-color: #04340c;
+    --t-border: #27ed72;
+
+    --k-font: 300 16px 'font-joulupaha2', serif;
+    --k-color: #f94007;
+    --k-border: #f89bd6;
+
+    --v-font: 600 28px 'font-joulupaha2', serif;
+    --v-color: #f805bf;
+    --v-border: #f7e0f8;
+}
+body.puha-naarid {
+    --t-font: 900 18px 'naarid', serif;
+    --t-color: #170404;
+    --t-border: #f6a9a9;
+
+    --k-font: 300 16px 'font-naarid', serif;
+    --k-color: #032561;
+    --k-border: #e4c9f7;
+
+    --v-font: 600 28px 'font-naarid', serif;
+    --v-color: #5e065b;
+    --v-border: #efa6dd;
+}
+body.puha-uusaasta {
+    --t-font: 900 18px 'font-uusaasta', serif;
+    --t-color: #f44d06;
+    --t-border: #fae2e2;
+
+    --k-font: 300 16px 'font-uusaasta', serif;
+    --k-color: #033025;
+    --k-border: #c6f4e3;
+
+    --v-font: 600 28px 'font-uusaasta', serif;
+    --v-color: #f90a0a;
+    --v-border: #fb97cb;
+}
+body.puha-vabadussoda {
+    --t-font: 900 18px 'font-vabadussoda', serif;
+    --t-color: #040b34;
+    --t-border: #b3d2fa;
+
+    --k-font: 300 16px 'font-vabadussoda', serif;
+    --k-color: #0a0b0e;
+    --k-border: #e084f3;
+
+    --v-font: 600 28px 'font-vabadussoda', serif;
+    --v-color: #450202;
+    --v-border: #f7c9e9;
+}
+body.puha-kolmekuningas {
+    --t-font: 900 18px 'font-kolmekuningas', serif;
+    --t-color: #f72808;
+    --t-border: #eec6ab;
+
+    --k-font: 300 16px 'font-kolmekuningas', serif;
+    --k-color: #f906d9;
+    --k-border: #eebfe3;
+
+    --v-font: 600 28px 'font-kolmekuningas', serif;
+    --v-color: #08f07c;
+    --v-border: #ddf4e6;
+}
+body.puha-kirjanduspaev {
+    --t-font: 900 18px 'font-kirjanduspaev', serif;
+    --t-color: #041516;
+    --t-border: #bff7e7;
+
+    --k-font: 300 16px 'font-kirjanduspaev', serif;
+    --k-color: #280909;
+    --k-border: #ffe7f2;
+
+    --v-font: 600 28px 'font-kirjanduspaev', serif;
+    --v-color: #0911f7;
+    --v-border: #c2d8f7;
+}
+body.puha-tarturahul {
+    --t-font: 900 18px 'font-tarturahul', serif;
+    --t-color: #080622;
+    --t-border: #002f6c;
+
+    --k-font: 300 16px 'font-tarturahul', serif;
+    --k-color: #f70f0f;
+    --k-border: #f8b8b8;
+
+    --v-font: 600 28px 'font-tarturahul', serif;
+    --v-color: #150101;
+    --v-border: #c2a5cd;
+}
+body.puha-luuvalu  {
+    --t-font: 900 18px 'font-luuvalu', serif;
+    --t-color: #0a1b06;
+    --t-border: #aafabe;
+
+    --k-font: 300 16px 'font-luuvalu', serif;
+    --k-color: #1c2106;
+    --k-border: #c2f3cd;
+
+    --v-font: 600 28px 'font-luuvalu', serif;
+    --v-color: #fc8608;
+    --v-border: #f9fbae;
+}
+body.puha-valentin {
+    --t-font: 900 18px 'font-valentin', serif;
+    --t-color: #f607f2;
+    --t-border: #ecd9f1;
+
+    --k-font: 300 16px 'font-valentin', serif;
+    --k-color: #f90909;
+    --k-border: #ecef5c;
+
+    --v-font: 600 28px 'font-valentin', serif;
+    --v-color: #f5290a;
+    --v-border: #e9d30f;
+}
+body.puha-leedu-vabariik {
+    --t-font: 900 18px 'font-leedu-vabariik', serif;
+    --t-color: #493d0b;
+    --t-border: #e9f909;
+
+    --k-font: 300 16px 'font-leedu-vabariik', serif;
+    --k-color: #09f644;
+    --k-border: #99fbb8;
+
+    --v-font: 600 28px 'font-leedu-vabariik', serif;
+    --v-color: #f40606;
+    --v-border: #fb9d9d;
+}
+body.puha-vastlapaev {
+    --t-font: 900 18px 'font-vastlapaev', serif;
+    --t-color: #0abdf9;
+    --t-border: #bafcf3;
+
+    --k-font: 300 16px 'font-vastlapaev', serif;
+    --k-color: #050f21;
+    --k-border: #cbd5e0;
+
+    --v-font: 600 28px 'font-vastlapaev', serif;
+    --v-color: #f504bd;
+    --v-border: #f2b7f4;
+}
+body.puha-iseseisvuspaev {
+    --t-font: 900 18px 'font-iseseisvuspaev', serif;
+    --t-color: #1306f9;
+    --t-border: #b5cbe7;
+
+    --k-font: 300 16px 'font-iseseisvuspaev', serif;
+    --k-color: #0b0514;
+    --k-border: #70b1f7;
+
+    --v-font: 600 28px 'font-iseseisvuspaev', serif;
+    --v-color: #f70505;
+    --v-border: #0567f1;
+}
+body.puha-naistepaev {
+    --t-font: 900 18px 'font-naistepaev', serif;
+    --t-color: #f80b0b;
+    --t-border: #f226a7;
+
+    --k-font: 300 16px 'font-naistepaev', serif;
+    --k-color: #011604;
+    --k-border: #eef611;
+
+    --v-font: 600 28px 'font-naistepaev', serif;
+    --v-color: #340125;
+    --v-border: #e10bf1;
+}
+body.puha-emakeel {
+    --t-font: 900 18px 'font-emakeel', serif;
+    --t-color: #180101;
+    --t-border: #ec0d09;
+
+    --k-font: 300 16px 'font-emakeel', serif;
+    --k-color: #020f25;
+    --k-border: #cbd5e0;
+
+    --v-font: 600 28px 'font-emakeel', serif;
+    --v-color: #002f6c;
+    --v-border: #f64aba;
+}
+body.puha-teatripaev {
+    --t-font: 900 18px 'font-teatripaev', serif;
+    --t-color: #022315;
+    --t-border: #68f46d;
+
+    --k-font: 300 16px 'font-teatripaev', serif;
+    --k-color: #010d23;
+    --k-border: #cbd5e0;
+
+    --v-font: 600 28px 'font-teatripaev', serif;
+    --v-color: #f90a9d;
+    --v-border: #f34c4c;
+}
+body.puha-naljapaev {
+    --t-font: 900 18px 'font-naljapaev', serif;
+    --t-color: #3a0327;
+    --t-border: #bb54f7;
+
+    --k-font: 300 16px 'font-naljapaev', serif;
+    --k-color: #23031d;
+    --k-border: #16def0;
+
+    --v-font: 600 28px 'font-naljapaev', serif;
+    --v-color: #f30690;
+    --v-border: #f54fd4;
+}
+body.puha-suur-reede {
+    --t-font: 900 18px 'font-suur-reede', serif;
+    --t-color: #fa0707;
+    --t-border: #f1b97d;
+
+    --k-font: 300 16px 'font-suur-reede', serif;
+    --k-color: #1c0516;
+    --k-border: #f442d9;
+
+    --v-font: 600 28px 'font-suur-reede', serif;
+    --v-color: #f00b0b;
+    --v-border: #f630cb;
+}
+body.puha-kunnipaev {
+    --t-font: 900 18px 'font-kunnipaev', serif;
+    --t-color: #23270c;
+    --t-border: #af9bec;
+
+    --k-font: 300 16px 'font-kunnipaev', serif;
+    --k-color: #041128;
+    --k-border: #cbd5e0;
+
+    --v-font: 600 28px 'font-kunnipaev', serif;
+    --v-color: #b503f6;
+    --v-border: #ef92f3;
+}body.puha-juripaev {
+    --t-font: 900 18px 'font-juripaev', serif;
+    --t-color: #03142c;
+    --t-border: #549af5;
+
+    --k-font: 300 16px 'font-juripaev', serif;
+    --k-color: #061a3c;
+    --k-border: #509bec;
+
+    --v-font: 600 28px 'font-juripaev', serif;
+    --v-color: #f40303;
+    --v-border: #fc27d8;
+}
+body.puha-volber {
+    --t-font: 900 18px 'font-volber', serif;
+    --t-color: #f60909;
+    --t-border: #a6af02;
+
+    --k-font: 300 16px 'font-volber', serif;
+    --k-color: #f707bb;
+    --k-border: #d177f1;
+
+    --v-font: 600 28px 'font-volber', serif;
+    --v-color: #08250b;
+    --v-border: #30f668;
+}
+body.puha-kevadpyha {
+    --t-font: 900 18px 'font-kevadpyha', serif;
+    --t-color: #f60808;
+    --t-border: #11f5e2;
+
+    --k-font: 300 16px 'font-kevadpyha', serif;
+    --k-color: #06080c;
+    --k-border: #e6ee05;
+
+    --v-font: 600 28px 'font-kevadpyha', serif;
+    --v-color: #6c0002;
+    --v-border: #f406e4;
+}
+body.puha-euroopa-paev {
+    --t-font: 900 18px 'font-euroopa-paev', serif;
+    --t-color: #061af7;
+    --t-border: #e9f10f;
+
+    --k-font: 300 16px 'font-euroopa-paev', serif;
+    --k-color: #010713;
+    --k-border: #eeee05;
+
+    --v-font: 600 28px 'font-euroopa-paev', serif;
+    --v-color: #0269eefc;
+    --v-border: #c6ef0c;
+}
+body.puha-emadapaev {
+    --t-font: 900 18px 'font-emadapaev', serif;
+    --t-color: #f606ae;
+    --t-border: #f32727;
+
+    --k-font: 300 16px 'font-emadapaev', serif;
+    --k-color: #130808;
+    --k-border: #fa378c;
+
+    --v-font: 600 28px 'font-emadapaev', serif;
+    --v-color: #f40d52;
+    --v-border: #ea3790;
+}
+body.puha-nelipyhad {
+    --t-font: 900 18px 'font-nelipyhad', serif;
+    --t-color: #041e07;
+    --t-border: #18ef3c;
+
+    --k-font: 300 16px 'font-nelipyhad', serif;
+    --k-color: #22fb06;
+    --k-border: #daf738;
+
+    --v-font: 600 28px 'font-nelipyhad', serif;
+    --v-color: #f709b4;
+    --v-border: #32f73f;
+}
+body.puha-lastekaitse {
+    --t-font: 900 18px 'font-lastekaitse', serif;
+    --t-color: #e74f09;
+    --t-border: #f1e348;
+
+    --k-font: 300 16px 'font-lastekaitse', serif;
+    --k-color: #fa0707;
+    --k-border: #e35cf3;
+
+    --v-font: 600 28px 'font-lastekaitse', serif;
+    --v-color: #180114;
+    --v-border: #9bf43c;
+}
+body.puha-lipupaev {
+    --t-font: 900 18px 'font-lipupaev', serif;
+    --t-color: #0a0169;
+    --t-border: #1c7bf8;
+
+    --k-font: 300 16px 'font-lipupaev  ', serif;
+    --k-color: #000000;
+    --k-border: #5a46f5;
+
+    --v-font: 600 28px 'font-lipupaev  ', serif;
+    --v-color: #f50202;
+    --v-border: #060ef7;
+}
+body.puha-leinapaev {
+    --t-font: 900 18px 'font-leinapaev', serif;
+    --t-color: #000000;
+    --t-border: #6c0041;
+
+    --k-font: 300 16px 'font-leinapaev', serif;
+    --k-color: #0541f5;
+    --k-border: #000408;
+
+    --v-font: 600 28px 'font-leinapaev', serif;
+    --v-color: #2d0101;
+    --v-border: #0a0a0a;
+}
+body.puha-voidupyha {
+    --t-font: 900 18px 'font-voidupyha', serif;  
+    --t-color: #000000;
+    --t-border: #002f6c;
+
+    --k-font: 300 16px 'font-voidupyha', serif;
+    --k-color: #0b5dea;
+    --k-border: #79b7f9;
+
+    --v-font: 600 28px 'font-voidupyha', serif;
+    --v-color: #f905cc;
+    --v-border: #f73939;
+}
+body.puha-jaanipaev {
+    --t-font: 900 18px 'font-jaanipaev', serif;
+    --t-color: #f30b0b;
+    --t-border: #002f6c;
+
+    --k-font: 300 16px 'font-jaanipaev', serif;
+    --k-color: #07f820;
+    --k-border: #494cfb;
+
+    --v-font: 600 28px 'font-jaanipaev', serif;
+    --v-color: #f606aa;
+    --v-border: #4036f1;
+}
+body.puha-seitsmevenna {
+    --t-font: 900 18px 'font-seitsmevenna', serif;
+    --t-color: #070bf4;
+    --t-border: #002f6c;
+
+    --k-font: 300 16px 'font-seitsmevenna', serif;
+    --k-color: #030a17;
+    --k-border: #ee0edf;
+
+    --v-font: 600 28px 'font-seitsmevenna', serif;
+    --v-color: #6c0002;
+    --v-border: #f43333;
+}
 /* =========================================================================
    4. BLANKETTIDE ETTEVALMISTUS LOORI JAOKS JA VESIPILDID
    ========================================================================= */
@@ -94,37 +1169,689 @@ body.puha-taasiseseisvumine {
 
 /* Kõikide pühade ja kuude looride universaalne baasstiil */
 .menyy-blankett::before {
-    content: ""; /* Tagab, et enne pildi laadimist on element olemas */
+    content: "";
+    /* Tagab, et enne pildi laadimist on element olemas */
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
     transition: all 0.3s ease;
 }
-
-/* 🌻 AUGUSTIKUU VAIKIMISI LOOR */
-
+/* =================================================== */
+/* 🌻 AUGUSTIKUU  */
 body.kuu-august .menyy-blankett.paev-taust::before {
-    content: "🌻🌾"; 
-    position: absolute; 
-    top: -20px; left: 0; width: 100%; height: 100%;
+    content: "🌻🌾";
+    position: absolute;
+    top: -20px;
+    left: 0;
+    width: 100%;
+    height: 100%;
     font-size: 200px;
-    color: rgba(212, 175, 55, 0.09);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 0; pointer-events: none; 
+    color: rgba(212, 175, 55, 0.10);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 0;
+    pointer-events: none;
     transform: rotate(-10deg);
     transform-origin: center;
 }
-
-/* 🇪🇪 20. AUGUST (Taasiseseisvumispäev) */
-
-body.puha-taasiseseisvumine .menyy-blankett.paev-taust::before { 
-   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150' fill='none' stroke='rgba(0, 47, 108, 0.25)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='50' y1='5' x2='50' y2='40' stroke='rgba(0, 47, 108, 0.3)' stroke-width='2'/%3E%3Cpath d='M50 7C56 7 60 5 66 7L66 12C60 10 56 12 50 12Z' fill='rgb(0,114,206)' stroke='none'/%3E%3Cpath d='M50 12C56 12 60 10 66 12L66 17C60 15 56 17 50 17Z' fill='rgb(0,0,0)' stroke='none'/%3E%3Cpath d='M50 17C56 17 60 15 66 17L66 22C60 20 56 22 50 22Z' fill='rgb(255,255,255)' stroke='rgba(0,0,0,0.15)' stroke-width='0.5'/%3E%3Cpath d='M35 40H65V45H61V42H57V45H53V42H49V45H45V42H41V45H37V42H35Z' fill='rgba(0,0,0,0.02)'/%3E%3Cpath d='M35 45L38 55H62L65 45Z'/%3E%3Cpath d='M38 55L40 145H60L62 55'/%3E%3Crect x='48' y='65' width='4' height='8' rx='1'/%3E%3Crect x='48' y='85' width='4' height='8' rx='1'/%3E%3Crect x='48' y='105' width='4' height='8' rx='1'/%3E%3Cpath d='M15 110H40M60 125H85' stroke-dasharray='1 4' stroke-width='1'/%3E%3C/svg%3E"); 
-   background-repeat: no-repeat; 
-   background-position: center center; 
-   background-size: auto 90%; 
+/* 🌻 20. AUGUST (Taasiseseisvumispäev) */
+body.puha-taasiseseisvumine .menyy-blankett.paev-taust::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150' fill='none' stroke='rgba(0, 47, 108, 0.25)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='50' y1='5' x2='50' y2='40' stroke='rgba(0, 47, 108, 0.3)' stroke-width='2'/%3E%3Cpath d='M50 7C56 7 60 5 66 7L66 12C60 10 56 12 50 12Z' fill='rgb(0,114,206)' stroke='none'/%3E%3Cpath d='M50 12C56 12 60 10 66 12L66 17C60 15 56 17 50 17Z' fill='rgb(0,0,0)' stroke='none'/%3E%3Cpath d='M50 17C56 17 60 15 66 17L66 22C60 20 56 22 50 22Z' fill='rgb(255,255,255)' stroke='rgba(0,0,0,0.15)' stroke-width='0.5'/%3E%3Cpath d='M35 40H65V45H61V42H57V45H53V42H49V45H45V42H41V45H37V42H35Z' fill='rgba(0,0,0,0.02)'/%3E%3Cpath d='M35 45L38 55H62L65 45Z'/%3E%3Cpath d='M38 55L40 145H60L62 55'/%3E%3Crect x='48' y='65' width='4' height='8' rx='1'/%3E%3Crect x='48' y='85' width='4' height='8' rx='1'/%3E%3Crect x='48' y='105' width='4' height='8' rx='1'/%3E%3Cpath d='M15 110H40M60 125H85' stroke-dasharray='1 4' stroke-width='1'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: auto 90%; /* auto sobib eraldi elementidele/kujunditele */
 }
-/* restart */
-
-/* restart */
+/* 🍂 1. OKTOOBER (Omavalitsustepäev) */
+body.puha-omavalitsus .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/vapp.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain; /* Skaaleerub täisekraani/kasti järgi parajaks */
+    opacity: 0.15;
+    transform: none;/* Pööret pole */
+}
+/* 🍎 (Vanavanematepäev) */
+body.puha-vanavanemad .menyy-blankett.paev-taust::before {
+    opacity: 0.47;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    /* PITSLINIK JA SELLEL LÕNGAKERA VARRASTE JA UURIGA (HOLYS TESTIMATA) */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 550'%3E%3Cdefs%3E%3Cpattern id='pits' width='20' height='20' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 0 10 Q 5 0 10 10 Q 15 20 20 10' fill='none' stroke='%238b4513' stroke-width='1.5'/%3E%3C/pattern%3E%3C/defs%3E%3Cg id='raam' fill='none' stroke='%238b4513' stroke-width='1.5'%3E%3Crect x='20' y='20' width='360' height='510'/%3E%3Crect x='25' y='25' width='350' height='500' stroke-dasharray='1,5'/%3E%3Crect x='10' y='10' width='380' height='530' stroke='url(%23pits)' stroke-width='20'/%3E%3C/g%3E%3Cg id='rukkilill-vasak' transform='translate(45, 445) scale(0.8)'%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%230f52ba' transform='rotate(-40)'/%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%231e90ff' transform='rotate(-20)'/%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%230f52ba'/%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%231e90ff' transform='rotate(20)'/%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%230f52ba' transform='rotate(40)'/%3E%3Ccircle cx='0' cy='32' r='8' fill='%234a0e4e'/%3E%3Cpath d='M 0 35 Q -5 50 -15 65' stroke='%23556b2f' stroke-width='2'/%3E%3C/g%3E%3Cg id='rukkilill-parem' transform='translate(355, 445) scale(0.8) scale(-1, 1)'%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%230f52ba' transform='rotate(-40)'/%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%231e90ff' transform='rotate(-20)'/%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%230f52ba'/%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%231e90ff' transform='rotate(20)'/%3E%3Cpath d='M-5 35 Q-10 15 -5 0 Q5 15 0 35 Z' fill='%230f52ba' transform='rotate(40)'/%3E%3Ccircle cx='0' cy='32' r='8' fill='%234a0e4e'/%3E%3Cpath d='M 0 35 Q -5 50 -15 65' stroke='%23556b2f' stroke-width='2'/%3E%3C/g%3E%3Cg id='keskel' transform='translate(200, 275)'%3E%3Cg id='longakera' transform='translate(-40, 0)'%3E%3Ccircle cx='0' cy='0' r='24' fill='%23cd853f' stroke='%238b4513' stroke-width='1'/%3E%3Cpath d='M -18 -15 C -5 -25, 15 -15, 20 0 M -22 0 C -10 -15, 10 -15, 22 5 M -20 10 C -5 0, 15 5, 18 18 M -10 -20 C 5 -10, -5 15, 10 22 M -5 22 Q 5 35, 25 40' stroke='%238b4513' stroke-width='1.5' fill='none'/%3E%3Cpath d='M -35 25 L 30 -30 M -30 30 L 35 -25' stroke='%23b0c4de' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='30' cy='-30' r='2.5' fill='%23daa520'/%3E%3Ccircle cx='35' cy='-25' r='2.5' fill='%23daa520'/%3E%3C/g%3E%3Cg id='kell' transform='translate(35, -5)'%3E%3Ccircle cx='5' cy='10' r='16' fill='none' stroke='%23daa520' stroke-width='2'/%3E%3Cpath d='M 5 -6 L 5 -12 M 2 -12 L 8 -12' stroke='%23daa520' stroke-width='2'/%3E%3Cpath d='M 5 10 L 5 4 M 5 10 L 11 13' stroke='%238b4513' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M -11 10 Q -25 5 -35 -20' fill='none' stroke='%23daa520' stroke-width='1' stroke-dasharray='2,2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+/* 🍎 21. SEPTEMBER (Madisepäev) */
+body.puha-madisepaev .menyy-blankett.paev-taust::before {
+    opacity: 0.33;
+    background-size: contain; /* TÄISEKRAAN ja KESKKELE */
+    background-position: center center;
+    background-repeat: no-repeat;
+    /* LINIK PITSILINE, KILP JA MÕÕGAD, TULERATTAD */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 550'%3E%3Cdefs%3E%3Cpattern id='pits' width='20' height='20' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 0 10 Q 5 0 10 10 Q 15 20 20 10' fill='none' stroke='%238b4513' stroke-width='1.5'/%3E%3C/pattern%3E%3C/defs%3E%3Cg id='raam' fill='none' stroke='%238b4513' stroke-width='1.5'%3E%3Crect x='20' y='20' width='360' height='510'/%3E%3Crect x='25' y='25' width='350' height='500' stroke-dasharray='1,5'/%3E%3Crect x='10' y='10' width='380' height='530' stroke='url(%23pits)' stroke-width='20'/%3E%3C/g%3E%3C!-- TAUSTAL TUGEVAD JA SUURENDATUD MUISTSED KODARRISTID / TULERATTAD --%3E%3Cg id='kaitsemargid' stroke='%238b4513' stroke-width='2.5' stroke-linecap='round' fill='none'%3E%3C!-- Ülemine vasak nurk (Suurendatud) --%3E%3Cg transform='translate(80, 95)'%3E%3Cpath d='M -25 0 L 25 0 M 0 -25 L 0 25 M -18 -18 L 18 18 M -18 18 L 18 -18'/%3E%3Ccircle cx='0' cy='0' r='18' stroke-dasharray='3,3'/%3E%3C/g%3E%3C!-- Ülemine parem nurk (Suurendatud) --%3E%3Cg transform='translate(320, 95)'%3E%3Cpath d='M -25 0 L 25 0 M 0 -25 L 0 25 M -18 -18 L 18 18 M -18 18 L 18 -18'/%3E%3Ccircle cx='0' cy='0' r='18' stroke-dasharray='3,3'/%3E%3C/g%3E%3C!-- Alumine vasak nurk (Suurendatud) --%3E%3Cg transform='translate(80, 455)'%3E%3Cpath d='M -25 0 L 25 0 M 0 -25 L 0 25 M -18 -18 L 18 18 M -18 18 L 18 -18'/%3E%3Ccircle cx='0' cy='0' r='18' stroke-dasharray='3,3'/%3E%3C/g%3E%3C!-- Alumine parem nurk (Suurendatud) --%3E%3Cg transform='translate(320, 455)'%3E%3Cpath d='M -25 0 L 25 0 M 0 -25 L 0 25 M -18 -18 L 18 18 M -18 18 L 18 -18'/%3E%3Ccircle cx='0' cy='0' r='18' stroke-dasharray='3,3'/%3E%3C/g%3E%3C!-- Sügisesed sabina-triibud taustal --%3E%3Cpath d='M 60 200 L 70 230 M 340 200 L 330 230 M 65 320 L 75 350 M 335 320 L 325 350' stroke-width='1.5' stroke-dasharray='1,4'/%3E%3C/g%3E%3C!-- KESKEL SUURENDATUD LAHINGUATRIBUUDID --%3E%3Cg id='lahing-keskel' transform='translate(200, 275) scale(1.4)'%3E%3Cg id='muistsed-moogad' stroke='%238b4513' stroke-width='2' fill='none' stroke-linecap='round'%3E%3Cg transform='rotate(45)'%3E%3Cpath d='M 0 -55 L 0 35' stroke='%23b0c4de' stroke-width='3'/%3E%3Cpath d='M -10 35 L 10 35' stroke='%23daa520' stroke-width='4'/%3E%3Cpath d='M 0 35 L 0 50' stroke='%238b4513' stroke-width='4'/%3E%3Ccircle cx='0' cy='52' r='3' fill='%23daa520' stroke='none'/%3E%3C/g%3E%3Cg transform='rotate(-45)'%3E%3Cpath d='M 0 -55 L 0 35' stroke='%23b0c4de' stroke-width='3'/%3E%3Cpath d='M -10 35 L 10 35' stroke='%23daa520' stroke-width='4'/%3E%3Cpath d='M 0 35 L 0 50' stroke='%238b4513' stroke-width='4'/%3E%3Ccircle cx='0' cy='52' r='3' fill='%23daa520' stroke='none'/%3E%3C/g%3E%3C/g%3E%3Cg id='muinas-kilp' transform='translate(0, 5)'%3E%3Ccircle cx='0' cy='0' r='26' fill='%23dc2626' fill-opacity='0.12' stroke='%238b4513' stroke-width='2.5'/%3E%3Ccircle cx='0' cy='0' r='18' fill='none' stroke='%238b4513' stroke-width='1.2' stroke-dasharray='3,3'/%3E%3Ccircle cx='0' cy='0' r='5' fill='%23daa520' stroke='%238b4513' stroke-width='1.2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+/* 🍎 29. SEPTEMBER (Mihklipäev) */
+body.puha-mihklipaev .menyy-blankett.paev-taust::before {
+    opacity: 0.30;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    /* 🐏 SÜGISENE MIHKLIPÄEV (Heegelpits, nurkades kaheksakannad, taustal viljapead, keskel mihklioinas) */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 550'%3E%3Cdefs%3E%3Cpattern id='pits' width='20' height='20' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 0 10 Q 5 0 10 10 Q 15 20 20 10' fill='none' stroke='%238b4513' stroke-width='1.5'/%3E%3C/pattern%3E%3C/defs%3E%3Cg id='raam' fill='none' stroke='%238b4513' stroke-width='1.5'%3E%3Crect x='20' y='20' width='360' height='510'/%3E%3Crect x='25' y='25' width='350' height='500' stroke-dasharray='1,5'/%3E%3Crect x='10' y='10' width='380' height='530' stroke='url(%23pits)' stroke-width='20'/%3E%3C/g%3E%3C!-- TAUSTAL TUGEVAD KAHEKSAKANNAD JA VILJAPEAD --%3E%3Cg id='kaitsemargid' stroke='%238b4513' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='miter' fill='none'%3E%3C!-- Ülemine vasak nurk (Kaheksakand) --%3E%3Cg transform='translate(80, 95) scale(0.9)'%3E%3Cpath d='M -20 0 L 20 0 M 0 -20 L 0 20 M -14 -14 L 14 14 M -14 14 L 14 -14 M -20 0 L -14 -14 L 0 -20 L 14 -14 L 20 0 L 14 14 L 0 20 L -14 14 Z'/%3E%3C/g%3E%3C!-- Ülemine parem nurk (Kaheksakand) --%3E%3Cg transform='translate(320, 95) scale(0.9)'%3E%3Cpath d='M -20 0 L 20 0 M 0 -20 L 0 20 M -14 -14 L 14 14 M -14 14 L 14 -14 M -20 0 L -14 -14 L 0 -20 L 14 -14 L 20 0 L 14 14 L 0 20 L -14 14 Z'/%3E%3C/g%3E%3C!-- Alumine vasak nurk (Kaheksakand) --%3E%3Cg transform='translate(80, 455) scale(0.9)'%3E%3Cpath d='M -20 0 L 20 0 M 0 -20 L 0 20 M -14 -14 L 14 14 M -14 14 L 14 -14 M -20 0 L -14 -14 L 0 -20 L 14 -14 L 20 0 L 14 14 L 0 20 L -14 14 Z'/%3E%3C/g%3E%3C!-- Alumine parem nurk (Kaheksakand) --%3E%3Cg transform='translate(320, 455) scale(0.9)'%3E%3Cpath d='M -20 0 L 20 0 M 0 -20 L 0 20 M -14 -14 L 14 14 M -14 14 L 14 -14 M -20 0 L -14 -14 L 0 -20 L 14 -14 L 20 0 L 14 14 L 0 20 L -14 14 Z'/%3E%3C/g%3E%3C!-- Looklevad viljapead tausta külgedel --%3E%3Cg stroke-width='1.5'%3E%3Cpath d='M 60 220 Q 75 250 65 280 M 55 230 L 65 225 M 55 245 L 65 240 M 55 260 L 65 255'/%3E%3Cpath d='M 340 220 Q 325 250 335 280 M 345 230 L 335 225 M 345 245 L 335 240 M 345 260 L 335 255'/%3E%3C/g%3E%3C/g%3E%3C!-- KESKEL SUURENDATUD MIHKLIOINAS JA LÕIKUSSÜMBOLID --%3E%3Cg id='oinapea-keskel' transform='translate(200, 275) scale(1.3)' stroke='%238b4513' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3C!-- Oina nägu ja pea kuju --%3E%3Cpath d='M -15 -20 L 15 -20 L 20 -5 L 10 25 L -10 25 L -20 -5 Z' fill='%23cd853f' fill-opacity='0.05'/%3E%3Cpath d='M -10 25 L 10 25 M -6 15 L 6 15'/%3E%3C!-- Vasak kaardus sarv --%3E%3Cpath d='M -15 -20 C -35 -30, -45 -5, -25 5 C -15 10, -20 -10, -15 -15' fill='%23cd853f' fill-opacity='0.1'/%3E%3C!-- Parem kaardus sarv --%3E%3Cpath d='M 15 -20 C 35 -30, 45 -5, 25 5 C 15 10, 20 -10, 15 -15' fill='%23cd853f' fill-opacity='0.1'/%3E%3C!-- Kõrvad --%3E%3Cpath d='M -20 -10 L -35 -5 L -22 0'/%3E%3Cpath d='M 20 -10 L 35 -5 L 22 0'/%3E%3C!-- Ristatud viljapead taustal oina taga --%3E%3Cg stroke-width='1.5' opacity='0.7'%3E%3Cpath d='M -40 40 L 40 -40 M 30 -40 L 40 -40 L 40 -30 M 20 -25 L 28 -33'/%3E%3Cpath d='M 40 40 L -40 -40 M -30 -40 L -40 -40 L -40 -30 M -20 -25 L -28 -33'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+/* 🍂  OKTOOBRI VAIKIMISI LOOR */
+body.kuu-oktoober .menyy-blankett.paev-taust::before {
+    content: "🍂🍻🍂";
+    opacity: 1 !important; /* 1) nähtavuseväärtus (0 kuni 1 vahel) */
+    position: absolute;
+    top: -20px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 100px;
+    color: rgba(212, 175, 55, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 0;
+    pointer-events: none;
+    transform: rotate(-10deg);
+    transform-origin: center;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5)); /* 3) Varjukontuur teravuseks */
+    /* 3) LISA: Varjukontuur teravuseks */
+}
+/* 🍎 SEPTEMBER */
+body.kuu-september .menyy-blankett.paev-taust::before {
+    opacity: 0.40;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 550'%3E%3Cg id='vahtraleht-vasakul-yleval' transform='translate(20, 20) scale(0.9)'%3E%3Cpath d='M 40 10 C 45 30, 35 45, 20 40 C 25 55, 15 65, 0 60 C 15 75, 20 90, 10 105 C 30 100, 45 110, 50 130 C 55 110, 70 100, 90 105 C 80 90, 85 75, 100 60 C 85 65, 75 55, 80 40 C 65 45, 55 30, 60 10 C 55 25, 45 25, 40 10 Z' fill='%23daa520'/%3E%3Cpath d='M 50 130 L 50 150' stroke='%238b4513' stroke-width='2' stroke-linecap='round'/%3E%3C/g%3E%3Cg id='tammetorud-paremal-yleval' transform='translate(310, 30) scale(0.8)'%3E%3Cpath d='M 30 20 Q 20 50 40 70 Q 60 50 50 20 Z' fill='%23cd853f'/%3E%3Cpath d='M 25 22 Q 40 5 55 22 Z' fill='%238b4513'/%3E%3Cpath d='M 45 40 Q 30 70 50 90 Q 70 70 65 40 Z' fill='%23cd853f' transform='rotate(-20 45 40)'/%3E%3Cpath d='M 40 42 Q 55 27 70 42 Z' fill='%238b4513' transform='rotate(-20 45 40)'/%3E%3Cpath d='M 40 10 Q 35 0 20 5' fill='none' stroke='%238b4513' stroke-width='2'/%3E%3C/g%3E%3Cg id='kastanimunad-all-vasakul' transform='translate(30, 440) scale(0.85)'%3E%3Ccircle cx='40' cy='40' r='25' fill='%23556b2f'/%3E%3Cpath d='M 40 15 L 40 10 M 40 65 L 40 70 M 15 40 L 10 40 M 65 40 L 70 40 M 22 22 L 18 18 M 58 58 L 62 62 M 22 58 L 18 62 M 58 22 L 62 18' stroke='%233f5b1b' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='65' cy='55' r='18' fill='%238b4513'/%3E%3Cpath d='M 52 45 Q 65 38 78 48 Z' fill='%23d2b48c'/%3E%3C/g%3E%3Cg id='vahtraleht-all-paremal' transform='translate(290, 430) scale(0.95) rotate(-15 50 50)'%3E%3Cpath d='M 40 10 C 45 30, 35 45, 20 40 C 25 55, 15 65, 0 60 C 15 75, 20 90, 10 105 C 30 100, 45 110, 50 130 C 55 110, 70 100, 90 105 C 80 90, 85 75, 100 60 C 85 65, 75 55, 80 40 C 65 45, 55 30, 60 10 Z' fill='%23d2691e'/%3E%3Cpath d='M 50 130 L 50 155' stroke='%238b4513' stroke-width='2'/%3E%3C/g%3E%3Cg id='langevad-lehed-keskel-servas' opacity='0.7'%3E%3Cpath d='M 30 250 C 35 260, 30 270, 20 265 C 23 275, 15 280, 5 275 C 15 285, 15 295, 8 305 C 20 300, 30 305, 33 315 C 38 305, 48 300, 60 305 C 53 295, 55 285, 65 275 C 55 280, 48 275, 50 265 C 40 270, 35 260, 40 250 Z' fill='%23b8860b' transform='rotate(30 30 250) scale(0.5)'/%3E%3Cpath d='M 360 280 C 365 290, 360 300, 350 295 C 353 305, 345 310, 335 305 C 345 315, 345 325, 338 335 C 350 330, 360 335, 363 345 C 368 335, 378 330, 390 335 C 383 325, 385 315, 395 305 C 385 310, 378 305, 380 295 C 370 300, 365 290, 370 280 Z' fill='%23cd853f' transform='rotate(-20 360 280) scale(0.6)'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: auto 80%;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🍎 1. SEPTEMBER (Teadmistepäev) */
+body.puha-teadmistepaev .menyy-blankett.paev-taust::before {
+    opacity: 0.40; /*  0.1 on väga õrn, 0.3 on tugevam vesipilt */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 550'%3E%3Crect x='30' y='30' width='340' height='490' fill='none' stroke='%238b4513' stroke-width='2' rx='5'/%3E%3Crect x='38' y='38' width='324' height='474' fill='none' stroke='%23daa520' stroke-width='1' stroke-dasharray='4,3'/%3E%3Ctext x='200' y='95' font-family='Times New Roman, Times, serif' font-size='42' font-weight='bold' fill='%238b4513' text-anchor='middle' letter-spacing='2'%3EKUKEAABITS%3C/text%3E%3Cpath d='M 80 115 L 320 115' stroke='%23daa520' stroke-width='2'/%3E%3Cpath d='M 120 121 L 280 121' stroke='%238b4513' stroke-width='1'/%3E%3Cg transform='translate(0, 30)'%3E%3Cpath d='M 150 280 C 100 250, 90 170, 130 130 C 110 170, 110 240, 150 280' fill='%238b4513'/%3E%3Cpath d='M 155 270 C 110 210, 120 130, 160 110 C 130 140, 130 220, 155 270' fill='%23daa520'/%3E%3Cpath d='M 150 280 C 140 220, 170 180, 205 180 C 245 180, 260 220, 245 275 C 220 320, 170 320, 150 280 Z' fill='%238b4513'/%3E%3Cpath d='M 175 240 C 165 255, 175 290, 210 290 C 235 290, 235 255, 210 240 Z' fill='%23daa520'/%3E%3Cpath d='M 212 190 C 220 150, 235 135, 245 125 C 255 145, 252 180, 240 198 Z' fill='%238b4513'/%3E%3Ccircle cx='250' cy='120' r='14' fill='%238b4513'/%3E%3Ccircle cx='253' cy='117' r='2.5' fill='%23fff'/%3E%3Cpath d='M 263 116 L 278 122 L 263 128 Z' fill='%23daa520'/%3E%3Cpath d='M 242 112 C 238 100, 246 92, 250 96 C 254 84, 262 88, 262 98 C 266 88, 274 92, 271 104 C 267 112, 254 110, 242 112 Z' fill='%238b4513'/%3E%3Cpath d='M 262 127 C 266 137, 258 145, 252 137 Z' fill='%238b4513'/%3E%3C/g%3E%3Cpath d='M 120 400 L 280 400' stroke='%23daa520' stroke-width='1'/%3E%3Ctext x='130' y='455' font-family='Times New Roman, Times, serif' font-size='38' font-weight='bold' fill='%238b4513' text-anchor='middle'%3EA%3C/text%3E%3Ctext x='200' y='455' font-family='Times New Roman, Times, serif' font-size='38' font-weight='bold' fill='%23daa520' text-anchor='middle'%3EB%3C/text%3E%3Ctext x='270' y='455' font-family='Times New Roman, Times, serif' font-size='38' font-weight='bold' fill='%238b4513' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: auto 80%;
+}
+/* 🍂 OKTOOBER (Hõimupäev) */
+body.puha-hoimupaev .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/ugrid.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    opacity: 0.22;
+    transform: none;
+}
+/* 🍂 31. OKTOOBER (HALLOWEEN) */
+body.puha-halloween .menyy-blankett.paev-taust::before {
+    content: "🐈‍⬛🎃🦇";
+    opacity: 1 !important;
+    position: absolute;
+    top: -20px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 100px;
+    color: rgba(212, 175, 55, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 0;
+    pointer-events: none;
+    transform: rotate(-10deg);
+    transform-origin: center;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+}
+/* 🌧️ 2. NOVEMBER (Hingedepäev) */
+body.puha-hingedepaev .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/hingedepaev.jpg");
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.30;
+    transform: none;
+}
+/* 🌧️ NOVEMBER */
+body.kuu-november .menyy-blankett.paev-taust::before {
+    opacity: 0.22;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 550'%3E%3C!-- TAUSTAL SÜGISENE VIHMASABIN JA LOMBID --%3E%3Cg id='vihmasabin' stroke='%238b4513' stroke-width='1.2' stroke-linecap='round' fill='none'%3E%3Cpath d='M 60 120 L 68 145 M 330 130 L 338 155 M 70 380 L 78 405 M 340 370 L 348 395 M 200 80 L 208 105 M 200 450 L 208 475' stroke-dasharray='1,4'/%3E%3Cpath d='M 45 480 Q 75 470 105 480 M 295 480 Q 325 470 355 480' stroke-dasharray='3,3'/%3E%3C/g%3E%3C!-- KESKEL PORIKUU ATRIBUUDID --%3E%3Cg id='porikuu-keskel' transform='translate(200, 275) scale(1.3)' stroke='%238b4513' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3C!-- AVATUD SAKILINE JA VÄRVILINE VIHMAVARI (PARANDATUD) --%3E%3Cg id='vihmavari' transform='translate(0, -35)'%3E%3C!-- 1. segment: Tumesinine (vasak äär) --%3E%3Cpath d='M 0 -24 C -20 -24, -45 -10, -60 15 C -50 5, -40 5, -30 15 C -20 -5, -10 -15, 0 -24 Z' fill='%231e3a8a' fill-opacity='0.6'/%3E%3C!-- 2. segment: Helesinine (keskmine vasak) --%3E%3Cpath d='M 0 -24 C -10 -15, -20 -5, -30 15 C -20 5, -10 5, 0 15 C 0 -5, 0 -15, 0 -24 Z' fill='%2360a5fa' fill-opacity='0.6'/%3E%3C!-- 3. segment: Tumesinine (keskmine parem) --%3E%3Cpath d='M 0 -24 C 0 -15, 0 -5, 0 15 C 10 5, 20 5, 30 15 C 20 -5, 10 -15, 0 -24 Z' fill='%231e3a8a' fill-opacity='0.6'/%3E%3C!-- 4. segment: Helesinine (parem äär) --%3E%3Cpath d='M 0 -24 C 10 -15, 20 -5, 30 15 C 40 5, 50 5, 60 15 C 45 -10, 20 -24, 0 -24 Z' fill='%2360a5fa' fill-opacity='0.6'/%3E%3C!-- Vihmavarju tugevdavad ribajooned segmentide vahel --%3E%3Cpath d='M 0 -24 C -10 -5, -20 5, -30 15 M 0 -24 C 10 -5, 20 5, 30 15 M 0 -24 L 0 15 M 0 -24 C -20 -10, -45 5, -60 15 M 0 -24 C 20 -10, 45 5, 60 15' stroke-width='1.2'/%3E%3C!-- Vihmavarju tipp --%3E%3Cpath d='M 0 -24 L 0 -32' stroke-width='2.5'/%3E%3C!-- Vihmavarju vars ja puidust käepide --%3E%3Cpath d='M 0 15 L 0 75 C 0 82, -12 82, -12 75' stroke-width='2.5'/%3E%3C/g%3E%3C!-- ROOSAD KUMMIKUD (Esiplaanil) --%3E%3Cg id='kummikud' transform='translate(0, 20)'%3E%3C!-- Vasak kummik --%3E%3Cg transform='translate(-16, 0) rotate(-4)'%3E%3Cpath d='M -14 -40 L 10 -40 L 8 10 L 16 15 L 14 25 L -14 25 Z' fill='%23ec4899' fill-opacity='0.5'/%3E%3Cpath d='M -14 21 L 14 21' stroke-width='3'/%3E%3Cpath d='M -14 -35 L 10 -35' stroke-width='1.5'/%3E%3C/g%3E%3C!-- Parem kummik --%3E%3Cg transform='translate(14, 0)'%3E%3Cpath d='M -10 -40 L 14 -40 L 12 10 L 20 15 L 18 25 L -10 25 Z' fill='%23ec4899' fill-opacity='0.5'/%3E%3Cpath d='M -10 21 L 18 21' stroke-width='3'/%3E%3Cpath d='M -10 -35 L 14 -35' stroke-width='1.5'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: auto 80%;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🌧️ NOVEMBER (Isadepäev) */
+body.puha-isadapaev .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' viewBox='0 0 400 550'%3E%3C!-- KESKEL CHARLIE CHAPLINI SILUETT --%3E%3Cg id='chaplin-keskel' transform='translate(200, 260) scale(1.4)' stroke='%23374151' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3C!-- SILINDER-KÜBAR JA LANGETATUD PEA --%3E%3Cg id='pea-ja-kaabu' transform='translate(0, -60)'%3E%3C!-- Langetatud pea foon (nägu pole näha, kaabu katab) --%3E%3Cpath d='M -12 10 C -12 2, 12 2, 12 10 C 12 18, -12 18, -12 10 Z' fill='%23374151' fill-opacity='0.15'/%3E%3C!-- Küüru tõmmatud kraeosa kummarduse märgiks --%3E%3Cpath d='M -16 16 L 0 22 L 16 16' /%3E%3C!-- Kübara laiad ääred, mis varjavad näo --%3E%3Cpath d='M -28 6 C -15 2, 15 2, 28 6 C 24 10, -24 10, -28 6 Z' fill='%23374151' fill-opacity='0.25'/%3E%3C!-- Kübara püstine silindriosa --%3E%3Cpath d='M -18 5 L -14 -32 L 14 -32 L 18 5 Z' fill='%23374151' fill-opacity='0.2'/%3E%3C!-- Kübara lint --%3E%3Cpath d='M -18 3 L -17 -1 L 17 -1 L 18 3 Z' fill='%23374151'/%3E%3C/g%3E%3C!-- ÜLIKONNAS KEHA (Seisab otse, õlad laiad) --%3E%3Cg id='kuub-ja-püksid'%3E%3C!-- Pintsak/Frakk (Täitevärviga) --%3E%3Cpath d='M -25 -40 L 25 -40 L 20 25 L -20 25 Z' fill='%23374151' fill-opacity='0.1'/%3E%3C!-- Pintsaku reväärid ja lips --%3E%3Cpath d='M -25 -40 L -6 -15 L 0 -40 L 6 -15 L 25 -40' /%3E%3Cpath d='M -4 -30 L 4 -30 L 0 -20 Z' fill='%23374151'/%3E%3C!-- Pintsaku nööbiliin keskel --%3E%3Cpath d='M 0 -15 L 0 25' stroke-dasharray='1,5'/%3E%3C!-- Sirged püksisääred --%3E%3Cpath d='M -14 25 L -14 90 L -2 90 L -4 25 M 4 25 L 2 90 L 14 90 L 14 25' fill='%23374151' fill-opacity='0.1'/%3E%3C!-- Kingad (Vaatavad kergelt väljapoole) --%3E%3Cpath d='M -14 90 C -22 90, -22 96, -10 96 L -2 96 Z' fill='%23374151' fill-opacity='0.2'/%3E%3Cpath d='M 14 90 C 22 90, 22 96, 10 96 L 2 96 Z' fill='%23374151' fill-opacity='0.2'/%3E%3C/g%3E%3C!-- KÄED JA VASAKUS KÄES OLEV JALUTUSKEPP --%3E%3C!-- Parem käsi (Rippub otse kõrval kehasse tõmmatult) --%3E%3Cpath d='M -25 -38 L -28 15 L -20 15' /%3E%3C!-- Vasak käsi (Hoiab jalutuskeppi) --%3E%3Cpath d='M 25 -38 L 30 15 L 24 17' /%3E%3C!-- KONKSUGA JALUTUSKEPP VASAKUS KÄES (Toetub maani) --%3E%3Cg id='jalutuskepp' transform='translate(25, 0)' stroke-width='2'%3E%3C!-- Kepi sirge sääreosa, mis ulatub käest maani --%3E%3Cline x1='0' y1='15' x2='0' y2='96' /%3E%3C!-- Kepi ülaosa konks (Kumer kaar suunaga väljapoole) --%3E%3Cpath d='M 0 15 L 0 0 C 0 -12, 14 -12, 14 0 C 14 6, 6 6, 6 0' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    opacity: 0.15;
+    transform: none;
+}
+/* 🌧️ 10. NOVEMBER (Mardipäev) */
+body.puha-mardipaev .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/mardid.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.33;
+    transform: none;
+}
+/* 🌧️ 16. NOVEMBER (Taassünnipäev) */
+body.puha-taassund .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/taassund.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.20;
+    transform: none;
+}
+/* 🌧️ 25. NOVEMBER (Kadripäev) */
+body.puha-kadripaev .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/kadrid.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.30;
+    transform: none;
+}
+/* 🌧️ 18. NOVEMBER (Läti Vabariigi väljakuulutamise päev) */
+body.puha-lati-vabariik .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/latvija.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    opacity: 0.30;
+    transform: none;
+}
+/* 🎄 DETSEMBER  */
+body.kuu-detsember .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.40;
+    content: "";
+    background-image: url("pot/detsember.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🎄 6. DETSEMBER (Soome iseseisvuspäev) */
+body.puha-soome-iseseisvus .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/soome.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    opacity: 0.20;
+    transform: none;
+}
+/* 🎄 13. DETSEMBER (Luutsipäev) */
+body.puha-luutsipaev .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/luuts.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;    
+    opacity: 0.40;   
+    transform: none;
+}
+/* 🎄 24. DETSEMBER (Jõululaupäev) */
+body.puha-jouluohtu .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    content: "";
+    background-image: url("pot/jouluohtu.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.40;
+    transform: none;
+}
+/* 🎄 25. DETSEMBER (Esimene jõulupüha) */
+body.puha-joulupaha1 .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    content: "";
+     position: absolute;
+    inset: 0;
+    background-image: url("pot/joulupaha1.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+     pointer-events: none;
+    z-index: 0;
+    opacity: 0.44;  
+}
+/* 🎄26. DETSEMBER (Teine jõulupüha) */
+body.puha-joulupaha2 .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/joulupaha2.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.40;
+    transform: none;
+}
+/* 🎄 31. DETSEMBER (Näärid) */
+body.puha-naarid .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/naarid.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.40;
+    transform: none;
+}
+/* ⛄ 1. JAANUAR (Uusaasta) */
+body.puha-uusaasta .menyy-blankett.paev-taust::before {
+    content: "";
+    background-image: url("pot/uusaasta.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.38;
+    transform: none;
+}
+/* ⛄JAANUAR  */
+body.kuu-jaanuar .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/jaanuar.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ⛄ 3.JAANUAR (Vabadussõjas võidelnute mälestuspäev) */
+body.puha-vabadussoda .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/vabadussoda.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ⛄ 6.JAANUAR (Kolmekuningapäev) */
+body.puha-kolmekuningas .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/kolmekuningas.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/*  ⛄30.JAANUAR (Eesti kirjanduse päev)*/
+body.puha-kirjanduspaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/kirjanduspaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ❄️ VEEBRUAR  */
+body.kuu-veebruar .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/veebruar.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ❄️ 2.VEEBRUAR (Tartu rahulepingu aastapäev)  */
+body.puha-tarturahul .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/tarturahul.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ❄️ 9.VEEBRUAR (Luuvalupäev)*/
+body.puha-luuvalu .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/luuvalu.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ❄️ 14.VEEBRUAR (Sõbrapäev)  */
+body.puha-valentin .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/valentin.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ❄️ 16.VEEBRUAR ( Leedu riigi taastamise päev) */
+body.puha-leedu-vabariik .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/leedu-vabariik.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ❄️ Vastlapäev  */
+body.puha-vastlapaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/vastlapaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ❄️ 24.VEEBRUAR ( Eesti Vabariigi aastapäev) */
+body.puha-iseseisvuspaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/iseseisvuspaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐇 MÄRTS  */
+body.kuu-marts .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/marts.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐇 8.MÄRTS (Naistepaev)  */
+body.puha-naistepaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/naistepaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐇 14.MÄRTS ( Emakeelepäev)  */
+body.puha-emakeel .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    inset: 0;
+    background-color: transparent !important;
+    background-image: url("pot/emakeel.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: auto 96%;
+    z-index: 0;
+}
+/* 🐇 27.MÄRTS ( Rahvusvaheline teatripäev) */
+body.puha-teatripaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/teatripaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐣 APRILL  */
+body.kuu-aprill .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/aprill.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐣 1.APRILL (Naljapäev)  */
+body.puha-naljapaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/naljapaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐣 SUUR-REEDE */
+body.puha-suur-reede .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/suur-reede.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐣 Ülestõusmispühade 1. püha  */
+body.puha-ylestousmispyhad .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/ylestousmispyhad.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐣14.APRILL (Künnipäev) */
+body.puha-kunnipaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/kunnipaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐣 23.APRILL (  Jüripäev / Veteranipäev) */
+body.puha-juripaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/juripaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🐣 30.APRILL ( Volbriöö)  */
+body.puha-volber .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/volber.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: auto 50%;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🌱 MAI  */
+body.kuu-mai .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/mai.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🌱 1.MAI (Kevadpüha / Volbripäev) */
+body.puha-kevadpyha .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/kevadpyha.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🌱9.MAI ( Euroopa päev)  */
+body.puha-euroopa-paev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/euroopa-paev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🌱 EMADEPÄEV  */
+body.puha-emadapaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/emadapaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🌱   Nelipühade 1. püha*/
+body.puha-nelipyhad .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/nelipyhad.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ☀️ JUUNI  */
+body.kuu-juuni .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/juuni.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ☀️ 1.JUUNI ( Lastekaitsepäev) */
+body.puha-lastekaitse .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/lastekaitse.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ☀️ 4.JUUNI (Eesti lipu päev)  */
+body.puha-lipupaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/lipupaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ☀️ 14.JUUNI (Leinapäev)  */
+body.puha-leinapaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/leinapaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ☀️ 23.JUUNI (Võidupüha)  */
+body.puha-voidupyha .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/voidupyha.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: auto 96%;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* ☀️ 24.JUUNI (Jaanipäev)  */
+body.puha-jaanipaev .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/jaanipaev.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/*🌞 JUULI   */
+body.kuu-juuli .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/juuli.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+/* 🌞 10.JUULI (Seitsmevennapäev)  */
+body.puha-seitsmevenna .menyy-blankett.paev-taust::before {
+    overflow: hidden;
+    opacity: 0.32;
+    content: "";
+    background-image: url("pot/seitsmevenna.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    transition: background-image 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
