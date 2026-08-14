@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <title>Piirimäe - Päeva- ja Nädalamenüü</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="holy.css">
@@ -59,22 +58,33 @@
         }
 
         /* 🌟 EFEKT: Klikates muutub blankett ujuvaks üle-ekraani kergituseks! */
-        .menyy-blankett.suurendatud {
-            position: fixed !important;
-            top: 5%;
-            left: 5%;
-            width: 90% !important;
-            height: 90vh !important;
-            max-width: 800px !important;
-            margin: 0 auto !important;
-            right: 5%;
-            z-index: 3000 !important;
-            cursor: zoom-out;
-            transform: scale(1.02) !important;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
-            overflow-y: auto;
-            padding: 40px;
-        }
+       .menyy-blankett.suurendatud {
+    position: fixed !important;
+    inset: 10px !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 40px;
+
+    box-sizing: border-box;
+
+    z-index: 3000 !important;
+    cursor: zoom-out;
+
+    transform: none !important;
+
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
 
         /* Varjutav tume taust, kui menüü on suurendatud */
         .menyy-pimendus {
@@ -101,10 +111,18 @@
         .menyy-tiitel { font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #1a202c; margin-bottom: 5px; }
         .menyy-kpv { font-size: 15px; font-style: italic; color: #4a5568; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
         
-        .toidu-rida { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; font-size: 15px; }
-        .toidu-nimi { text-align: left; font-weight: 500; max-width: 75%; }
+        .toidu-rida { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px;
+         }
+        .toidu-nimi { z-index: 100; text-align: left; 
+            font-style: italic; 
+            font-weight: 300; 
+            font-family: "Gladifilthefte", "Westmeath", "Katahdin Round"; 
+            max-width: 75%; 
+            color: rgb(37, 2, 24); 
+            font-size: 15px;
+         }
         .toidu-joon { flex-grow: 1; border-bottom: 1px dotted #cbd5e1; margin: 0 10px 4px 10px; }
-        .toidu-hind { font-weight: bold; white-space: nowrap; color: #1a202c; }
+        .toidu-hind { z-index: 100; font-weight: bold; white-space: nowrap; color: rgb(245, 5, 5); }
         
         .nadala-paev-pealkiri { font-weight: bold; font-size: 14px; color: #2b6cb0; text-transform: uppercase; text-align: left; margin: 18px 0 8px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; }
         .menyy-teade-input { 
@@ -116,6 +134,7 @@
     font-size: 32px; /* Käekirja fondid on tavaliselt väiksemad, seega suurus on 20px */
     text-align: center; 
     color: #DA27F5; /* LILLA*/
+    z-index: 100;
 }
         @media (max-width: 1024px) {
             .avaleht-töölaud { flex-direction: column; align-items: center; }
@@ -130,9 +149,9 @@
 
     <div class="avaleht-töölaud">
         
-     
+       
 
-        <!-- SAMMAS 1: Nädalamenüü blankett -->
+        <!-- SAMMAS 2: Nädalamenüü blankett -->
         <div class="menyy-blankett nadal-taust" id="nadalamenyyKonteiner" onclick="MuudaSuurendust(this)">
             <div class="menyy-tiitel">Nädalamenüü</div>
             <div class="menyy-kpv" id="tekstNadalaKpv">Laen nädala vahemikku...</div>
@@ -143,8 +162,8 @@
             
             <div id="inputNadalUldTeade" class="menyy-teade-input" style="display: none;"></div>
         </div>
-   <!-- SAMMAS 2: Päevamenüü blankett -->
-    
+<!-- SAMMAS 1: Päevamenüü blankett -->
+         
         <div class="menyy-blankett paev-taust" id="paevamenyyKonteiner" onclick="MuudaSuurendust(this)">
             <div class="menyy-tiitel">Tänased Lõunapakkumised</div>
             <div class="menyy-kpv" id="tekstPaevaKpv">Laen kuupäeva...</div>
@@ -152,7 +171,7 @@
             <div id="paevamenyyTootedKast">
                 <p style="color:#718096; font-style:italic;">Laen pakkumisi...</p>
             </div>
-            <div id="avalehtDynaamilineTervitus" style="font-family: 'Brush Script MT', cursive, serif; font-size: 26px; color: #4a5568; margin-top: 30px;">Head isu !</div>
+            <div id="avalehtDynaamilineTervitus" style="font-family: 'Brush Script MT', cursive, serif; font-size: 26px; z-index: 100; color: #4a5568; margin-top: 30px;">Head isu !</div>
 
             <div id="kuvaPaevaTeade" class="menyy-teade-input" style="display: none;"></div>
         </div>
