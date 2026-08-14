@@ -65,7 +65,6 @@ function ArvutaEestiPühad(aasta) {
     let isadapaev = new Date(aasta, 10, 1);
     while (isadapaev.getDay() !== 0) isadapaev.setDate(isadapaev.getDate() + 1);
     isadapaev.setDate(isadapaev.getDate() + 7);
-    
 
     // --- 3. Kogu pühade register (Riiklikud tähistatud 'isRiiklik: true') ---
     return {
@@ -95,7 +94,6 @@ function ArvutaEestiPühad(aasta) {
         [`${aasta}-04-14`]: { id: "kunnipaev", nimi: "Künnipäev" },
         [`${aasta}-04-23`]: { id: "juripaev", nimi: "Jüripäev / Veteranipäev" },
         [`${aasta}-04-30`]: { id: "volber", nimi: "Volbriöö" },
-        
         // Mai
         [`${aasta}-05-01`]: { id: "kevadpyha", nimi: "Kevadpüha / Volbripäev", isRiiklik: true },
         [`${aasta}-05-09`]: { id: "euroopa-paev", nimi: "Euroopa päev" },
@@ -324,8 +322,9 @@ if (leitudPüha) {
     document.body.classList.add(praeguseKuuKlass);
 
     console.log(`Aktiivne disain -> KUU: ${praeguseKuuKlass}`);
-}
-function lisaPyha(register, kuupaev, pyha) {
+
+    }
+    function lisaPyha(register, kuupaev, pyha) {
     const olemasolev = register[kuupaev];
 
     if (!olemasolev) {
@@ -338,6 +337,7 @@ function lisaPyha(register, kuupaev, pyha) {
         register[kuupaev] = pyha;
     }
 }
+
 
 
     // =========================================================================
@@ -428,6 +428,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     seaded = await laeSeaded();
     await LaeJaKuvaAvaleheMenyyd();
 });
+
 
 
 
