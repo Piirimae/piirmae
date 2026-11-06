@@ -2,9 +2,6 @@ import { sb } from "./supabase.js";
 import { laeSeaded } from "./seaded.js";
 import { kuvaKasutajaNimi } from "./auth.js";
 
-
-
-
 let tabelLukus = true;
 let seaded = null;
 
@@ -23,20 +20,17 @@ const prindiNupp = document.getElementById("prindiNupp");
 const laeAllaNupp = document.getElementById("laeAllaNupp");
 const teadeEl = document.getElementById("teade");
 const arhiiviKuva = document.getElementById("arhiiviKuva");
-// --- 1. Alglaadimine ja taastamise kontroll ---
-// Kontrollime, kas leht avati arhiivist taastamise või parandamise käsuga
+
 const taastatudState = localStorage.getItem("taastatudState");
 const taastatudKuu = localStorage.getItem("taastatudKuu");
 
-// Kontroll, et kood käivituks alles siis, kui seaded ja tabel on valmis
 async function kontrolliJaTaasta() {
     if (taastatudState && taastatudKuu) {
         try {
             const state = JSON.parse(taastatudState);
             praeguneKuu = taastatudKuu;
             if (kuuValik) kuuValik.value = taastatudKuu;
-            
-            // Ootame hetke, et DOM ja tabeli read jõuaksid genereeruda
+
             setTimeout(() => {
                 taastaTabelState(state);
                 localStorage.removeItem("taastatudState");
@@ -48,17 +42,15 @@ async function kontrolliJaTaasta() {
     }
 }
 
-// ✅ LISATUD PUUDUV FUNKTSIOON: Pakib arhiivi JSON-i lahti ja paneb väärtused inputitesse
 function taastaTabelState(state) {
     if (!state || !state.rows) return;
-    
+
     console.log("LOGIC: Taastan tabeli andmeid arhiivifailist...");
-    
+
     state.rows.forEach(ridaState => {
-        // Otsime tabelist õiget rida kuupäeva järgi
         const tr = tbody.querySelector(`tr[data-date="${ridaState.kuupäev}"]`);
         if (!tr) return;
-        
+
         const inputs = tr.querySelectorAll("input");
         inputs.forEach((inp, idx) => {
             if (ridaState.veerud && ridaState.veerud[idx] !== undefined) {
@@ -66,14 +58,12 @@ function taastaTabelState(state) {
             }
         });
     });
-    
-    tabelLukus = false; // Teeme tabeli muudetavaks ja aktiivseks!
+
+    tabelLukus = false;
     rakendaLukustusOlek();
-    arvuta(); // Sunnime summad uuesti käima
+    arvuta();
     näitaTeadet("Andmed arhiivist edukalt tabelisse laetud ja muutmiseks avatud.");
 }
-
-
 
 console.log("LOGIC STARTED");
 
@@ -90,21 +80,17 @@ function täidaKuuValik() {
     kuuValik.innerHTML = `<option value="${value}" selected>${label}</option>`;
 }
 
-
-
-   // Globaalne muutuja hindade ajaloo hoidmiseks logic.js ülaosas
 let hinnadAjalugu = [];
 
 async function init() {
     täidaKuuValik();
     praeguneKuu = document.getElementById("kuuValik").value;
-    
+
     await kuvaKasutajaNimi();
-    roll = window.userRole; 
+    roll = window.userRole;
 
     seaded = await laeSeaded();
-    
-    // ✅ LISATUD: Küsime andmebaasist kogu hindade ajaloo nimekirja
+
     const { data: hist } = await sb.from("hinnad").select("*");
     hinnadAjalugu = hist || [];
 
@@ -119,29 +105,23 @@ async function init() {
     rakendaRolliLukustus();
 }
 
-// Lisa see abifunktsioon näiteks genereeriKuuTabel() lähedale
 function leiaHinnaAjaloost(tooteNimi, kuupaevStr) {
-    // Teeme rea kuupäevast võrdluseks kellaaja (päeva algus)
     const targetTime = new Date(`${kuupaevStr}T00:00:00`).getTime();
 
-    // Otsime ajaloo massiivist rida, mis klapib nimega ja jääb õigesse ajavahemikku
     const leitud = hinnadAjalugu.find(h => {
         if (h.nimi !== tooteNimi) return false;
-        
+
         const alates = new Date(h.kehtiv_alates).getTime();
         const kuni = h.kehtiv_kuni ? new Date(h.kehtiv_kuni).getTime() : Infinity;
-        
+
         return targetTime >= alates && targetTime <= kuni;
     });
 
-    // Kui andmebaasi ajaloost leiti vaste, tagastame selle hinna. 
-    // Kui ei leitud (nt vana rida), kasutame vaikimisi seadete lehe hetke hinda.
     if (leitud) return Number(leitud.hind);
-    
+
     const vaikimisiVeerg = seaded.veerud.find(v => v.nimi === tooteNimi);
     return vaikimisiVeerg ? Number(vaikimisiVeerg.hind) || 0 : 0;
 }
-
 
 async function laeKuuAndmedSupabasest(kuuId) {
     const { data, error } = await sb
@@ -164,130 +144,6 @@ async function salvestaSupabasse(rida) {
 
     if (error) console.error("Viga salvestamisel:", error);
 }
-  
-
-console.log("SALVESTAMINE ALGAS");
-// --- UUS ARHIIVI SALVESTAMINE SUPABASESSE ---
-async function arhiiviSupabasse(kuuId, stateJson) {
-    try {
-        // 1) Koosta arhiiviId (YYYY-MM-DD-HH-MM)
-        const now = new Date();
-        const arhiiviId = [
-            now.getFullYear(),
-            String(now.getMonth() + 1).padStart(2, "0"),
-            String(now.getDate()).padStart(2, "0"),
-            String(now.getHours()).padStart(2, "0"),
-            String(now.getMinutes()).padStart(2, "0")
-        ].join("-");
-
-        // 2) Leia, kas samal minutil on juba versioone
-        const { data: olemasolevad } = await sb
-            .from("arhiiv")
-            .select("versioon")
-            .eq("arhiiviId", arhiiviId);
-
-        let versioon = 1;
-        if (olemasolevad && olemasolevad.length > 0) {
-            versioon = Math.max(...olemasolevad.map(r => r.versioon)) + 1;
-        }
-
-        // 3) Leia salvestaja email
-        const { data: userData } = await sb.auth.getUser();
-        const salvestaja = userData?.user?.email ?? "tundmatu";
-
-        // 4) Salvesta arhiivi
-        const parsedState = JSON.parse(stateJson);
-        const { error } = await sb
-            .from("arhiiv")
-            .insert({
-                arhiiviId: arhiiviId,
-                kuu_id: kuuId,
-                state: parsedState,
-                salvestaja: salvestaja,
-                paeritolu: "aktiivne",
-                taastatud: false,
-                versioon: versioon
-            });
-
-        if (error) {
-            console.error("Arhiivi salvestamise viga:", error);
-            näitaTeadet("Arhiivi salvestamine ebaõnnestus.");
-            return false;
-        }
-
-       
-
-        näitaTeadet(`Arhiivi salvestatud: ${arhiiviId} (versioon ${versioon})`);
-        return true;
-
-    } catch (err) {
-        console.error("Arhiivi salvestamise erind:", err);
-        näitaTeadet("Tekkis ootamatu viga arhiivi salvestamisel.");
-        return false;
-    }
- 
-
-}
-
-
-// --- AUTOMAATNE ARHIIVIMISE FUNKTSIOON (KUU LÕPPSEIS) ---
-async function salvestaVanaKuuArhiivi(kuuId) {
-    try {
-        const stateJson = JSON.stringify(koostaState());
-        
-        const now = new Date();
-        const arhiiviId = [
-            now.getFullYear(),
-            String(now.getMonth() + 1).padStart(2, "0"),
-            String(now.getDate()).padStart(2, "0"),
-            String(now.getHours()).padStart(2, "0"),
-            String(now.getMinutes()).padStart(2, "0")
-        ].join("-");
-
-        // Leia, kas samal minutil on juba versioone
-        const { data: olemasolevad } = await sb
-            .from("arhiiv")
-            .select("versioon")
-            .eq("arhiiviId", arhiiviId);
-
-        let versioon = 1;
-        if (olemasolevad && olemasolevad.length > 0) {
-            versioon = Math.max(...olemasolevad.map(r => r.versioon)) + 1;
-        }
-
-        // Automaatse salvestamise puhul ei pea sisselogijat teadma
-        const { error } = await sb
-            .from("arhiiv")
-            .insert({
-                arhiiviId: arhiiviId,
-                kuu_id: kuuId,
-                state: stateJson,
-                salvestaja: "automaatne",
-                paeritolu: "automaatne",
-                taastatud: false,
-                versioon: versioon
-            });
-
-               if (error) {
-            console.error("Automaatse arhiivimise viga:", error);
-            return false;
-        }
-
-        
-       
-
-        console.log(`✓ Kuu ${kuuId} lõppseis automaatselt salvestatud arhiivi (${arhiiviId} v${versioon})`);
-        return true;
-
-
-        console.log(`✓ Kuu ${kuuId} lõppseis automaatselt salvestatud arhiivi (${arhiiviId} v${versioon})`);
-        return true;
-
-    } catch (err) {
-        console.error("Automaatse arhiivimise erind:", err);
-        return false;
-    }
-}
 
 async function logiTegevusSupabasse(tegevus, detailid = {}) {
     const { data: userData } = await sb.auth.getUser();
@@ -298,6 +154,90 @@ async function logiTegevusSupabasse(tegevus, detailid = {}) {
         .insert({ tegevus, detailid, user_email: userEmail });
 
     if (error) console.error("Logimise viga:", error);
+}
+
+async function leiaArhiivKuuks(kuuId, paeritolu = null) {
+    let query = sb.from("arhiiv").select("*").eq("kuu_id", kuuId);
+    if (paeritolu) query = query.eq("paeritolu", paeritolu);
+
+    const { data, error } = await query.order("created_at", { ascending: false }).limit(1);
+    if (error) {
+        console.error("Arhiivi otsimise viga:", error);
+        return null;
+    }
+    return data?.[0] || null;
+}
+
+async function salvestaArhiiviSeis(kuuId, paeritolu = "aktiivne", allikas = "manuaalne") {
+    if (!kuuId) return false;
+
+    const stateJson = JSON.stringify(koostaState());
+    const now = new Date();
+    const arhiiviId = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0"),
+        String(now.getHours()).padStart(2, "0"),
+        String(now.getMinutes()).padStart(2, "0")
+    ].join("-");
+
+    if (allikas === "automaatne") {
+        const automaatneArhiiv = await leiaArhiivKuuks(kuuId, "automaatne");
+        if (automaatneArhiiv) {
+            console.log(`[ARHIIV] Kuu ${kuuId} on juba automaatselt arhiveeritud.`);
+            return false;
+        }
+    }
+
+    const { data: olemasolevad } = await sb
+        .from("arhiiv")
+        .select("versioon")
+        .eq("arhiiviId", arhiiviId);
+
+    let versioon = 1;
+    if (olemasolevad && olemasolevad.length > 0) {
+        versioon = Math.max(...olemasolevad.map(r => r.versioon)) + 1;
+    }
+
+    const { data: userData } = await sb.auth.getUser();
+    const salvestaja = userData?.user?.email ?? (allikas === "automaatne" ? "automaatne" : "tundmatu");
+
+    const { error } = await sb
+        .from("arhiiv")
+        .insert({
+            arhiiviId,
+            kuu_id: kuuId,
+            state: stateJson,
+            salvestaja,
+            paeritolu,
+            taastatud: false,
+            versioon,
+            created_at: new Date().toISOString()
+        });
+
+    if (error) {
+        console.error("Arhiivi salvestamise viga:", error);
+        return false;
+    }
+
+    const tegevus = allikas === "automaatne" ? "kuu_loppseis_automaatne" : "arhiiv";
+    await logiTegevusSupabasse(tegevus, {
+        kuu: kuuId,
+        arhiiviId,
+        paeritolu,
+        allikas,
+        versioon,
+        teade: allikas === "automaatne"
+            ? `Kuu ${kuuId} lõppseis arhiveeriti automaatselt.`
+            : `Kuu ${kuuId} lõppseis fikseeriti käsitsi arhiivina.`
+    });
+
+    console.log(`✓ Kuu ${kuuId} salvestatud arhiivi (${arhiiviId} v${versioon}, ${paeritolu})`);
+    return true;
+}
+
+async function salvestaVanaKuuArhiivi(kuuId) {
+    return salvestaArhiiviSeis(kuuId, "automaatne", "automaatne");
 }
 
 async function laeArhiiv(kuuId) {
@@ -316,7 +256,6 @@ async function laeArhiiv(kuuId) {
     return data?.[0] || null;
 }
 
-// --- ABIFUNKTSIOONID ---
 function paevadeArvKuus(year, monthIndex) {
     return new Date(year, monthIndex + 1, 0).getDate();
 }
@@ -348,16 +287,15 @@ function näitaTeadet(msg) {
     teadeEl.textContent = msg;
 }
 
-// --- DÜNAAMILINE TABELI GENEREERIMINE ---
 async function genereeriKuuTabel() {
     if (!seaded) {
-        seaded = await laeSeaded(); // laeme veerud + eripäevad
+        seaded = await laeSeaded();
     }
     genereeriPaise(seaded.veerud);
     genereeriJalus(seaded.veerud);
 
-    const veerud = seaded.veerud;        // [{nimi, pealkiri, hind, tüüp, ...}]
-    const eripaevad = seaded.eripaevad;  // {"2025-12-24": {nimi, värv}}
+    const veerud = seaded.veerud;
+    const eripaevad = seaded.eripaevad;
 
     const [yearStr, monthStr] = kuuValik.value.split("-");
     const year = Number(yearStr);
@@ -373,16 +311,13 @@ async function genereeriKuuTabel() {
         const tr = document.createElement("tr");
         tr.dataset.date = dateStr;
 
-        // --- Kuupäeva veerg ---
         const kuupTd = document.createElement("td");
         kuupTd.textContent = `${String(day).padStart(2, "0")}.${monthStr}.${year}`;
         tr.appendChild(kuupTd);
 
-        // --- DÜNAAMILISED VEERUD ---
         for (const v of veerud) {
             const td = document.createElement("td");
 
-            // TOIDUVEERG (kogus × hind)
             if (v.tüüp === "toit") {
                 const inp = document.createElement("input");
                 inp.type = "number";
@@ -393,10 +328,7 @@ async function genereeriKuuTabel() {
 
                 inp.addEventListener("input", arvuta);
                 td.appendChild(inp);
-            }
-
-            // NUMBER VEERG (nt külalised, tasuta portsud)
-            else if (v.tüüp === "number") {
+            } else if (v.tüüp === "number") {
                 const inp = document.createElement("input");
                 inp.type = "number";
                 inp.min = "0";
@@ -404,41 +336,33 @@ async function genereeriKuuTabel() {
                 inp.dataset.veeruNimi = v.nimi;
                 inp.dataset.veeruTüüp = v.tüüp;
 
-
-
                 inp.addEventListener("input", arvuta);
                 td.appendChild(inp);
-            }
-
-            // TEKSTI VEERG (kommentaarid)
-            else if (v.tüüp === "tekst" || v.tüüp === "kommentaar") {
+            } else if (v.tüüp === "tekst" || v.tüüp === "kommentaar") {
                 const inp = document.createElement("input");
                 inp.type = "text";
                 inp.value = "";
                 inp.dataset.veeruNimi = v.nimi;
                 inp.dataset.veeruTüüp = v.tüüp;
 
-                inp.addEventListener("input", arvuta); // kui vaja
+                inp.addEventListener("input", arvuta);
                 td.appendChild(inp);
             }
 
             tr.appendChild(td);
         }
 
-        // --- KOKKU VEERG ---
         const kokkuTd = document.createElement("td");
         kokkuTd.classList.add("kokku-cell");
         kokkuTd.textContent = "0.00 €";
         tr.appendChild(kokkuTd);
 
-        // --- ERIPÄEVAD ---
         if (eripaevad[dateStr]) {
             tr.classList.add("holiday");
             tr.style.background = eripaevad[dateStr].värv;
             tr.title = eripaevad[dateStr].nimi;
         }
 
-        // --- NÄDALAVAHETUS / TÄNA ---
         if (onNadalavahetus(dateObj)) tr.classList.add("weekend");
         if (onTäna(dateStr)) tr.classList.add("today");
 
@@ -448,6 +372,7 @@ async function genereeriKuuTabel() {
     rakendaLukustusOlek();
     arvuta();
 }
+
 function genereeriPaise(veerud) {
     const head = document.getElementById("tabelHead");
 
@@ -468,12 +393,9 @@ function genereeriPaise(veerud) {
     head.innerHTML = html;
 }
 
-
-
 function genereeriJalus(veerud) {
     const foot = document.getElementById("tabelFoot");
 
-    // --- KOGUSEREA ---
     let kogusRow = "<tr class='summary-row kogus-row'>";
     kogusRow += "<td>Kogus kokku</td>";
 
@@ -488,7 +410,6 @@ function genereeriJalus(veerud) {
     kogusRow += "<td></td>";
     kogusRow += "</tr>";
 
-    // --- HINNARIDA ---
     let hindRow = "<tr class='summary-row hind-row'>";
     hindRow += "<td>Kogus × hind</td>";
 
@@ -505,7 +426,7 @@ function genereeriJalus(veerud) {
 
     foot.innerHTML = kogusRow + hindRow;
 }
-// --- DÜNAAMILINE TABELI TÄITMINE SUPABASE ANDMETEGA ---
+
 function täidaTabelSupabaseAndmetega(andmed) {
     const rows = tbody.querySelectorAll("tr");
 
@@ -514,7 +435,6 @@ function täidaTabelSupabaseAndmetega(andmed) {
 
         rows.forEach(row => {
             if (row.dataset.date === supaDate) {
-
                 const inputs = row.querySelectorAll("input");
 
                 inputs.forEach(inp => {
@@ -531,9 +451,6 @@ function täidaTabelSupabaseAndmetega(andmed) {
     arvuta();
 }
 
-
-
-// --- DÜNAAMILISED ARVUTUSED (AJALOO KONTROLLIGA) ---
 function arvuta() {
     if (!seaded) return;
 
@@ -551,9 +468,8 @@ function arvuta() {
     });
 
     rows.forEach(row => {
-        // ✅ TUVASTAME REA KUUPÄEVA (nt "2026-07-25")
-        const kuupaev = row.dataset.date; 
-        
+        const kuupaev = row.dataset.date;
+
         const inputs = row.querySelectorAll("input");
         const kokkuCell = row.querySelector(".kokku-cell");
         let ridaSumma = 0;
@@ -570,7 +486,6 @@ function arvuta() {
             }
 
             if (veeruInfo.tüüp === "toit") {
-                // 🚀 PARANDATUD: Küsime hinna otse selle päeva ajaloo seest!
                 const hind = leiaHinnaAjaloost(veeruNimi, kuupaev);
                 const summa = kogus * hind;
 
@@ -602,10 +517,6 @@ function arvuta() {
     if (kuuKokkuEl) kuuKokkuEl.textContent = kuuSumma.toFixed(2) + " €";
 }
 
-
-
-
-// --- LUKUSTUS ---
 function rakendaLukustusOlek() {
     const kõikInputid = tbody.querySelectorAll("input");
 
@@ -619,7 +530,6 @@ function rakendaLukustusOlek() {
                 inp.parentElement.classList.remove("kogus-lahter");
             }
         });
-
     } else {
         tabelEl.classList.remove("table-locked");
         lukustaNupp.textContent = "Tabel avatud (lukusta)";
@@ -636,22 +546,18 @@ function rakendaLukustusOlek() {
 function rakendaRolliLukustus() {
     if (praeguneKuu !== reaalneKuu) {
         tabelLukus = true;
-        rakendaLukustusOlek(); // ← ✅ LISATUD SULUD, et funktsioon käivituks
+        rakendaLukustusOlek();
         return true;
     }
 
-    // ✅ LUBAME KA SUPERADMINIL SISENEDA:
     if (roll !== "superadmin" && roll !== "admin" && roll !== "sisestaja") {
         tabelLukus = true;
-        rakendaLukustusOlek(); // ← ✅ LISATUD SULUD, et funktsioon käivituks
+        rakendaLukustusOlek();
         return true;
     }
     return false;
 }
 
-
-
-// --- DÜNAAMILINE SALVESTAMINE ---
 salvestaNupp.addEventListener("click", async () => {
     const kuuId = kuuValik.value;
     const rows = tbody.querySelectorAll("tr");
@@ -682,53 +588,36 @@ salvestaNupp.addEventListener("click", async () => {
         }
     }
 
-   
-
-      
     tabelLukus = true;
     rakendaLukustusOlek();
-    
-    // ✅ LISATUD: Logime tegevuse "salvestus" koos kuu ID-ga
+
     await logiTegevusSupabasse("salvestus", { kuu: kuuId });
 
     näitaTeadet("Salvestatud ja lukustatud.");
     alert("Andmed salvestatud!");
 
-
-    // =========================================================================
-    // ✅ 🌟 ÕIGE KOHT: KÜLMVAATE SNAPSHOT SALVESTATAKSE SIIN 🌟
-    // =========================================================================
-   try {
+    try {
         console.log("LOGIC: Põhitabel salvestatud. Loon kuuvaatest külmutatud snapshoti...");
-        
-        // Sinu oma funktsioon koostaState() korjab siin kokku kõik summad ja read
+
         const hetkeSeisJson = JSON.stringify(koostaState());
-        
-        // Tuvastame salvestaja e-maili
+
         const { data: userD } = await sb.auth.getUser();
         const logitudKasutaja = userD?.user?.email ?? "tundmatu";
 
-        // Saadame täieliku andmete paki ühe JSON-reana kuuvaated_snapshot tabelisse
         await sb.from("kuuvaated_snapshot").upsert({
-            kuu_id: kuuId, // Kasutame Sinu nupu alguses defineeritud muutujat kuuId!
+            kuu_id: kuuId,
             state: hetkeSeisJson,
             uuendaja: logitudKasutaja,
             uuendatud_at: new Date().toISOString()
         });
-        
+
         console.log("LOGIC: Külmvaade edukalt kuuvaated_snapshot tabelisse saadetud.");
     } catch (sErr) {
         console.error("Viga kuuvaate snapshoti uuendamisel salvestamise lõpus:", sErr);
     }
-    // =========================================================================
-    // 🌟 KÜLMVAATE LOOGIKA LÕPP
-    // =========================================================================
+});
 
-}); // ← ✅ PARANDATUD: Klikisündmuse ametlik ja korrektne lõpp asub siin!
-
-//--- KOOSTASTATE ---
 function koostaState() {
-    // --- Päevade read ---
     const rows = Array.from(tbody.querySelectorAll("tr")).map(rida => {
         const inputs = Array.from(rida.querySelectorAll("td input"));
         const kokkuCell = rida.querySelector(".kokku-cell")?.textContent ?? "0.00 €";
@@ -740,7 +629,6 @@ function koostaState() {
         };
     });
 
-    // --- Päise metaandmed ---
     const paise = seaded.veerud.map(v => ({
         nimi: v.nimi,
         pealkiri: v.pealkiri,
@@ -748,7 +636,6 @@ function koostaState() {
         tüüp: v.tüüp
     }));
 
-    // --- Jaluse summad ---
     const sumKogus = [];
     const sumHind = [];
 
@@ -762,11 +649,9 @@ function koostaState() {
         sumHind.push(hindEl ? hindEl.textContent : "0.00 €");
     }
 
-    // --- Kuu kokku ---
     const kuuKokkuEl = document.getElementById("kuuKokku");
     const kuuKokku = kuuKokkuEl ? kuuKokkuEl.textContent : "0.00 €";
 
-    // --- Lõplik state ---
     return {
         paise,
         rows,
@@ -774,78 +659,17 @@ function koostaState() {
         sumHind,
         kuuKokku
     };
-}  
-
-// --- ARHIIVI SALVESTAMINE ---
-arhiiviNupp.addEventListener("click", salvestaArhiivi);
-
-async function salvestaArhiivi() {
-    try {
-        const kuuId = praeguneKuu;
-
-        const now = new Date();
-        const arhiiviId = [
-            now.getFullYear(),
-            String(now.getMonth() + 1).padStart(2, "0"),
-            String(now.getDate()).padStart(2, "0"),
-            String(now.getHours()).padStart(2, "0"),
-            String(now.getMinutes()).padStart(2, "0")
-        ].join("-");
-
-        const { data: olemasolevad } = await sb
-            .from("arhiiv")
-            .select("versioon")
-            .eq("arhiiviId", arhiiviId);
-
-        let versioon = 1;
-        if (olemasolevad && olemasolevad.length > 0) {
-            versioon = Math.max(...olemasolevad.map(r => r.versioon)) + 1;
-        }
-
-        // ← ÕIGE!
-        const stateJson = JSON.stringify(koostaState());
-
-        const { data: userData } = await sb.auth.getUser();
-        const salvestaja = userData?.user?.email ?? "tundmatu";
-
-        const { error } = await sb
-            .from("arhiiv")
-            .insert({
-                arhiiviId: arhiiviId,
-                kuu_id: kuuId,
-                state: stateJson,   // ← PARANDATUD!
-                salvestaja: salvestaja,
-                paeritolu: "aktiivne",
-                taastatud: false,
-                versioon: versioon
-            });
-
-        // ... (eelnev insert loogika)
-
-        if (error) {
-            console.error("Arhiivi salvestamise viga:", error);
-            alert("Arhiivi salvestamine ebaõnnestus.");
-            return;
-        }
-
-        // ✅ ÕIGE KOHT: Logimine asünkroonse funktsiooni sees
-        try {
-            await logiTegevusSupabasse("arhiiv", { kuu: kuuId, arhiiviId: arhiiviId });
-        } catch (logiErr) {
-            console.error("Viga logimisel:", logiErr);
-        }
-
-        alert(`Arhiiv salvestatud: ${arhiiviId}`);
-    } catch (err) {
-        console.error("Viga:", err);
-    }
 }
 
+arhiiviNupp.addEventListener("click", async () => {
+    const ok = await salvestaArhiiviSeis(praeguneKuu, "aktiivne", "manuaalne");
+    if (ok) {
+        alert(`Arhiiv salvestatud: ${praeguneKuu}`);
+    } else {
+        alert("Arhiivi ei salvestatud (sama kuu seis on juba fikseeritud või salvestamine ebaõnnestus).");
+    }
+});
 
-
-
-
-// --- DÜNAAMILINE ARHIIVI KUVA ---
 async function kuvaArhiiv() {
     const kuuId = kuuValik.value;
     const arhiiv = await laeArhiiv(kuuId);
@@ -862,9 +686,9 @@ async function kuvaArhiiv() {
     }
 
     if (!state.rows || !Array.isArray(state.rows)) return;
-    if (!state.veerud || !Array.isArray(state.veerud)) return;
+    if (!state.paise || !Array.isArray(state.paise)) return;
 
-    const veerud = state.veerud;
+    const veerud = state.paise;
 
     const theadHtml = `
         <tr>
@@ -876,13 +700,13 @@ async function kuvaArhiiv() {
     const tbodyHtml = state.rows.map(r => `
         <tr>
             <td>${r.kuupäev}</td>
-            ${veerud.map(v => `<td>${r[v.nimi] ?? ""}</td>`).join("")}
+            ${veerud.map(v => `<td>${r.veerud?.[Array.isArray(state.paise) ? veerud.indexOf(v) : 0] ?? ""}</td>`).join("")}
         </tr>
     `).join("");
 
     arhiiviKuva.style.display = "block";
     arhiiviKuva.innerHTML = `
-        <h3>Arhiiv: ${state.kuu}</h3>
+        <h3>Arhiiv: ${kuuId}</h3>
         <table class="arhiivi-tabel">
             <thead>${theadHtml}</thead>
             <tbody>${tbodyHtml}</tbody>
@@ -891,8 +715,6 @@ async function kuvaArhiiv() {
     `;
 }
 
-
-// --- PUUDUV FUNKTSIOON 1 ---
 function rakendaLukustusArhiivivaates() {
     if (praeguneKuu !== reaalneKuu) {
         tabelLukus = true;
@@ -902,43 +724,33 @@ function rakendaLukustusArhiivivaates() {
     return false;
 }
 
-// --- PUUDUV FUNKTSIOON 2 ---
 function tabelLahti() {
     tabelLukus = false;
     rakendaLukustusOlek();
 }
 
-
-// --- LUKUSTUSNUPP ---
 lukustaNupp.addEventListener("click", () => {
     tabelLukus = !tabelLukus;
     rakendaLukustusOlek();
     näitaTeadet(tabelLukus ? "Tabel lukustatud." : "Tabel avatud.");
 });
 
-
-// --- PRINT ---
 prindiNupp.addEventListener("click", () => {
     window.print();
     tabelLukus = true;
     rakendaLukustusOlek();
 });
 
-
-// --- ALLALAADIMINE ---
 laeAllaNupp.addEventListener("click", () => {
     tabelLukus = true;
     rakendaLukustusOlek();
     näitaTeadet("Allalaadimine (tulevikus PDF).");
 });
 
-
-// --- KUU VAHETUS (AUTOMAATNE ARHIIVIMIS MÄRGISTUSE FUNKTSIOON) ---
 kuuValik.addEventListener("change", async () => {
-    const vanaKuu = praeguneKuu;  // Salvesta vana kuu enne muutmist
+    const vanaKuu = praeguneKuu;
     const uusKuu = kuuValik.value;
-    
-    // ✓ AUTOMAATNE ARHIIVIMIS: Kui vahetub eri kuu, salvesta vana kuu lõppseis
+
     if (vanaKuu !== uusKuu) {
         console.log(`Kuu vahetamine: ${vanaKuu} → ${uusKuu}`);
         const edukas = await salvestaVanaKuuArhiivi(vanaKuu);
@@ -946,7 +758,7 @@ kuuValik.addEventListener("change", async () => {
             näitaTeadet(`Kuu ${vanaKuu} lõppseis automaatselt salvestatud.`);
         }
     }
-    
+
     praeguneKuu = uusKuu;
 
     await genereeriKuuTabel();
@@ -963,27 +775,23 @@ kuuValik.addEventListener("change", async () => {
     await logiTegevusSupabasse("kuu_vahetus", { kuu: uusKuu });
 });
 
-
-// --- VISUAALNE REŽIIM ---
 function uuendaVaateReziim() {
     const box = document.getElementById("vaateReziim");
     if (!box) return;
 
-    // 1. Kontrollime, kas andmed tulid just praegu arhiivist taastamise kaudu
     const taastatudState = localStorage.getItem("taastatudState");
     if (taastatudState) {
         box.style.display = "block";
-        box.style.background = "#fff9db"; // Kollane/Hoiatav toon
+        box.style.background = "#fff9db";
         box.style.color = "#b07d00";
         box.innerHTML = `🌟 <strong>Taastatud seis:</strong> Kuvatakse arhiivist laetud andmeid. Salvestamiseks vajuta 'Salvesta'.`;
         return;
     }
 
-    // 2. Kui vaadatakse tavalist jooksva kuu tabelit
     box.style.display = "block";
-    box.style.background = "#e6fffa"; // Roheline/Puhas toon
+    box.style.background = "#e6fffa";
     box.style.color = "#006d5b";
-    
+
     if (tabelLukus) {
         box.innerHTML = `👁️ <strong>Vaatlusrežiim:</strong> Kuu ${praeguneKuu} tabel on lukus (ainult lugemiseks).`;
         box.style.background = "#f1f3f5";
@@ -993,38 +801,28 @@ function uuendaVaateReziim() {
     }
 }
 
-
-
-// --- INIT ---
-
-
 document.addEventListener("DOMContentLoaded", () => {
     console.log("INIT START");
-    
- 
     init();
 });
-// =========================================================================
-// ✅ SÜNKRONISEERITUD PRINTIMISE KÄSITLEMINE KASSATABELI HTML-IS (TÕSTETUD LOGIC.JS SISSE)
-// =========================================================================
+
 window.addEventListener("beforeprint", () => {
     const printHeader = document.getElementById("printHeader");
     const printTitle = document.getElementById("printTitle");
     const h2Pealkiri = document.querySelector("h2");
     const selector = document.getElementById("kuuValik");
-    
+
     let kuuJaAastaTekst = "";
 
-    // Otsime tabeli esimest rida kuupäeva tuvastamiseks (nt "01.07.2026")
     const esimeneRida = document.querySelector("tbody tr[data-date]");
     if (esimeneRida) {
         const kuupaevaTekst = esimeneRida.dataset.date || esimeneRida.querySelector("td")?.textContent || "";
-        
+
         if (kuupaevaTekst && kuupaevaTekst.includes(".")) {
             const osad = kuupaevaTekst.split(".");
             if (osad.length >= 3) {
-                const kuuNr = parseInt(osad[1], 10); // Kuu on keskmine element
-                const aastaNr = osad[2];            // Aasta on viimane
+                const kuuNr = parseInt(osad[1], 10);
+                const aastaNr = osad[2];
                 const kuudeNimed = ["Jaanuar", "Veebruar", "Märts", "Aprill", "Mai", "Juuni", "Juuli", "August", "September", "Oktoober", "November", "Detsember"];
                 if (kuuNr >= 1 && kuuNr <= 12) {
                     kuuJaAastaTekst = `${kuudeNimed[kuuNr - 1]} ${aastaNr}`;
@@ -1033,12 +831,10 @@ window.addEventListener("beforeprint", () => {
         }
     }
 
-    // Varulahendus: Kui tabelist ei saanud, proovime dropdowni valikut
     if (!kuuJaAastaTekst && selector && selector.options[selector.selectedIndex]) {
         kuuJaAastaTekst = selector.options[selector.selectedIndex].text;
     }
 
-    // Kirjutame teksti Sinu HTML-i printTitle sisse ja teeme päise nähtavaks
     if (printTitle) {
         printTitle.textContent = `${kuuJaAastaTekst || "Kassatabel"} – Kassatabel`;
     }
@@ -1046,14 +842,12 @@ window.addEventListener("beforeprint", () => {
         printHeader.style.display = "flex";
         printHeader.style.setProperty("display", "flex", "important");
     }
-    
+
     if (h2Pealkiri) h2Pealkiri.style.display = "none";
 
-    // Peidame vaaterežiimi riba
     const vReziim = document.getElementById("vaateReziim");
     if (vReziim) vReziim.style.display = "none";
 
-    // Muudame input-kastid prindi ajaks tekstiks
     document.querySelectorAll("td input").forEach(inp => {
         const span = document.createElement("span");
         span.textContent = inp.value;
@@ -1073,7 +867,6 @@ window.addEventListener("afterprint", () => {
     const vReziim = document.getElementById("vaateReziim");
     if (vReziim) vReziim.style.display = "block";
 
-    // Taastame input-kastid
     document.querySelectorAll(".print-value").forEach(span => span.remove());
     document.querySelectorAll("td input").forEach(inp => {
         if (inp.dataset.wasVisible === "true") {
@@ -1082,5 +875,3 @@ window.addEventListener("afterprint", () => {
         }
     });
 });
-
-
