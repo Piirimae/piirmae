@@ -1,5 +1,5 @@
 import { sb } from "./supabase.js";
-import { kuvaKasutajaNimi, laeRoll, logout } from "./auth.js";
+import { kuvaKasutajaNimi, logout } from "./auth.js";
 
 // --- DOM elemendid ---
 const kuuValik = document.getElementById("kuuValik");
@@ -9,14 +9,13 @@ const arhiiviNupud = document.getElementById("arhiiviNupud");
 
 console.log("arhiiv.js laaditud");
 
-// --- Kohalik logimise funktsioon (sünkroniseeritud teiste lehtedega) ---
 async function logiTegevusSupabasse(tegevus, detailid = {}) {
     const { data: userData } = await sb.auth.getUser();
     const userEmail = userData?.user?.email || null;
-    await sb.from("logid").insert({ tegevus, detailid, user_email: userEmail });
+    const { error } = await sb.from("logid").insert({ tegevus, detailid, user_email: userEmail });
+    if (error) console.error("Logimise viga:", error);
 }
 
-// --- INIT ---
 window.addEventListener("DOMContentLoaded", async () => {
     try {
         await kuvaKasutajaNimi();
@@ -27,7 +26,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     await kuvaArhiiv();
 });
 
-// --- Lae kuude loetelu ---
 async function laeKuuValikud() {
     const { data, error } = await sb
         .from("arhiiv")
@@ -39,20 +37,16 @@ async function laeKuuValikud() {
         return;
     }
 
-    kuuValik.innerHTML = data.map(r => {
-        let versiooniMärgistus = r.paeritolu === "automaatne" ? "(automaatika)" : `(v${r.versioon})`;
-        const label = `${r.kuu_id} ${versiooniMärgistus}`;
-
+    kuuValik.innerHTML = (data || []).map(r => {
+        const versiooniMärgistus = r.paeritolu === "automaatne" ? "(automaatika)" : `(v${r.versioon})`;
         return `
-            <option 
-                value="${r.arhiiviId}"
+            <option value="${r.arhiiviId}"
                 data-kuu="${r.kuu_id}"
                 data-created="${r.created_at}"
                 data-salvestaja="${r.salvestaja}"
                 data-versioon="${r.versioon}"
-                data-paeritolu="${r.paeritolu || ''}"
-            >
-                ${label}
+                data-paeritolu="${r.paeritolu || ''}">
+                ${r.kuu_id} ${versiooniMärgistus}
             </option>
         `;
     }).join("");
@@ -60,140 +54,117 @@ async function laeKuuValikud() {
     kuuValik.addEventListener("change", kuvaArhiiv);
 }
 
-// 🔧 PARANDATUD JA TURVALINE PÄRING (failis arhiiv.js)
 async function kuvaArhiiv() {
     const arhiiviId = kuuValik.value;
     if (!arhiiviId) return;
 
-    // Küsime andmed massiivina, sorteerime versiooni järgi ja võtame ainult 1 kõige uuema [1.1]
     const { data: arhiivList, error } = await sb
         .from("arhiiv")
         .select("*")
         .eq("arhiiviId", arhiiviId)
-        .order("versioon", { ascending: false }) // Toob kõige uuema versiooni esimesena [1.1]
-        .limit(1); // Kaotab ära 406 vea, kuna ei nõua rangelt ühte rida [1.1]
+        .order("versioon", { ascending: false })
+        .limit(1);
 
-    if (error || !arhiivList || arhiivList.length === 0) {
+    if (error || !arhiivList?.length) {
         arhiiviMeta.innerHTML = "<p>Arhiivi ei leitud.</p>";
         arhiiviKuva.innerHTML = "";
         arhiiviNupud.innerHTML = "";
         return;
     }
 
-    const data = arhiivList[0]; // Võtame massiivist selle esimese (kõige uuema) rea [1.1]
-    const state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
+    const kirje = arhiivList[0];
+    let state;
+    try {
+        state = typeof kirje.state === "string" ? JSON.parse(kirje.state) : kirje.state;
+    } catch (parseError) {
+        console.error("Arhiivi state JSON-i lugemine ebaõnnestus:", parseError);
+        arhiiviKuva.innerHTML = "<p>Arhiivi andmed on vigased või mitteloetavad.</p>";
+        return;
+    }
 
-    kuvaMeta(data);
+    kuvaMeta(kirje);
     kuvaTabel(state);
-    kuvaNupud(data); // Anname andmed edasi nuppudele [1.1]
+    kuvaNupud(kirje);
 }
 
-
-// --- Metaandmed ---
 function kuvaMeta(kirje) {
-    const d = new Date(kirje.created_at);
-    const kuup = d.toLocaleDateString("et-EE");
-    const aeg = d.toLocaleTimeString("et-EE");
-
-    let arhiveerijaTekst = kirje.paeritolu === "automaatne" ? "(automaatika)" : kirje.salvestaja;
-    let versiooniTekst = kirje.paeritolu === "automaatne" ? "(automaatika)" : kirje.versioon;
+    const d = kirje.created_at ? new Date(kirje.created_at) : null;
+    const kuup = d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString("et-EE") : "Kuupäev puudub";
+    const aeg = d && !Number.isNaN(d.getTime()) ? d.toLocaleTimeString("et-EE") : "Kellaaeg puudub";
+    const arhiveerija = kirje.paeritolu === "automaatne" ? "Automaatne kuulõpu arhiiv" : (kirje.salvestaja || "Teadmata");
 
     arhiiviMeta.innerHTML = `
-        <p><strong>Kuu:</strong> ${kirje.kuu_id}</p>
+        <p><strong>Kuu:</strong> ${kirje.kuu_id || "Teadmata"}</p>
         <p><strong>Arhiveeritud:</strong> ${kuup}, ${aeg}</p>
-        <p><strong>Arhiveeris:</strong> ${arhiveerijaTekst}</p>
-        <p><strong>Versioon:</strong> ${versiooniTekst}</p>
+        <p><strong>Arhiveeris:</strong> ${arhiveerija}</p>
+        <p><strong>Versioon:</strong> ${kirje.versioon ?? "—"}</p>
     `;
 }
 
-// --- Tabel ---
 function kuvaTabel(state) {
-    if (!state.paise || !state.rows) {
+    if (!state || !Array.isArray(state.paise) || !Array.isArray(state.rows)) {
         arhiiviKuva.innerHTML = "<p>Arhiivi formaat tundmatu või vigane.</p>";
         return;
     }
 
     const paise = state.paise;
     const rows = state.rows;
+    const sumKogus = Array.isArray(state.sumKogus) ? state.sumKogus : [];
+    const sumHind = Array.isArray(state.sumHind) ? state.sumHind : [];
 
     const thead = `
-        <thead>
+        <thead><tr>
+            <th>Kuupäev</th>
+            ${paise.map(v => v.tüüp === "toit"
+                ? `<th>${v.pealkiri}<br><small>${Number(v.hind).toFixed(2)} €</small></th>`
+                : `<th>${v.pealkiri}</th>`).join("")}
+            <th>Kokku</th>
+        </tr></thead>
+    `;
+    const tbodyHtml = `
+        <tbody>${rows.map(r => `
             <tr>
-                <th>Kuupäev</th>
-                ${paise.map(v => v.tüüp === "toit" ? `<th>${v.pealkiri}<br><small>${Number(v.hind).toFixed(2)} €</small></th>` : `<th>${v.pealkiri}</th>`).join("")}
-                <th>Kokku</th>
+                <td>${r.kuupäev ?? ""}</td>
+                ${(Array.isArray(r.veerud) ? r.veerud : []).map(v => `<td>${v ?? ""}</td>`).join("")}
+                <td>${r.kokku ?? ""}</td>
             </tr>
-        </thead>
+        `).join("")}</tbody>
     `;
-
-    const tbody = `
-        <tbody>
-            ${rows.map(r => `
-                <tr>
-                    <td>${r.kuupäev}</td>
-                    ${r.veerud.map(v => `<td>${v}</td>`).join("")}
-                    <td>${r.kokku}</td>
-                </tr>
-            `).join("")}
-        </tbody>
-    `;
-
     const tfoot = `
         <tfoot>
-            <tr>
-                <td>Kogus kokku</td>
-                ${state.sumKogus.map(v => `<td>${v}</td>`).join("")}
-                <td></td>
-            </tr>
-            <tr>
-                <td>Kogus × hind</td>
-                ${state.sumHind.map(v => `<td>${v}</td>`).join("")}
-                <td>${state.kuuKokku}</td>
-            </tr>
+            <tr><td>Kogus kokku</td>${paise.map((_, i) => `<td>${sumKogus[i] ?? "-"}</td>`).join("")}<td></td></tr>
+            <tr><td>Kogus × hind</td>${paise.map((_, i) => `<td>${sumHind[i] ?? "-"}</td>`).join("")}<td>${state.kuuKokku ?? "-"}</td></tr>
         </tfoot>
     `;
 
-    arhiiviKuva.innerHTML = `<table class="arhiivi-tabel">${thead}${tbody}${tfoot}</table>`;
+    arhiiviKuva.innerHTML = `<table class="arhiivi-tabel">${thead}${tbodyHtml}${tfoot}</table>`;
 }
 
-// --- Nupud ---
 function kuvaNupud(kirje) {
     const roll = window.userRole || "vaataja";
-    
-    // Baasnupud kõigile rollidele
     let html = `
         <button onclick="window.print()" class="btn-small">Prindi vaade</button>
         <button disabled class="btn-small">Lae alla PDF (tulekul)</button>
         <button onclick="window.location='fuajee.html'" class="btn-small">⬅ Fuajee</button>
     `;
 
-    // Admini ja superadmini ühised nupud
     if (["admin", "superadmin"].includes(roll)) {
         html += `<button id="taastaArhiivBtn" class="btn-small" style="background:#2ecc71; color:white; font-weight:bold;">Taasta aktiivseks kuuks</button>`;
     }
-    
-    // Ainult superadmini laiendatud nupud (Parandatud trükiviga r -> kirje)
     if (roll === "superadmin") {
         html += `
-            <button onclick="window.location.href='parandus.html?arhiiviId=${kirje.arhiiviId}'" class="btn-small" style="background:#3498db; color:white;">🔧 Paranda arhiivi</button>
+            <button onclick="window.location.href='parandus.html?arhiiviId=${encodeURIComponent(kirje.arhiiviId)}'" class="btn-small" style="background:#3498db; color:white;">🔧 Paranda arhiivi</button>
             <button class="admin" id="kustutaArhiivBtn" style="background:#e74c3c; color:white;">🗑 Kustuta arhiiv</button>
         `;
     }
-    
+
     arhiiviNupud.innerHTML = html;
-    
-    // Käivitame nuppude klikikuulajad alles pärast seda, kui nad on ekraanile joonistatud
     SeostaNuppudeKlikid(kirje);
 }
 
-// UUS ABIFUNKTSIOON: Seob klikid turvaliselt külge, kontrollides enne, kas nupp on ekraanil olemas
 function SeostaNuppudeKlikid(kirje) {
     const taastaBtn = document.getElementById("taastaArhiivBtn");
-    if (taastaBtn) {
-        taastaBtn.onclick = () => {
-            taastaArhiivLoogika(kirje.arhiiviId, kirje.kuu_id);
-        };
-    }
+    if (taastaBtn) taastaBtn.onclick = () => taastaArhiivLoogika(kirje.arhiiviId, kirje.kuu_id);
 
     const kustutaBtn = document.getElementById("kustutaArhiivBtn");
     if (kustutaBtn) {
@@ -213,145 +184,50 @@ function SeostaNuppudeKlikid(kirje) {
     }
 }
 
-
-
-// ==========================================
-//  TAASTAMINE, LOGOUT JA TEGEVUSED
-// ==========================================
-
-// --- TAASTAMISE AKTIIVNE PROTSESS (PARANDATUD JA TAIBUKAS) ---
 async function taastaArhiivLoogika(arhiiviId, kuuId) {
     if (!confirm("Kas oled kindel, et soovid selle arhiiviseisu laadida käesoleva kuu aktiivseks tabeliks? See kirjutab praegused sisestused üle.")) return;
 
-    const { data, error } = await sb
-        .from("arhiiv")
-        .select("*")
-        .eq("arhiiviId", arhiiviId)
-        .single();
-
+    const { data, error } = await sb.from("arhiiv").select("*").eq("arhiiviId", arhiiviId).single();
     if (error || !data) {
         alert("Arhiivi laadimine ebaõnnestus.");
         return;
     }
 
-    const state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
+    let state;
+    try {
+        state = typeof data.state === "string" ? JSON.parse(data.state) : data.state;
+    } catch (parseError) {
+        console.error("Taastatava arhiivi lugemine ebaõnnestus:", parseError);
+        alert("Arhiivi andmed on vigased; taastamist ei tehtud.");
+        return;
+    }
 
-    // Tuvastame jooksva kalendrikuu (kujul YYYY-MM)
-    const jooksevKuup = new Date();
-    const jooksevKuuStr = `${jooksevKuup.getFullYear()}-${String(jooksevKuup.getMonth() + 1).padStart(2, '0')}`;
+    const now = new Date();
+    const jooksevKuu = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const { error: updateError } = await sb.from("arhiiv").update({ taastatud: true }).eq("arhiiviId", arhiiviId);
+    if (updateError) {
+        console.error("Arhiivi taastamise märkimine ebaõnnestus:", updateError);
+        alert("Arhiivi taastamise märkimine ebaõnnestus.");
+        return;
+    }
 
-    await sb.from("arhiiv").update({ taastatud: true }).eq("arhiiviId", arhiiviId);
-
-    // Logime tegevuse ametlikult logide tabelisse
-    await logiTegevusSupabasse("taasta_aktiivne-kuu", { 
-        algne_kuu: kuuId, 
-        arhiiviId: arhiiviId, 
-        siht_kuu: jooksevKuuStr 
-    });
-
-    // Salvestame andmed kotti jooksvaks kuuks
+    await logiTegevusSupabasse("taasta_aktiivne-kuu", { algne_kuu: kuuId, arhiiviId, siht_kuu: jooksevKuu });
     localStorage.setItem("taastatudState", JSON.stringify(state));
-    localStorage.setItem("taastatudKuu", jooksevKuuStr);
+    localStorage.setItem("taastatudKuu", jooksevKuu);
 
-    alert(`Andmed ette valmistatud! Suunan Sind Kassatabeli lehele, kus see seis laetakse jooksva kuu (${jooksevKuuStr}) tabelisse.`);
+    alert(`Andmed ette valmistatud! Suunan Sind Kassatabeli lehele, kus see seis laetakse jooksva kuu (${jooksevKuu}) tabelisse.`);
     window.location.href = "kassatabel.html";
 }
 
-// --- Väljalogimise kuulaja ---
 const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
-}
+if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
-// --- Dünaamiline pealkiri printimisel ---
 window.addEventListener("beforeprint", () => {
-    const valitudVariant = kuuValik?.selectedOptions;
-    const kuu = valitudVariant && valitudVariant.length > 0 ? valitudVariant[0].dataset.kuu : "";
+    const variant = kuuValik?.selectedOptions;
+    const kuu = variant && variant.length > 0 ? variant[0].dataset.kuu : "";
     const printTitle = document.getElementById("printTitle");
-    
-    if (printTitle) {
-        printTitle.textContent = `${kuu} – Arhiiv`;
-    }
+    if (printTitle) printTitle.textContent = `${kuu} – Arhiiv`;
 });
-// 🌟 SÜSTEEMI AUTO-KRAAN: Kontrollib ja arhiveerib eelmise kuu automaatselt, kui see on andmebaasist puudu
-async function KontrolliJaArhiveeriEelmineKuuAutomaatselt(praeguneKuuId) {
-    if (!praeguneKuuId || !praeguneKuuId.includes("-")) return;
 
-    // 1. Tuvastame kalendriliselt eelmise kuu ID (kujul YYYY-MM)
-    const [aasta, kuu] = praeguneKuuId.split("-").map(Number);
-    let eelmiseKuuObj = new Date(aasta, kuu - 2, 1); // Liigume 1 kuu tagasi
-    const eelmiseKuuId = `${eelmiseKuuObj.getFullYear()}-${String(eelmiseKuuObj.getMonth() + 1).padStart(2, '0')}`;
-
-    try {
-        // 2. Kontrollime, kas see eelmine kuu on Sinu 'arhiiv' tabelis juba olemas
-        const { data: olemasArhiivis } = await sb
-            .from("arhiiv")
-            .select("arhiiviId")
-            .eq("kuu_id", eelmiseKuuId)
-            .maybeSingle();
-
-        // Kui on juba arhiivis olemas, siis me midagi üle ei kirjuta ega puutu
-        if (olemasArhiivis) return;
-
-        // 3. Küsime andmebaasist eelmise kuu reaalsed kassa andmed
-        const { data: vanaKuuAndmed } = await sb
-            .from("kassatabel")
-            .select("*")
-            .eq("kuu_id", eelmiseKuuId)
-            .order("kuupaev");
-
-        // Kui vanas kuus polnud üldse andmeid sisestatud, pole midagi arhiveerida
-        if (!vanaKuuAndmed || vanaKuuAndmed.length === 0) return;
-
-        console.log(`[AUTOMAATIKA] Tuvastasin sulgemata eelmise kuu: ${eelmiseKuuId}. Alustan arhiveerimist...`);
-
-        // 4. Ehitame Sinu arhiiv.js jaoks vajaliku 'state' objekti struktuuri
-        // (Et arhiiv.js suudaks seda tabelina kuvada, peab see sisaldama paise, rows, sumKogus jne)
-        const arhiiviState = {
-            paise: seaded?.veerud || [], // Võtame jooksvad veerud seadetest
-            rows: vanaKuuAndmed.map(r => ({
-                kuupäev: r.kuupaev && r.kuupaev.includes("T") ? r.kuupaev.split("T")[0] : r.kuupaev,
-                veerud: (seaded?.veerud || []).map(v => r[v.nimi] || 0),
-                kokku: 0 // Siia arvutab logic.js või süsteem summad ise
-            })),
-            sumKogus: [],
-            sumHind: [],
-            kuuKokku: 0
-        };
-
-        const uueArhiiviId = "arh_" + eelmiseKuuId + "_" + Date.now();
-
-        // 5. SAADAME ANDMED SINU AMETLIKKU ARHIIVI TABELISSE
-        const { error: arhiivError } = await sb
-            .from("arhiiv")
-            .insert({
-                arhiiviId: uueArhiiviId,
-                kuu_id: eelmiseKuuId,
-                salvestaja: "Süsteem auto",
-                versioon: 1,
-                paeritolu: "automaatne", // 🛠️ Sinu arhiiv.js loeb seda märgistust!
-                state: JSON.stringify(arhiiviState)
-            });
-
-        if (!arhiivError) {
-            // 6. 📢 KANNAME TEGEVUSE AUTOMATSELT SINU LOGID TABELISSE!
-            await sb.from("logid").insert({
-                user_email: "Süsteem auto", // 🛠️ Logis selge ja korrektne tunnus
-                tegevus: "auto_kuu_arhiiv",
-                detailid: {
-                    kuu: eelmiseKuuId,
-                    arhiiviId: uueArhiiviId,
-                    teade: `Eelmise kuu (${eelmiseKuuId}) andmed arhiveeriti automaatselt uue kuu laadimise esimesel sekundil.`
-                }
-            });
-            console.log(`✅ [AUTO-LOGI] Kuu ${eelmiseKuuId} edukalt arhiveeritud ja logitud.`);
-        } else {
-            console.error("Automaatse arhiivi tõrge andmebaasis:", arhiivError.message);
-        }
-    } catch (err) {
-        console.error("Süsteemne viga automaatsel kontrollil:", err);
-    }
-}
-
-
-
+// Kuulõpu automaatarhiveerimine toimub ainult Supabase'i taustatöö kaudu.
+// See leht kuvab, taastab ja prindib arhiive; automaatset salvestust siin ei käivitata.
