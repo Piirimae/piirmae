@@ -236,10 +236,6 @@ async function salvestaArhiiviSeis(kuuId, paeritolu = "aktiivne", allikas = "man
     return true;
 }
 
-async function salvestaVanaKuuArhiivi(kuuId) {
-    return salvestaArhiiviSeis(kuuId, "automaatne", "automaatne");
-}
-
 async function laeArhiiv(kuuId) {
     const { data, error } = await sb
         .from("arhiiv")
@@ -750,14 +746,6 @@ laeAllaNupp.addEventListener("click", () => {
 kuuValik.addEventListener("change", async () => {
     const vanaKuu = praeguneKuu;
     const uusKuu = kuuValik.value;
-
-    if (vanaKuu !== uusKuu) {
-        console.log(`Kuu vahetamine: ${vanaKuu} → ${uusKuu}`);
-        const edukas = await salvestaVanaKuuArhiivi(vanaKuu);
-        if (edukas) {
-            näitaTeadet(`Kuu ${vanaKuu} lõppseis automaatselt salvestatud.`);
-        }
-    }
 
     praeguneKuu = uusKuu;
 
