@@ -1,0 +1,2 @@
+[functions.month-end-archive]
+verify_jwt = false
