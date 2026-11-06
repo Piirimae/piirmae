@@ -54,17 +54,15 @@ Deno.serve(async (request) => {
 
   try {
     const body = await request.json().catch(() => ({}));
-    // Cron saadab tühja body ja arhiveerib eelmise kuu. Käsitsi testimiseks
-    // võib sama saladusega määrata kuu ning dry_run=true; see ei kirjuta andmeid.
+    // Cron saadab tühja body ja arhiveerib eelmise kuu. Testimiseks saab
+    // määrata kuu ning dry_run=true; see loeb/arvutab aruande, kuid ei salvesta.
     const kuuId = typeof body.kuu_id === "string" ? body.kuu_id : eelmineKuu();
     const dryRun = body.dry_run === true;
     if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(kuuId)) return respond({ error: "kuu_id must be YYYY-MM" }, 400);
 
-    const { data: olemas, error: olemasErr } = await supabase
-      .from("arhiiv").select("arhiiviId").eq("kuu_id", kuuId).eq("paeritolu", "automaatne").limit(1);
-    if (olemasErr) throw olemasErr;
-    if (olemas?.length) return respond({ ok: true, skipped: true, kuu_id: kuuId, reason: "automatic_archive_exists" });
-
+    // Kuivkäivitus näitab alati Supabase'i tegelikest ridadest arvutatud aruannet,
+    // ka juhul, kui kuu automaatne arhiiv on juba olemas. Kirjutusrežiimis teeb
+    // lõpliku duplikaadikontrolli atomaarne RPC koos unikaalse indeksiga.
     const [{ data: kassa, error: kassaErr }, { data: veerud, error: veerudErr }, { data: hinnad, error: hinnadErr }] = await Promise.all([
       supabase.from("kassatabel").select("*").eq("kuu_id", kuuId).order("kuupaev", { ascending: true }),
       supabase.from("seaded_veerud").select("*").order("järjekord", { ascending: true }),
