@@ -1,0 +1,49 @@
+name: Supabase month-end archive
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Choose action"
+        required: true
+        type: choice
+        options:
+          - deploy
+          - preview
+      month:
+        description: "Month to preview (YYYY-MM)"
+        required: false
+        default: "2026-10"
+        type: string
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy function
+        if: ${{ github.event.inputs.action == 'deploy' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          supabase functions deploy month-end-archive --project-ref "$SUPABASE_PROJECT_ID"
+
+      - name: Dry-run preview
+        if: ${{ github.event.inputs.action == 'preview' }}
+        env:
+          ARCHIVE_CRON_SECRET: ${{ secrets.ARCHIVE_CRON_SECRET }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          MONTH: ${{ github.event.inputs.month }}
+        run: |
+          curl --fail --silent --show-error \
+            "https://$SUPABASE_PROJECT_ID.supabase.co/functions/v1/month-end-archive" \
+            -H "Content-Type: application/json" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "x-archive-cron-secret: $ARCHIVE_CRON_SECRET" \
+            -d "{\"kuu_id\":\"$MONTH\",\"dry_run\":true}"
