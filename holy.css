@@ -1338,8 +1338,8 @@ body.puha-isadapaev .menyy-blankett.paev-taust::before {
     background-image: url("pot/isadapaev.jpg");
     background-repeat: no-repeat;
     background-position: center center;
-    background-size: contain;
-    opacity: 0.15;
+    background-size: cover;
+    opacity: 0.22;
     transform: none;
 }
 /* 🌧️ 10. NOVEMBER (Mardipäev) */
